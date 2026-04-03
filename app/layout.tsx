@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const pretendard = localFont({
   src: [
@@ -33,7 +37,7 @@ export default function RootLayout({
     <html
       lang="ko"
       suppressHydrationWarning
-      className={`${pretendard.variable}`}
+      className={cn(pretendard.variable, "font-sans", geist.variable)}
     >
       <body className={`${pretendard.className}`}>
         {children}
