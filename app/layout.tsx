@@ -35,6 +35,9 @@ export const metadata: Metadata = {
     '구성원의 AX 역량과 기업의 AX 성숙도를 진단해 맞춤형 AX 컨설팅과 학습 로드맵을 제안합니다.',
   keywords:
     'AX Compass, AX 컨설팅, AX 역량 진단, AX 성숙도 진단, 기업 AX 진단, 조직 AX 진단, AI 역량 진단, AI 성숙도 진단, AX 전환, 학습 로드맵, 기업 교육 컨설팅',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'AX Compass | AX 역량·성숙도 진단 기반 AX 컨설팅 서비스',
     description:
