@@ -1,6 +1,6 @@
 import Section from '@/components/layout/Section';
 import { View, PackageOpen, Map, Repeat, type LucideIcon } from 'lucide-react';
-import { SectionHeader } from '../ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 const cards: { icon: LucideIcon; title: string; description: string }[] = [
   {
@@ -54,7 +54,7 @@ export function OrganizationBenefitSection() {
               <Icon className="text-special-pink-600 size-6 lg:size-[30px]" />
               <div className="txt-st2-bold text-center">{title}</div>
             </div>
-            <div className="whitespace-pre-line text-center">{description}</div>
+            <div className="text-center whitespace-pre-line">{description}</div>
           </div>
         ))}
       </div>

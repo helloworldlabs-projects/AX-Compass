@@ -1,6 +1,6 @@
 import Section from '@/components/layout/Section';
 import { Button } from '@/components/ui/button';
-import { SectionHeader } from '../ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import Link from 'next/link';
 
 export function FinalCtaSection() {

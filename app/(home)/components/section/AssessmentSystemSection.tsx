@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Section from '@/components/layout/Section';
 import { Check } from 'lucide-react';
-import { SectionHeader } from '../ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 type SystemItem = {
   imageSrc: string;

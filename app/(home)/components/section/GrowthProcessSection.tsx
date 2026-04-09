@@ -1,6 +1,6 @@
 import Section from '@/components/layout/Section';
 import { ShieldBadge } from '@/components/ui/ShieldBadge';
-import { SectionHeader } from '../ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 type StageItem = {
   number: number;
