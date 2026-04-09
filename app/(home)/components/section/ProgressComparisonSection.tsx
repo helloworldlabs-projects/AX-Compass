@@ -1,18 +1,22 @@
 import Image from 'next/image';
 import Section from '@/components/layout/Section';
+import { SectionHeader } from '../ui';
 
 export function ProgressComparisonSection() {
   return (
     <Section>
-      <div className="flex flex-col items-center gap-1.5 lg:gap-2.5">
-        <h2 className="txt-t1 text-shadow text-center">
-          <span className="text-purple-700">교육 전후 변화</span>를 객관적으로 비교해 보세요.
-        </h2>
-        <p className="text-shadow flex flex-col gap-1 text-center">
-          <span>AX Compass는 학습 로드맵 진행 이후, 동일 구조의 유사 문항 기반 재진단을 통해</span>
-          <span>교육 전후의 역량 변화를 객관적으로 비교·분석한 리포트를 제공합니다.</span>
-        </p>
-      </div>
+      <SectionHeader
+        title={
+          <>
+            <span className="text-purple-700">교육 전후 변화</span>를 객관적으로 비교해 보세요.
+          </>
+        }
+        description={[
+          'AX Compass는 학습 로드맵 진행 이후, 동일 구조의 유사 문항 기반 재진단을 통해',
+          '교육 전후의 역량 변화를 객관적으로 비교·분석한 리포트를 제공합니다.',
+        ]}
+        as="h2"
+      />
       <div className="flex max-w-[728px] flex-col gap-[50px]">
         <Image
           src="/images/main/img_compare_01.png"

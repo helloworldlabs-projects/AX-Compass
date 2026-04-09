@@ -1,18 +1,22 @@
 import Section from '@/components/layout/Section';
 import { ShieldBadge } from '@/components/ui/ShieldBadge';
+import { SectionHeader } from '../ui';
 
 export function GrowthProcessSection() {
   return (
     <Section>
-      <div className="flex flex-col items-center gap-1.5 lg:gap-2.5">
-        <h2 className="txt-t1 text-shadow text-center">
-          검사로 끝나지 않는 <span className="text-special-navy-500">AX 성장 로직</span>
-        </h2>
-        <p className="text-shadow flex flex-col gap-1 text-center">
-          <span>AX Compass는 현재 역량을 진단하는 데서 멈추지 않습니다.</span>
-          <span>결과를 바탕으로 맞춤형 학습 방향과 실제 교육, 다음 성장 단계까지 연결합니다.</span>
-        </p>
-      </div>
+      <SectionHeader
+        title={
+          <>
+            검사로 끝나지 않는 <span className="text-special-navy-500">AX 성장 로직</span>
+          </>
+        }
+        description={[
+          'AX Compass는 현재 역량을 진단하는 데서 멈추지 않습니다.',
+          '결과를 바탕으로 맞춤형 학습 방향과 실제 교육, 다음 성장 단계까지 연결합니다.',
+        ]}
+        as="h2"
+      />
       <div className="flex flex-col gap-[50px]">
         <div className="flex flex-col gap-1.5 lg:gap-2.5">
           <div className="bg-special-navy-500 rounded-card border-special-navy-100 txt-b-bold w-fit border px-[30px] py-2.5 text-white">

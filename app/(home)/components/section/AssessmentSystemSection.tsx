@@ -1,19 +1,23 @@
 import Image from 'next/image';
 import Section from '@/components/layout/Section';
 import { Check } from 'lucide-react';
+import { SectionHeader } from '../ui';
 
 export function AssessmentSystemSection() {
   return (
     <Section>
-      <div className="flex flex-col items-center gap-1.5 lg:gap-2.5">
-        <h2 className="txt-t1 text-shadow text-center">
-          AX Compass의 <span className="text-special-pink-600">검사 시스템</span>
-        </h2>
-        <p className="text-shadow flex flex-col gap-1 text-center">
-          <span>AX Compass는 단순 점수 평가가 아니라, 인식·판단·실행을 함께 진단하고</span>
-          <span>그 결과를 학습 로드맵까지 연결하도록 설계되어 있습니다.</span>
-        </p>
-      </div>
+      <SectionHeader
+        title={
+          <>
+            AX Compass의 <span className="text-special-pink-600">검사 시스템</span>
+          </>
+        }
+        description={[
+          'AX Compass는 단순 점수 평가가 아니라, 인식·판단·실행을 함께 진단하고',
+          '그 결과를 학습 로드맵까지 연결하도록 설계되어 있습니다.',
+        ]}
+        as="h2"
+      />
       <div className="flex max-w-[728px] flex-col gap-[50px]">
         <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-[50px]">
           <Image

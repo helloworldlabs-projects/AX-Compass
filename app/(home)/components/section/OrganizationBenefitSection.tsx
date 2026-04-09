@@ -1,22 +1,22 @@
 import Section from '@/components/layout/Section';
 import { View, PackageOpen, Map, Repeat } from 'lucide-react';
+import { SectionHeader } from '../ui';
 
 export function OrganizationBenefitSection() {
   return (
     <Section>
-      <div className="flex flex-col items-center gap-1.5 lg:gap-2.5">
-        <h2 className="txt-t1 text-shadow text-center">
-          AX Compass로
-          <span className="text-special-pink-600"> 변화를 경험</span>해 보세요.
-        </h2>
-        <p className="text-shadow flex flex-col gap-1 text-center">
-          <span>AX Compass는 조직의 현재 수준을 진단하고 해석하는 데서 그치지 않습니다.</span>
-          <span>
-            우선 과제를 명확히 하고, 교육 설계와 실행 방향까지 연결해 반복 가능한 AX 전환 기반을
-            제공합니다.
-          </span>
-        </p>
-      </div>
+      <SectionHeader
+        title={
+          <>
+            AX Compass로 <span className="text-special-pink-600">변화를 경험</span>해 보세요.
+          </>
+        }
+        description={[
+          'AX Compass는 조직의 현재 수준을 진단하고 해석하는 데서 그치지 않습니다.',
+          '우선 과제를 명확히 하고, 교육 설계와 실행 방향까지 연결해 반복 가능한 AX 전환 기반을 제공합니다.',
+        ]}
+        as="h2"
+      />
       <div className="flex flex-col gap-6">
         <div className="bg-special-pink-0 rounded-card border-special-pink-100 flex max-w-[380px] min-w-[320px] flex-1 shrink-0 flex-col gap-1.5 border-3 p-4 lg:gap-2.5">
           <div className="flex items-center justify-center gap-2 lg:gap-3">

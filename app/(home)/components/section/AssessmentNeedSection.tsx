@@ -1,24 +1,22 @@
 import Section from '@/components/layout/Section';
 import { Search, Layers, Map } from 'lucide-react';
+import { SectionHeader } from '../ui';
 
 export function AssessmentNeedSection() {
   return (
     <Section>
-      <div className="flex flex-col items-center gap-1.5 lg:gap-2.5">
-        <h2 className="txt-t1 text-shadow text-center">
-          왜 <span className="text-purple-700">AX 역량</span> 검사가 필요할까요?
-        </h2>
-        <p className="text-shadow flex flex-col gap-1 text-center">
-          <span>
-            AI를 사용하고 있어도 현재 수준이 어느 정도인지, 무엇을 먼저 보완해야 하는지는 쉽게 알기
-            어렵습니다.
-          </span>
-          <span>
-            AX 역량 검사는 지금의 상태를 확인하고, 더 발전하기 위한 학습 방향을 찾는 데 도움을
-            줍니다.
-          </span>
-        </p>
-      </div>
+      <SectionHeader
+        title={
+          <>
+            왜 <span className="text-purple-700">AX 역량</span> 검사가 필요할까요?
+          </>
+        }
+        description={[
+          'AI를 사용하고 있어도 현재 수준이 어느 정도인지, 무엇을 먼저 보완해야 하는지는 쉽게 알기 어렵습니다.',
+          'AX 역량 검사는 지금의 상태를 확인하고, 더 발전하기 위한 학습 방향을 찾는 데 도움을 줍니다.',
+        ]}
+        as="h2"
+      />
       <div className="flex w-full max-w-[728px] flex-col gap-6">
         <div className="rounded-card bg-purple-0 border-special-navy-100 flex w-full shrink-0 flex-col items-center justify-center gap-2 border-3 p-3 lg:gap-2.5 lg:p-4">
           <div className="flex items-center gap-2">

@@ -1,18 +1,20 @@
 import Section from '@/components/layout/Section';
 import { Button } from '@/components/ui/button';
 import { BadgeCheck, ContactRound, Map, Building } from 'lucide-react';
+import { SectionHeader } from '../ui';
 
 export function HeroSection() {
   return (
     <Section>
-      <div className="flex flex-col items-center gap-1.5 lg:gap-2.5">
-        <h1 className="txt-h2 text-shadow text-center">
-          <span className="text-purple-700">AX 역량</span>을 지금 바로 진단하세요.
-        </h1>
-        <p className="text-center">
-          AX 역량을 빠르게 진단하고, 역량 프로필 기반으로 필요한 AI 학습 방향을 확인하세요.
-        </p>
-      </div>
+      <SectionHeader
+        title={
+          <>
+            <span className="text-purple-700">AX 역량</span>을 지금 바로 진단하세요.
+          </>
+        }
+        description="AX 역량을 빠르게 진단하고, 역량 프로필 기반으로 필요한 AI 학습 방향을 확인하세요."
+        as="h1"
+      />
       <Button className="txt-st-bold h-20 lg:h-[130px]">검사 유형 선택 →</Button>
       <div className="flex max-w-[544px] flex-wrap items-center justify-center gap-6">
         <div className="rounded-card bg-purple-0 border-special-navy-100 flex w-[260px] shrink-0 flex-col items-center justify-center gap-2 border-3 p-3 lg:gap-2.5 lg:p-4">
