@@ -6,7 +6,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[12px] border-2 border-transparent bg-clip-padding txt-b-bold whitespace-nowrap transition-all outline-none select-none active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 shadow",
+  "group/button inline-flex shrink-0 cursor-pointer txt-b-bold items-center justify-center border-2 border-transparent bg-clip-padding  whitespace-nowrap transition-all outline-none select-none active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 shadow",
   {
     variants: {
       variant: {
@@ -19,7 +19,7 @@ const buttonVariants = cva(
         pink: 'bg-special-pink-600 text-white hover:bg-special-pink-400 border-special-pink-100 transition-colors duration-200',
       },
       size: {
-        default: 'h-[60px] gap-2 px-6',
+        default: 'h-[60px] gap-2 px-6 rounded-card',
         icon: 'size-6 rounded-[4px]',
         pill: 'h-10 gap-2 px-5 rounded-[30px]',
       },
@@ -39,7 +39,7 @@ function Button({
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   );
