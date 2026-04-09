@@ -32,7 +32,7 @@ export function ConsultingCtaSection() {
             </Button>
           </div>
         </div>
-        <div className="flex items-center gap-3 px-2.5 py-5 lg:gap-4">
+        <div className="flex items-center justify-center gap-3 px-2.5 py-5 lg:gap-4">
           <BadgeCheck className="text-special-dark-blue-500 size-6 shrink-0 lg:size-[30px]" />
           <span className="txt-st2-regular">
             AX Compass는 시스템 기반 진단과 전문가의 설계를 함께 제공합니다.
