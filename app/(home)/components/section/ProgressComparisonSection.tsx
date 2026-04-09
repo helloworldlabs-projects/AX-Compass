@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Section from '@/components/layout/Section';
-import { SectionHeader } from '../ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 export function ProgressComparisonSection() {
   return (

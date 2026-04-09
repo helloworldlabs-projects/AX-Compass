@@ -1,7 +1,7 @@
 import Section from '@/components/layout/Section';
 import { Button } from '@/components/ui/button';
 import { BadgeCheck, ContactRound, Map, Building, type LucideIcon } from 'lucide-react';
-import { SectionHeader } from '../ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import Link from 'next/link';
 
 const cards: { icon: LucideIcon; title: string; description: string }[] = [

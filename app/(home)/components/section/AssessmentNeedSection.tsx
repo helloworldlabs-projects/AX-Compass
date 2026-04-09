@@ -1,6 +1,6 @@
 import Section from '@/components/layout/Section';
 import { Search, Layers, Map, type LucideIcon } from 'lucide-react';
-import { SectionHeader } from '../ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 const cards: { icon: LucideIcon; title: string; description: string }[] = [
   {
