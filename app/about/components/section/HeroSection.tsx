@@ -1,9 +1,9 @@
 import Section from '@/components/layout/Section';
-import { SectionHeader } from '@/app/(home)/components/ui';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 export function HeroSection() {
   return (
-    <Section className="p-0 pt-[50px]">
+    <Section>
       <SectionHeader
         title={
           <>

@@ -2,7 +2,7 @@ import Section from '@/components/layout/Section';
 
 export function OverviewSection() {
   return (
-    <Section className="p-0">
+    <Section>
       <div className="flex flex-col gap-[30px]">
         <div className="txt-t2">검사 개요</div>
         <div className="rounded-card flex flex-col gap-6 bg-white p-5 shadow lg:p-[30px]">
