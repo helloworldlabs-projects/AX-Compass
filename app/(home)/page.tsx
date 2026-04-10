@@ -14,7 +14,7 @@ import {
 export default function Home() {
   return (
     <Container>
-      <CompassIcon className="absolute top-[130px] left-1/2 h-[300px] w-[272px] -translate-x-1/2 lg:h-[600px] lg:w-[543px]" />
+      <CompassIcon className="absolute top-[100px] left-1/2 h-[300px] w-[272px] -translate-x-1/2 lg:h-[600px] lg:w-[543px]" />
       <HeroSection />
       <AssessmentNeedSection />
       <GrowthProcessSection />
