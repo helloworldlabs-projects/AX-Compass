@@ -6,7 +6,7 @@ import { CheckIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CheckboxProps extends CheckboxPrimitive.Root.Props {
-  label?: string;
+  label?: string | React.ReactNode;
 }
 
 function Checkbox({ className, label, id, ...props }: CheckboxProps) {
@@ -42,7 +42,7 @@ function Checkbox({ className, label, id, ...props }: CheckboxProps) {
           props.disabled && 'cursor-not-allowed',
         )}
       >
-        {label}
+        {typeof label === 'string' ? <span className="text-gray-500">{label}</span> : label}
       </label>
     </div>
   );
