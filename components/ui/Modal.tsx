@@ -47,11 +47,11 @@ function Modal({ open, onClose, children }: ModalProps) {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Backdrop className="data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-40 bg-black/50 duration-150" />
-        <Dialog.Popup className="data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 bg-special-navy-0 rounded-card fixed top-1/2 left-1/2 z-50 flex max-h-[90vh] w-[calc(100%-20px)] max-w-[600px] min-w-[340px] -translate-x-1/2 -translate-y-1/2 flex-col gap-6 overflow-hidden p-5 duration-150">
+        <Dialog.Backdrop className="data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-60 bg-black/50 duration-150" />
+        <Dialog.Popup className="data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 bg-special-navy-0 rounded-card fixed top-1/2 left-1/2 z-60 flex max-h-[90vh] w-[calc(100%-20px)] max-w-[600px] min-w-[340px] -translate-x-1/2 -translate-y-1/2 flex-col gap-6 overflow-hidden p-5 duration-150 lg:p-[30px]">
           <Dialog.Close
             aria-label="닫기"
-            className="absolute top-5 right-5 flex size-9 items-center justify-center rounded-full transition-colors duration-200 hover:bg-gray-100 lg:top-[30px] lg:right-[30px]"
+            className="absolute top-[20px] right-[20px] flex size-9 items-center justify-center rounded-full transition-colors duration-200 hover:bg-gray-100 lg:top-[30px] lg:right-[30px]"
           >
             <CircleX className="size-[30px] text-gray-800 lg:size-9" aria-hidden />
           </Dialog.Close>
