@@ -1,3 +1,5 @@
+'use client';
+
 import { CompassIcon } from '@/components/icons/CompassIcon';
 import Container from '@/components/layout/Container';
 import Section from '@/components/layout/Section';
@@ -8,10 +10,38 @@ import { BadgeCheck, Check, ContactRound, HelpCircle, Map, Trophy, Users } from 
 import Image from 'next/image';
 import Link from 'next/link';
 import { MaturityLevelCard } from './_components/MaturityLevelCard';
+import { GradeStatGuideModal } from '@/components/modals/GradeStatGuideModal';
+import { useState } from 'react';
+import { LearningRoadmapGuideModal } from '@/components/modals/LearningRoadmapGuideModal';
+import { ScoreStatGuideModal } from '@/components/modals/ScoreStatGuideModal';
+import { ProfileTypeStatGuideModal } from '@/components/modals/ProfileTypeStatGuideModal';
 
 export default function InstitutionPage() {
+  const [openGradeStatGuideModal, setOpenGradeStatGuideModal] = useState(false);
+  const [openLearningRoadmapGuideModal, setOpenLearningRoadmapGuideModal] = useState(false);
+  const [openScoreStatGuideModal, setOpenScoreStatGuideModal] = useState(false);
+  const [openProfileTypeStatGuideModal, setOpenProfileTypeStatGuideModal] = useState(false);
+
   return (
     <Container>
+      {/** 모달 - 추후 페이지 분리 예정 */}
+      <GradeStatGuideModal
+        open={openGradeStatGuideModal}
+        onClose={() => setOpenGradeStatGuideModal(false)}
+      />
+      <LearningRoadmapGuideModal
+        open={openLearningRoadmapGuideModal}
+        onClose={() => setOpenLearningRoadmapGuideModal(false)}
+      />
+      <ScoreStatGuideModal
+        open={openScoreStatGuideModal}
+        onClose={() => setOpenScoreStatGuideModal(false)}
+      />
+      <ProfileTypeStatGuideModal
+        open={openProfileTypeStatGuideModal}
+        onClose={() => setOpenProfileTypeStatGuideModal(false)}
+      />
+
       <Section className="flex w-[700px] shrink-0">
         <div className="txt-t1 flex w-full">{'기관명'}</div>
         <div className="flex w-full items-center gap-4">
@@ -369,7 +399,10 @@ export default function InstitutionPage() {
             <BadgeCheck className="size-10 text-white" fill="#533699" />
             <span className="txt-t1">역량 등급 통계</span>
           </div>
-          <HelpCircle className="text-special-dark-blue-900 size-9" />
+          <HelpCircle
+            className="text-special-dark-blue-900 size-9"
+            onClick={() => setOpenGradeStatGuideModal(true)}
+          />
         </div>
         <div className="flex items-center justify-center gap-4">
           <div className="flex w-[160px] flex-col items-center gap-2.5 rounded-[20px] border-3 border-red-300 bg-red-500 py-5 text-white">
@@ -426,7 +459,10 @@ export default function InstitutionPage() {
             <BadgeCheck className="size-10 text-white" fill="#533699" />
             <span className="txt-t1">역량 점수 통계(전체 평균)</span>
           </div>
-          <HelpCircle className="text-special-dark-blue-900 size-9" />
+          <HelpCircle
+            className="text-special-dark-blue-900 size-9"
+            onClick={() => setOpenScoreStatGuideModal(true)}
+          />
         </div>
         <div className="flex w-full flex-col gap-[30px]">
           <div className="h-[640px] w-full">그래프 영역</div>
@@ -738,7 +774,10 @@ export default function InstitutionPage() {
             <ContactRound className="size-10 text-purple-700" />
             <span className="txt-t1">프로필 유형 통계</span>
           </div>
-          <HelpCircle className="text-special-dark-blue-900 size-9" />
+          <HelpCircle
+            className="text-special-dark-blue-900 size-9"
+            onClick={() => setOpenProfileTypeStatGuideModal(true)}
+          />
         </div>
         <div className="h-[500px] w-[500px]">그래프 영역</div>
         <div className="flex items-center justify-center gap-4">
@@ -775,7 +814,10 @@ export default function InstitutionPage() {
             <Map className="size-10 text-purple-700" />
             <span className="txt-t1">기관 추천 학습 로드맵</span>
           </div>
-          <HelpCircle className="text-special-dark-blue-900 size-9" />
+          <HelpCircle
+            className="text-special-dark-blue-900 size-9"
+            onClick={() => setOpenLearningRoadmapGuideModal(true)}
+          />
         </div>
         <div className="flex w-full flex-col gap-6 rounded-[20px] border border-gray-500 p-6 shadow">
           <div className="flex w-full gap-4">
