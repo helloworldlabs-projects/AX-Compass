@@ -99,7 +99,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   );
 
   return (
-    <div className="flex w-full flex-col gap-2.5 lg:gap-3.5">
+    <div className="flex w-full flex-col gap-1.5 lg:gap-2">
       {label ? (
         <label htmlFor={id} className="txt-c1-bold text-gray-500 uppercase">
           {label}
@@ -107,7 +107,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       ) : null}
       {control}
       {error ? (
-        <p id={`${id}-error`} role="alert" className="txt-c1-bold mt-1.5 text-red-500 lg:mt-2">
+        <p id={`${id}-error`} role="alert" className="txt-c1-bold text-red-500">
           {error}
         </p>
       ) : null}
