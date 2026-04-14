@@ -5,6 +5,7 @@ import { Geist } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
+import { Providers } from './providers';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -82,9 +83,11 @@ export default function RootLayout({
       className={cn(pretendard.variable, 'font-sans', geist.variable)}
     >
       <body className={`${pretendard.className} txt-b-regular flex min-h-screen flex-col`}>
-        <Header />
-        <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px]">{children}</main>
-        <Footer />
+        <Providers>
+          <Header />
+          <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px]">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
