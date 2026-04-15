@@ -2,6 +2,7 @@ import {
   ExamineeProfiles,
   ExamItems,
   ExamSubmitRequest,
+  ExamSubmitResponse,
   ExamType,
   ExpectationForm,
   ItemComponent,
@@ -141,8 +142,8 @@ export const examService = {
     return mapExamItems(raw);
   },
 
-  submitExam: async (body: ExamSubmitRequest): Promise<void> => {
-    await apiFetch<void>('/exam/submit', {
+  submitExam: async (body: ExamSubmitRequest): Promise<ExamSubmitResponse> => {
+    return apiFetch<ExamSubmitResponse>('/exam/submit', {
       method: 'POST',
       body: JSON.stringify(body),
     });

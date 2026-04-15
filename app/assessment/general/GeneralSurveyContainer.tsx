@@ -162,7 +162,7 @@ export default function GeneralSurveyContainer({
         },
       };
       submitExam(body, {
-        onSuccess: () => router.push('/assessment/result'),
+        onSuccess: (data) => router.push(`/assessment/result/${data.resultCode}`),
       });
     }
   }

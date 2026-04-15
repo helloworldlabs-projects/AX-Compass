@@ -108,6 +108,15 @@ export interface ExamSubmitRequest {
   };
 }
 
+export interface ExamSubmitResponse {
+  resultCode: string;
+  totalScore: number;
+  computedLevel: string;
+  finalLevel: string;
+  capApplied: boolean;
+  computedAt: string;
+}
+
 // ─── Domain Models ────────────────────────────────────────────────────────────
 // In this domain the DTO shapes are already clean — domain models mirror DTOs.
 // Aliases are provided so the service layer returns named domain types.
