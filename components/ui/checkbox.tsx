@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 
 interface CheckboxProps extends CheckboxPrimitive.Root.Props {
   label?: string | React.ReactNode;
+  labelClassName?: string;
 }
 
-function Checkbox({ className, label, id, ...props }: CheckboxProps) {
+function Checkbox({ className, label, id, labelClassName, ...props }: CheckboxProps) {
   const checkbox = (
     <CheckboxPrimitive.Root
       id={id}
@@ -33,7 +34,7 @@ function Checkbox({ className, label, id, ...props }: CheckboxProps) {
   if (!label) return checkbox;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className={cn('flex items-center gap-3', labelClassName)}>
       {checkbox}
       <label
         htmlFor={id}
