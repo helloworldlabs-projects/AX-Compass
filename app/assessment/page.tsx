@@ -9,23 +9,29 @@ import Link from 'next/link';
 import { InstitutionStartModal } from '@/components/modals/InstitutionStartModal';
 import { InquiryModal } from '@/components/modals/InquiryModal';
 import { useRouter } from 'next/navigation';
+import { useLogin } from '@/hooks/useLogin';
 
 type InstitutionType = 'executive' | 'member' | null;
 
 export default function AssessmentPage() {
   const router = useRouter();
+  const { mutate: login, isPending: isLoggingIn } = useLogin();
   const [institutionType, setInstitutionType] = useState<InstitutionType>(null);
   const [inquiryOpen, setInquiryOpen] = useState(false);
 
   function handleConfirm(code: string, name: string) {
-    // TODO: 기관 코드·이름으로 검사 시작 라우팅
-    console.log(institutionType, code, name);
-    if (institutionType === 'executive') {
-      router.push(`/assessment/executive`);
-    } else {
-      router.push(`/assessment/member`);
-    }
-    setInstitutionType(null);
+    if (!institutionType) return;
+    const role = institutionType === 'executive' ? 'EXECUTIVE' : 'MEMBER';
+
+    login(
+      { institutionCode: code, name, role },
+      {
+        onSuccess: () => {
+          setInstitutionType(null);
+          router.push(`/assessment/${institutionType}`);
+        },
+      },
+    );
   }
 
   return (
@@ -50,6 +56,7 @@ export default function AssessmentPage() {
             <div className="flex flex-col items-center justify-center gap-1.5">
               <Button
                 render={<Link href="/assessment/general" />}
+                nativeButton={false}
                 variant="navy"
                 className="h-15 lg:h-20"
               >
@@ -129,7 +136,7 @@ export default function AssessmentPage() {
         </div>
       </div>
       <div className="relative flex justify-center gap-4 lg:gap-6">
-        <Button render={<Link href="/" />} variant="gray">
+        <Button render={<Link href="/" />} nativeButton={false} variant="gray">
           메인으로
         </Button>
         <Button variant="purple" onClick={() => setInquiryOpen(true)}>
@@ -140,6 +147,7 @@ export default function AssessmentPage() {
         open={institutionType !== null}
         onClose={() => setInstitutionType(null)}
         onConfirm={handleConfirm}
+        isLoading={isLoggingIn}
       />
       <InquiryModal open={inquiryOpen} onClose={() => setInquiryOpen(false)} />
     </Container>
