@@ -17,13 +17,15 @@ import type {
   ItemComponent,
   ItemType,
   ExamItemDTO,
+  ExamType,
 } from '@/types/exam';
 import { CompassIcon } from '@/components/icons/CompassIcon';
 import Image from 'next/image';
 
 type Step = 'INTRO' | 'EXAMINEE_PROFILES' | 'EXAM_ITEMS' | 'EXPECTATION_FORM';
 
-interface Props {
+interface SurveyContainerProps {
+  examType: ExamType;
   expectationForm: ExpectationFormDTO;
   examineeProfiles: ExamineeProfilesDTO;
   examItems: ExamItemsDTO;
@@ -37,11 +39,12 @@ function hasAnswer(value: string | string[] | undefined): boolean {
   return value !== '';
 }
 
-export default function GeneralSurveyContainer({
+export default function SurveyContainer({
+  examType,
   expectationForm,
   examineeProfiles,
   examItems,
-}: Props) {
+}: SurveyContainerProps) {
   const router = useRouter();
   const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
 
@@ -138,7 +141,7 @@ export default function GeneralSurveyContainer({
       }
     } else {
       const body: ExamSubmitRequest = {
-        examType: 'STANDARD',
+        examType,
         profile: {
           ageGroup: examineeAnswers['ageGroup'] as string,
           jobFunction: examineeAnswers['jobFunction'] as string,

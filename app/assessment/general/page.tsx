@@ -1,5 +1,5 @@
 import { examService } from '@/api/services/exam.service';
-import GeneralSurveyContainer from './GeneralSurveyContainer';
+import SurveyContainer from '@/app/assessment/components/SurveyContainer';
 
 export default async function GeneralAssessmentPage() {
   const [expectationForm, examineeProfiles, examItems] = await Promise.all([
@@ -9,7 +9,8 @@ export default async function GeneralAssessmentPage() {
   ]);
 
   return (
-    <GeneralSurveyContainer
+    <SurveyContainer
+      examType="STANDARD"
       expectationForm={expectationForm}
       examineeProfiles={examineeProfiles}
       examItems={examItems}
