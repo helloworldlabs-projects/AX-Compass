@@ -46,13 +46,20 @@ export default function SurveyContainer({
   examineeProfiles,
 }: SurveyContainerProps) {
   const router = useRouter();
-  const tokenKey = examType !== 'STANDARD' ? 'axcompass:accessToken' as const : undefined;
+  const tokenKey = examType !== 'STANDARD' ? ('axcompass:accessToken' as const) : undefined;
   const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam(tokenKey);
-  const { data: examItems, isLoading: isLoadingItems, error: examItemsError } = useExamItems(examType, tokenKey);
+  const {
+    data: examItems,
+    isLoading: isLoadingItems,
+    error: examItemsError,
+  } = useExamItems(examType, tokenKey);
 
   useEffect(() => {
     if (!examItemsError) return;
-    if (examItemsError instanceof ApiError && (examItemsError.status === 401 || examItemsError.status === 403)) {
+    if (
+      examItemsError instanceof ApiError &&
+      (examItemsError.status === 401 || examItemsError.status === 403)
+    ) {
       router.replace('/assessment');
     }
   }, [examItemsError, router]);
@@ -134,6 +141,7 @@ export default function SurveyContainer({
   }
 
   function handleNext() {
+    if (!examItems) return;
     if (step === 'INTRO') {
       setStep('EXAMINEE_PROFILES');
       setProfilePage(0);
