@@ -8,16 +8,23 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import Link from 'next/link';
 import { InstitutionStartModal } from '@/components/modals/InstitutionStartModal';
 import { InquiryModal } from '@/components/modals/InquiryModal';
+import { useRouter } from 'next/navigation';
 
 type InstitutionType = 'executive' | 'member' | null;
 
 export default function AssessmentPage() {
+  const router = useRouter();
   const [institutionType, setInstitutionType] = useState<InstitutionType>(null);
   const [inquiryOpen, setInquiryOpen] = useState(false);
 
   function handleConfirm(code: string, name: string) {
     // TODO: 기관 코드·이름으로 검사 시작 라우팅
     console.log(institutionType, code, name);
+    if (institutionType === 'executive') {
+      router.push(`/assessment/executive`);
+    } else {
+      router.push(`/assessment/member`);
+    }
     setInstitutionType(null);
   }
 
