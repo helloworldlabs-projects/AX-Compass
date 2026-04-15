@@ -62,6 +62,7 @@ export interface ItemOptionDTO {
 }
 
 export interface ExamItemDTO {
+  itemId: number;
   itemCode: string;
   sequence: number;
   content: string;
@@ -80,6 +81,31 @@ export interface ExamItemsDTO {
   examType: ExamType;
   totalItems: number;
   sections: ExamSectionDTO[];
+}
+
+// ─── Submission ──────────────────────────────────────────────────────────────
+
+export interface ExamResponseItem {
+  itemId: number;
+  likertValue: number | null;
+  optionCode: string | null;
+}
+
+export interface ExamSubmitRequest {
+  examType: ExamType;
+  profile: {
+    ageGroup: string;
+    jobFunction: string;
+    industry: string;
+    experienceLevel: string;
+    aiUsageFrequency: string;
+    aiUsagePurposes: string[];
+  };
+  responses: ExamResponseItem[];
+  expectation: {
+    targetAiTask: string;
+    learningExpectation?: string;
+  };
 }
 
 // ─── Domain Models ────────────────────────────────────────────────────────────
