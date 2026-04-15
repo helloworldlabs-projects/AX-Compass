@@ -2,6 +2,8 @@ import {
   AdminAuthToken,
   LoginAdminRequestDTO,
   LoginAdminResponseDTO,
+  LoginRequestDTO,
+  LoginResponseDTO,
   RegisterRequestDTO,
 } from '@/types/auth';
 import { apiFetch } from '../client';
@@ -24,5 +26,12 @@ export const authService = {
       body: JSON.stringify(body),
     });
     return toAdminAuthToken(response);
+  },
+
+  login: async (body: LoginRequestDTO): Promise<LoginResponseDTO> => {
+    return apiFetch<LoginResponseDTO>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
   },
 };

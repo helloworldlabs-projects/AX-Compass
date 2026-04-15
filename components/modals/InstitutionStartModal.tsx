@@ -10,9 +10,10 @@ interface InstitutionStartModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (code: string, name: string) => void;
+  isLoading?: boolean;
 }
 
-function InstitutionStartModal({ open, onClose, onConfirm }: InstitutionStartModalProps) {
+function InstitutionStartModal({ open, onClose, onConfirm, isLoading }: InstitutionStartModalProps) {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
 
@@ -51,8 +52,8 @@ function InstitutionStartModal({ open, onClose, onConfirm }: InstitutionStartMod
         <Button variant="gray" onClick={handleClose}>
           닫기
         </Button>
-        <Button variant="purple" onClick={handleConfirm}>
-          확인
+        <Button variant="purple" onClick={handleConfirm} disabled={isLoading}>
+          {isLoading ? '확인 중...' : '확인'}
         </Button>
       </ModalFooter>
     </Modal>

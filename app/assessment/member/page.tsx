@@ -4,10 +4,9 @@ import SurveyContainer from '@/app/assessment/components/SurveyContainer';
 export const dynamic = 'force-dynamic';
 
 export default async function MemberAssessmentPage() {
-  const [expectationForm, examineeProfiles, examItems] = await Promise.all([
+  const [expectationForm, examineeProfiles] = await Promise.all([
     examService.getExpectationForm(),
     examService.getExamineeProfiles(),
-    examService.getExamItems('PRECISION'),
   ]);
 
   return (
@@ -15,7 +14,6 @@ export default async function MemberAssessmentPage() {
       examType="PRECISION"
       expectationForm={expectationForm}
       examineeProfiles={examineeProfiles}
-      examItems={examItems}
     />
   );
 }

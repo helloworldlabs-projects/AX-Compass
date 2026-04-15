@@ -9,7 +9,7 @@ import { useLoginAdmin } from '@/hooks/userLoginAdmin';
 export default function InstitutionLoginButton() {
   const [isLoggedIn] = useState(() => {
     if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('accessToken');
+    return !!localStorage.getItem('axcompass:adminToken');
   });
   const [open, setOpen] = useState(false);
   const { mutate: loginAdmin } = useLoginAdmin();

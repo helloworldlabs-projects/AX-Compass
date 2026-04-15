@@ -137,15 +137,24 @@ export const examService = {
     return mapForm(raw) as ExamineeProfiles;
   },
 
-  getExamItems: async (examType: ExamType): Promise<ExamItems> => {
-    const raw = await apiFetch<RawExamItemsDTO>(`/exam/items?examType=${examType}`);
+  getExamItems: async (
+    examType: ExamType,
+    tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+  ): Promise<ExamItems> => {
+    const raw = await apiFetch<RawExamItemsDTO>(`/exam/items?examType=${examType}`, {
+      ...(tokenKey && { tokenKey }),
+    });
     return mapExamItems(raw);
   },
 
-  submitExam: async (body: ExamSubmitRequest): Promise<ExamSubmitResponse> => {
+  submitExam: async (
+    body: ExamSubmitRequest,
+    tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+  ): Promise<ExamSubmitResponse> => {
     return apiFetch<ExamSubmitResponse>('/exam/submit', {
       method: 'POST',
       body: JSON.stringify(body),
+      ...(tokenKey && { tokenKey }),
     });
   },
 };
