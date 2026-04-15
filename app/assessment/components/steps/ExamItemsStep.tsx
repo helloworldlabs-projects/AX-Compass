@@ -27,7 +27,7 @@ export default function ExamItemsStep({
 
   return (
     <div
-      className={`rounded-card flex h-[400px] flex-col bg-white shadow lg:h-[500px] ${item.itemType === 'SJT' ? 'gap-4' : 'gap-15'}`}
+      className={`rounded-card flex min-h-[400px] flex-col bg-white pb-[30px] shadow lg:min-h-[500px] ${item.itemType === 'SJT' ? 'gap-4' : 'gap-15'}`}
     >
       {/* 문항 헤더 */}
       <div className="bg-special-dark-blue-500 flex w-full items-center gap-3 rounded-[10px] px-4 py-3 shadow-[0_4px_4px_rgba(0,0,0,0.14)]">
