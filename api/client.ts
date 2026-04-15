@@ -1,21 +1,27 @@
 import { ApiError, ApiErrorDTO, ApiResponse } from '@/types/common';
 
-function getAuthHeader(): Record<string, string> {
-  if (typeof window === 'undefined') return {};
-  const token = localStorage.getItem('accessToken');
+type TokenKey = 'axcompass:accessToken' | 'axcompass:adminToken';
+
+function getAuthHeader(tokenKey?: TokenKey): Record<string, string> {
+  if (!tokenKey || typeof window === 'undefined') return {};
+  const token = localStorage.getItem(tokenKey);
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export const apiFetch = async <T>(
   endpoint: string,
-  options?: RequestInit & { next?: { revalidate?: number; tags?: string[] } },
+  options?: RequestInit & {
+    next?: { revalidate?: number; tags?: string[] };
+    tokenKey?: TokenKey;
+  },
 ): Promise<T> => {
+  const { tokenKey, ...fetchOptions } = options ?? {};
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
-    ...options,
+    ...fetchOptions,
     headers: {
       'Content-Type': 'application/json',
-      ...getAuthHeader(), // 토큰 주입
-      ...options?.headers,
+      ...getAuthHeader(tokenKey),
+      ...fetchOptions.headers,
     },
   });
 

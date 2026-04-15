@@ -15,7 +15,7 @@ export const useLoginAdmin = () => {
   return useMutation({
     mutationFn: (body: LoginAdminRequestDTO) => authService.loginAdmin(body),
     onSuccess: ({ token }) => {
-      localStorage.setItem('accessToken', token);
+      localStorage.setItem('axcompass:adminToken', token);
       queryClient.invalidateQueries();
       router.push('/institution');
     },

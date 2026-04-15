@@ -13,7 +13,7 @@ export default function InstitutionLayout({ children }: { children: React.ReactN
   );
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('axcompass:adminToken');
     if (!token) {
       router.replace('/');
       return;
