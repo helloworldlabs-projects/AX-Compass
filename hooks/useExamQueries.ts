@@ -15,13 +15,21 @@ export const useExamineeProfiles = () =>
     queryFn: () => examService.getExamineeProfiles(),
   });
 
-export const useExamItems = (examType: ExamType) =>
+export const useExamItems = (
+  examType: ExamType,
+  tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+) =>
   useQuery({
     queryKey: examKeys.items(examType),
-    queryFn: () => examService.getExamItems(examType),
+    queryFn: () => examService.getExamItems(examType, tokenKey),
   });
 
-export const useSubmitExam = () =>
+export const useSubmitExam = (tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken') =>
   useMutation({
-    mutationFn: (body: ExamSubmitRequest) => examService.submitExam(body),
+    mutationFn: (body: ExamSubmitRequest) => examService.submitExam(body, tokenKey),
+    onSuccess: () => {
+      if (tokenKey === 'axcompass:accessToken') {
+        localStorage.removeItem('axcompass:accessToken');
+      }
+    },
   });

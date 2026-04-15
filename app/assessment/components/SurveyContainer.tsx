@@ -8,19 +8,21 @@ import IntroStep from '@/app/assessment/components/steps/IntroStep';
 import ExamineeProfilesStep from '@/app/assessment/components/steps/ExamineeProfilesStep';
 import ExamItemsStep from '@/app/assessment/components/steps/ExamItemsStep';
 import ExpectationsStep from '@/app/assessment/components/steps/ExpectationsStep';
-import { useSubmitExam } from '@/hooks/useExamQueries';
+import { useExamItems, useSubmitExam } from '@/hooks/useExamQueries';
+import { useEffect } from 'react';
 import type {
   ExpectationFormDTO,
   ExamineeProfilesDTO,
-  ExamItemsDTO,
   ExamSubmitRequest,
   ItemComponent,
   ItemType,
   ExamItemDTO,
   ExamType,
 } from '@/types/exam';
+import { ApiError } from '@/types/common';
 import { CompassIcon } from '@/components/icons/CompassIcon';
 import Image from 'next/image';
+import SurveyLoadingSkeleton from './SurveyLoadingSkeleton';
 
 type Step = 'INTRO' | 'EXAMINEE_PROFILES' | 'EXAM_ITEMS' | 'EXPECTATION_FORM';
 
@@ -28,7 +30,6 @@ interface SurveyContainerProps {
   examType: ExamType;
   expectationForm: ExpectationFormDTO;
   examineeProfiles: ExamineeProfilesDTO;
-  examItems: ExamItemsDTO;
 }
 
 type FlatItem = ExamItemDTO & { component: ItemComponent; itemType: ItemType };
@@ -43,10 +44,18 @@ export default function SurveyContainer({
   examType,
   expectationForm,
   examineeProfiles,
-  examItems,
 }: SurveyContainerProps) {
   const router = useRouter();
-  const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
+  const tokenKey = examType !== 'STANDARD' ? 'axcompass:accessToken' as const : undefined;
+  const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam(tokenKey);
+  const { data: examItems, isLoading: isLoadingItems, error: examItemsError } = useExamItems(examType, tokenKey);
+
+  useEffect(() => {
+    if (!examItemsError) return;
+    if (examItemsError instanceof ApiError && (examItemsError.status === 401 || examItemsError.status === 403)) {
+      router.replace('/assessment');
+    }
+  }, [examItemsError, router]);
 
   const [step, setStep] = useState<Step>('INTRO');
   const [agreed, setAgreed] = useState(false);
@@ -55,6 +64,8 @@ export default function SurveyContainer({
   const [examineeAnswers, setExamineeAnswers] = useState<Record<string, string | string[]>>({});
   const [examAnswers, setExamAnswers] = useState<Record<string, number | string>>({});
   const [expectationAnswers, setExpectationAnswers] = useState<Record<string, string>>({});
+
+  if (isLoadingItems || !examItems) return <SurveyLoadingSkeleton />;
 
   const flatItems: FlatItem[] = examItems.sections.flatMap((section) =>
     section.items.map((item) => ({
