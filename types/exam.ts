@@ -3,7 +3,7 @@
 import { Level } from '@/constants/levelConfig';
 
 export type QuestionType = 'SINGLE_CHOICE' | 'MULTI_CHOICE' | 'TEXT';
-export type ExamType = 'STANDARD' | 'PRECISION';
+export type ExamType = 'STANDARD' | 'PRECISION' | 'EXECUTIVE';
 export type ItemComponent = 'SELF_ESTIMATE' | 'SITUATIONAL_JUDGMENT' | 'BEHAVIOR_HABIT';
 export type ItemType = 'LIKERT' | 'SJT' | 'LIKERT_FREQ';
 export type ProfileType =
