@@ -1,6 +1,8 @@
 import {
   ExamineeProfiles,
   ExamItems,
+  ExamResult,
+  ExamResultDTO,
   ExamSubmitRequest,
   ExamSubmitResponse,
   ExamType,
@@ -156,5 +158,9 @@ export const examService = {
       body: JSON.stringify(body),
       ...(tokenKey && { tokenKey }),
     });
+  },
+
+  getExamResult: async (resultCode: string): Promise<ExamResult> => {
+    return apiFetch<ExamResultDTO>(`/exam/results/${resultCode}`);
   },
 };

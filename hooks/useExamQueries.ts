@@ -33,3 +33,9 @@ export const useSubmitExam = (tokenKey?: 'axcompass:accessToken' | 'axcompass:ad
       }
     },
   });
+
+export const useExamResult = (resultCode: string) =>
+  useQuery({
+    queryKey: examKeys.result(resultCode),
+    queryFn: () => examService.getExamResult(resultCode),
+  });
