@@ -51,7 +51,7 @@ function Modal({ open, onClose, children, className }: ModalProps) {
         <Dialog.Backdrop className="data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-60 bg-black/50 duration-150" />
         <Dialog.Popup
           className={cn(
-            'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 bg-special-navy-0 rounded-card fixed top-1/2 left-1/2 z-60 flex max-h-[90vh] w-[calc(100%-20px)] max-w-[600px] min-w-[340px] -translate-x-1/2 -translate-y-1/2 flex-col gap-6 overflow-hidden p-5 duration-150 lg:p-[30px]',
+            'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 bg-special-navy-0 rounded-card fixed top-1/2 left-1/2 z-60 flex max-h-[90vh] w-[calc(100%-20px)] max-w-[600px] min-w-[340px] -translate-x-1/2 -translate-y-1/2 flex-col gap-6 overflow-hidden p-5 shadow duration-150 lg:p-[30px]',
             className,
           )}
         >
