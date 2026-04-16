@@ -15,6 +15,9 @@ import { CurriculumItem } from '@/components/ui/CurriculumItem';
 import { InquiryModal } from '@/components/modals/InquiryModal';
 import { RadarChart } from '@/components/ui/RadarChart';
 import { ResultCodeCard } from '@/app/result/components/ResultCodeCard';
+import { ScoreStatGuideModal } from '@/app/result/components/modal/ScoreStatGuideModal';
+import { ProfileTypeGuideModal } from '@/app/result/components/modal/ProfileTypeGuideModal';
+import { LearningRoadmapGuideModal } from '@/app/result/components/modal/LearningRoadmapGuideModal';
 import { useState } from 'react';
 
 const competencyColorMap: Record<
@@ -54,6 +57,9 @@ interface ResultContainerProps {
 
 export default function ResultContainer({ resultType, result }: ResultContainerProps) {
   const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [scoreStatGuideOpen, setScoreStatGuideOpen] = useState(false);
+  const [profileTypeGuideOpen, setProfileTypeGuideOpen] = useState(false);
+  const [roadmapGuideOpen, setRoadmapGuideOpen] = useState(false);
   return (
     <Container>
       <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
@@ -124,8 +130,8 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             <span className="txt-t1">역량 점수 통계</span>
           </div>
           <HelpCircle
-            className="text-special-dark-blue-900 size-9"
-            // onClick={() => setOpenScoreStatGuideModal(true)}
+            className="text-special-dark-blue-900 size-9 cursor-pointer"
+            onClick={() => setScoreStatGuideOpen(true)}
           />
         </div>
         {resultType === 'member' && (
@@ -271,8 +277,8 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             <span className="txt-t1">프로필 유형</span>
           </div>
           <HelpCircle
-            className="text-special-dark-blue-900 size-9"
-            // onClick={() => setOpenScoreStatGuideModal(true)}
+            className="text-special-dark-blue-900 size-9 cursor-pointer"
+            onClick={() => setProfileTypeGuideOpen(true)}
           />
         </div>
         <ProfileResultCard type={result.profileType} />
@@ -284,8 +290,8 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             <span className="txt-t1">추천 학습 로드맵</span>
           </div>
           <HelpCircle
-            className="text-special-dark-blue-900 size-9"
-            // onClick={() => setOpenScoreStatGuideModal(true)}
+            className="text-special-dark-blue-900 size-9 cursor-pointer"
+            onClick={() => setRoadmapGuideOpen(true)}
           />
         </div>
         {result.recommendedRoadmap.steps.map((step, index) => {
@@ -350,6 +356,19 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
         </Button>
       </div>
       <InquiryModal open={inquiryOpen} onClose={() => setInquiryOpen(false)} />
+      <ScoreStatGuideModal
+        open={scoreStatGuideOpen}
+        onClose={() => setScoreStatGuideOpen(false)}
+        resultType={resultType}
+      />
+      <ProfileTypeGuideModal
+        open={profileTypeGuideOpen}
+        onClose={() => setProfileTypeGuideOpen(false)}
+      />
+      <LearningRoadmapGuideModal
+        open={roadmapGuideOpen}
+        onClose={() => setRoadmapGuideOpen(false)}
+      />
     </Container>
   );
 }
