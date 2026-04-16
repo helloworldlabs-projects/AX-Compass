@@ -15,27 +15,29 @@ interface ResultCodeModalProps {
 function ResultCodeModal({ open, onClose, onConfirm }: ResultCodeModalProps) {
   const [code, setCode] = useState('');
 
+  function handleClose() {
+    setCode('');
+    onClose();
+  }
+
   function handleConfirm() {
     onConfirm(code);
+    setCode('');
   }
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={handleClose}>
       <ModalTitle>결과 조회 코드 입력</ModalTitle>
 
       <ModalBody>
         <div className="flex flex-col gap-2">
           <FieldLabel required>결과 조회 코드</FieldLabel>
-          <Input
-            placeholder="결과 조회 코드를 입력해 주세요"
-            value={code}
-            onChange={setCode}
-          />
+          <Input placeholder="결과 조회 코드를 입력해 주세요" value={code} onChange={setCode} />
         </div>
       </ModalBody>
 
       <ModalFooter>
-        <Button variant="gray" onClick={onClose}>
+        <Button variant="gray" onClick={handleClose}>
           닫기
         </Button>
         <Button variant="purple" onClick={handleConfirm}>

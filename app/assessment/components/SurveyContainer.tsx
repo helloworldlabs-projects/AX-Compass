@@ -184,7 +184,10 @@ export default function SurveyContainer({
         },
       };
       submitExam(body, {
-        onSuccess: (data) => router.push(`/assessment/result/${data.resultCode}`),
+        onSuccess: (data) =>
+          router.push(
+            `/result/${examType === 'STANDARD' ? 'general' : 'member'}/${data.resultCode}`,
+          ),
       });
     }
   }

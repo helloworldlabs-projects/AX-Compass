@@ -5,4 +5,5 @@ export const examKeys = {
   expectationForm: () => [...examKeys.all, 'expectationForm'] as const,
   examineeProfiles: () => [...examKeys.all, 'examineeProfiles'] as const,
   items: (examType: ExamType) => [...examKeys.all, 'items', examType] as const,
+  result: (resultCode: string) => [...examKeys.all, 'result', resultCode] as const,
 };

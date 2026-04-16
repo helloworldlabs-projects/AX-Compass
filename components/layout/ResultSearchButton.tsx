@@ -2,23 +2,29 @@
 
 import { ResultCodeModal } from '../modals/ResultCodeModal';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { examService } from '@/api/services/exam.service';
+import type { ExamType } from '@/types/exam';
+
+const EXAM_TYPE_PATH: Record<ExamType, string> = {
+  STANDARD: 'general',
+  PRECISION: 'member',
+  EXECUTIVE: 'executive',
+};
 
 export default function ResultSearchButton() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
-  function handleConfirm(code: string) {
-    // TODO: 결과 조회 코드로 결과 조회 라우팅
-    console.log(code);
-    setOpen(false);
-  }
-
-  function handleClose() {
-    setOpen(false);
-  }
-
-  function handleResultConfirm(code: string) {
-    handleConfirm(code);
-    setOpen(false);
+  async function handleConfirm(code: string) {
+    try {
+      const result = await examService.getExamResult(code);
+      router.push(`/result/${EXAM_TYPE_PATH[result.examType]}/${code}`);
+      setOpen(false);
+    } catch {
+      toast.error('결과를 찾을 수 없습니다. 코드를 다시 확인해주세요.');
+    }
   }
 
   return (
@@ -29,7 +35,7 @@ export default function ResultSearchButton() {
       >
         <span className="txt-b-bold">결과 조회</span>
       </button>
-      <ResultCodeModal open={open} onClose={handleClose} onConfirm={handleResultConfirm} />
+      <ResultCodeModal open={open} onClose={() => setOpen(false)} onConfirm={handleConfirm} />
     </>
   );
 }

@@ -1,16 +1,9 @@
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-
-export type ProfileType =
-  | 'BALANCED'
-  | 'DOER'
-  | 'ANALYST'
-  | 'LEARNER'
-  | 'OVERCONFIDENT'
-  | 'CAUTIOUS';
+import type { ProfileType } from '@/types/exam';
+import { PROFILE_TYPE_LABEL } from '@/constants/profileTypeConfig';
 
 type ProfileData = {
-  typeLabel: string;
   typeEn: string;
   imageUrl: string;
   description: string;
@@ -21,7 +14,6 @@ type ProfileData = {
 
 const PROFILE_DATA: Record<ProfileType, ProfileData> = {
   BALANCED: {
-    typeLabel: '균형형',
     typeEn: 'Balanced',
     imageUrl: '/images/profile-type/img_balanced.png',
     description:
@@ -38,8 +30,7 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     ],
     tags: ['#자기평가_현실일치', '#상황판단_높음', '#행동빈도_높음', '#균형갭_작음'],
   },
-  DOER: {
-    typeLabel: '실행형',
+  ACTION_ORIENTED: {
     typeEn: 'Doer',
     imageUrl: '/images/profile-type/img_doer.png',
     description:
@@ -56,8 +47,7 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     ],
     tags: ['#행동빈도_매우높음', '#상황판단_중간이하', '#실행우선', '#빠른활용전환'],
   },
-  ANALYST: {
-    typeLabel: '판단형',
+  JUDGEMENT_ORIENTED: {
     typeEn: 'Analyst',
     imageUrl: '/images/profile-type/img_analyst.png',
     description:
@@ -74,8 +64,7 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     ],
     tags: ['#상황판단_매우높음', '#행동빈도_낮음', '#판단우선', '#신중한실행전환'],
   },
-  LEARNER: {
-    typeLabel: '이해형',
+  UNDERSTAND_FOCUSED: {
     typeEn: 'Learner',
     imageUrl: '/images/profile-type/img_learner.png',
     description:
@@ -93,7 +82,6 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     tags: ['#자기평가_높음', '#상황판단_중간', '#행동빈도_낮음', '#이해중심성장'],
   },
   OVERCONFIDENT: {
-    typeLabel: '과신형',
     typeEn: 'Overconfident',
     imageUrl: '/images/profile-type/img_overconfident.png',
     description:
@@ -111,7 +99,6 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     tags: ['#자기평가_매우높음', '#상황판단_낮음', '#확신우선', '#검토보완필요'],
   },
   CAUTIOUS: {
-    typeLabel: '조심형',
     typeEn: 'Cautious',
     imageUrl: '/images/profile-type/img_cautious.png',
     description:
@@ -131,8 +118,8 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
 };
 
 export function ProfileResultCard({ type, className }: { type: ProfileType; className?: string }) {
-  const { typeLabel, typeEn, imageUrl, description, strengths, improvements, tags } =
-    PROFILE_DATA[type];
+  const { typeEn, imageUrl, description, strengths, improvements, tags } = PROFILE_DATA[type];
+  const typeLabel = PROFILE_TYPE_LABEL[type];
 
   return (
     <article className={cn('flex w-full flex-col gap-[50px]', className)}>

@@ -1,3 +1,13 @@
-export default function GeneralAssessmentPage() {
-  return <div>일반 역량 진단 결과</div>;
+import ResultContainer from '@/app/result/components/ResultContainer';
+import { examService } from '@/api/services/exam.service';
+
+export default async function GeneralAssessmentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const result = await examService.getExamResult(id);
+
+  return <ResultContainer resultType="general" result={result} />;
 }

@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge';
+import type { Level } from '@/constants/levelConfig';
 
 interface CurriculumItemProps {
-  level: '입문' | '초급' | '중급' | '고급';
+  level: Level;
   type: '메인' | '확장' | '보조';
   title: string;
   duration: string;
@@ -29,7 +30,7 @@ function CurriculumItem({ level, type, title, duration, className }: CurriculumI
         <Badge variant={typeVariant[type]}>{type}</Badge>
       </div>
       <span className="txt-b-bold flex-1 text-black">{title}</span>
-      <span className="txt-b-bold shrink-0 text-black">({duration})</span>
+      <span className="txt-b-bold shrink-0 text-black">({duration}h)</span>
     </div>
   );
 }

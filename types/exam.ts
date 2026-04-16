@@ -1,9 +1,18 @@
 // ─── Shared primitives ───────────────────────────────────────────────────────
 
+import { Level } from '@/constants/levelConfig';
+
 export type QuestionType = 'SINGLE_CHOICE' | 'MULTI_CHOICE' | 'TEXT';
-export type ExamType = 'STANDARD' | 'PRECISION';
+export type ExamType = 'STANDARD' | 'PRECISION' | 'EXECUTIVE';
 export type ItemComponent = 'SELF_ESTIMATE' | 'SITUATIONAL_JUDGMENT' | 'BEHAVIOR_HABIT';
 export type ItemType = 'LIKERT' | 'SJT' | 'LIKERT_FREQ';
+export type ProfileType =
+  | 'BALANCED'
+  | 'ACTION_ORIENTED'
+  | 'JUDGEMENT_ORIENTED'
+  | 'UNDERSTAND_FOCUSED'
+  | 'OVERCONFIDENT'
+  | 'CAUTIOUS';
 
 // ─── Shared option ────────────────────────────────────────────────────────────
 
@@ -117,6 +126,70 @@ export interface ExamSubmitResponse {
   computedAt: string;
 }
 
+// ─── Exam Result ─────────────────────────────────────────────────────────────
+
+export interface ExamResultCompetencyTagDTO {
+  tagCode: string;
+  tagName: string;
+  avgScore: number;
+}
+
+export interface ExamResultCompetencyDTO {
+  competencyCode: string;
+  competencyName: string;
+  intro: string;
+  level: Level;
+  levelFeedback: string;
+  seScore: number;
+  sjScore: number;
+  bhScore: number;
+  tags: ExamResultCompetencyTagDTO[];
+}
+
+export interface ExamResultScoreStatsDTO {
+  seScore: number;
+  sjScore: number;
+  bhScore: number;
+  gapSr: number;
+  gapSb: number;
+}
+
+export interface ExamResultRoadmapCurriculumItemDTO {
+  curriculumName: string;
+  levelTarget: Level;
+  curriculumRole: string;
+  durationHour: number;
+}
+
+export interface ExamResultRoadmapStepDTO {
+  stepId: number;
+  stepName: string;
+  curriculumItems: ExamResultRoadmapCurriculumItemDTO[];
+  learningTips: string[];
+}
+
+export interface ExamResultCurriculumTreeDTO {
+  nodes: string[];
+  edges: { from: string; to: string }[];
+}
+
+export interface ExamResultRoadmapDTO {
+  steps: ExamResultRoadmapStepDTO[];
+  curriculumTree: ExamResultCurriculumTreeDTO;
+}
+
+export interface ExamResultDTO {
+  resultCode: string;
+  examType: ExamType;
+  userName: string;
+  overallLevel: string;
+  computedAt: string;
+  competencies: ExamResultCompetencyDTO[];
+  scoreStats: ExamResultScoreStatsDTO;
+  profileType: ProfileType;
+  recommendedRoadmap: ExamResultRoadmapDTO;
+}
+
 // ─── Domain Models ────────────────────────────────────────────────────────────
 // In this domain the DTO shapes are already clean — domain models mirror DTOs.
 // Aliases are provided so the service layer returns named domain types.
@@ -129,3 +202,11 @@ export type ItemOption = ItemOptionDTO;
 export type ExamItem = ExamItemDTO;
 export type ExamSection = ExamSectionDTO;
 export type ExamItems = ExamItemsDTO;
+export type ExamResultCompetencyTag = ExamResultCompetencyTagDTO;
+export type ExamResultCompetency = ExamResultCompetencyDTO;
+export type ExamResultScoreStats = ExamResultScoreStatsDTO;
+export type ExamResultRoadmapCurriculumItem = ExamResultRoadmapCurriculumItemDTO;
+export type ExamResultRoadmapStep = ExamResultRoadmapStepDTO;
+export type ExamResultCurriculumTree = ExamResultCurriculumTreeDTO;
+export type ExamResultRoadmap = ExamResultRoadmapDTO;
+export type ExamResult = ExamResultDTO;
