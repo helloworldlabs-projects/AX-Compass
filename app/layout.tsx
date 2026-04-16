@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import { Providers } from './providers';
+import Script from 'next/script';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -88,6 +89,10 @@ export default function RootLayout({
           <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px]">{children}</main>
           <Footer />
         </Providers>
+        <Script
+          src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

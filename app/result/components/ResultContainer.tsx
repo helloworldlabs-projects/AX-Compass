@@ -5,7 +5,7 @@ import { CompassIcon } from '@/components/icons/CompassIcon';
 import Image from 'next/image';
 import Section from '@/components/layout/Section';
 import Link from 'next/link';
-import { BadgeCheck, ContactRound, CopyIcon, HelpCircle, Map } from 'lucide-react';
+import { BadgeCheck, ContactRound, HelpCircle, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LevelCompetencyCell } from '@/components/ui/LevelCompetencyCell';
 import type { ExamResultDTO } from '@/types/exam';
@@ -13,34 +13,46 @@ import { PROFILE_TYPE_LABEL } from '@/constants/profileTypeConfig';
 import { ProfileResultCard } from '@/components/ui/ProfileResultCard';
 import { CurriculumItem } from '@/components/ui/CurriculumItem';
 import { InquiryModal } from '@/components/modals/InquiryModal';
+import { RadarChart } from '@/components/ui/RadarChart';
+import { ResultCodeCard } from '@/app/result/components/ResultCodeCard';
 import { useState } from 'react';
 
+const competencyColorMap: Record<
+  string,
+  { text: string; border: string; bg: string; hex: string }
+> = {
+  UNDERSTAND: {
+    text: 'text-special-pink-500',
+    border: 'border-special-pink-500',
+    bg: 'bg-special-pink-500/20',
+    hex: '#ff5a81',
+  },
+  USE_AND_APPLY: {
+    text: 'text-special-blue-500',
+    border: 'border-special-blue-500',
+    bg: 'bg-special-blue-500/20',
+    hex: '#2e75cc',
+  },
+  EVALUATE: {
+    text: 'text-purple-500',
+    border: 'border-purple-500',
+    bg: 'bg-purple-500/20',
+    hex: '#8b5cff',
+  },
+  RESPONSIBLE: {
+    text: 'text-gray-700',
+    border: 'border-gray-700',
+    bg: 'bg-gray-700/20',
+    hex: '#404040',
+  },
+};
+
 interface ResultContainerProps {
-  resultType: 'general' | 'institution';
+  resultType: 'general' | 'member';
   result: ExamResultDTO;
 }
 
 export default function ResultContainer({ resultType, result }: ResultContainerProps) {
-  const competencyColorMap: Record<string, { text: string; border: string; bg: string }> = {
-    UNDERSTAND: {
-      text: 'text-special-pink-500',
-      border: 'border-special-pink-500',
-      bg: 'bg-special-pink-500/20',
-    },
-    USE_AND_APPLY: {
-      text: 'text-special-blue-500',
-      border: 'border-special-blue-500',
-      bg: 'bg-special-blue-500/20',
-    },
-
-    EVALUATE: {
-      text: 'text-purple-500',
-      border: 'border-purple-500',
-      bg: 'bg-purple-500/20',
-    },
-    RESPONSIBLE: { text: 'text-gray-700', border: 'border-gray-700', bg: 'bg-gray-700/20' },
-  };
-
   const [inquiryOpen, setInquiryOpen] = useState(false);
   return (
     <Container>
@@ -92,25 +104,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             <div className="txt-t2">{PROFILE_TYPE_LABEL[result.profileType]}</div>
           </div>
         </div>
-        <div className="bg-gray-0 flex flex-col items-center gap-2.5 rounded-[12px] border-2 border-purple-800 p-4">
-          <div className="txt-b-bold rounded-[14px] border border-purple-100 bg-purple-800 px-3 text-white">
-            결과 조회 코드
-          </div>
-          <div className="txt-c1-regular text-gray-700">
-            코드를 복사해 두면 나중에 결과를 다시 확인할 수 있습니다.
-          </div>
-          <div className="flex items-center gap-2.5">
-            <div className="txt-b-bold text-purple-800">{result.resultCode}</div>
-            <Button variant="purple" size="icon">
-              {' '}
-              <CopyIcon className="size-4" strokeWidth={3} />
-            </Button>
-            <button className="txt-c2-bold flex cursor-pointer items-center gap-1 rounded-[4px] border border-[#3B1C1C] bg-[#F9E000] px-1 text-[#3B1C1C]">
-              <Image src="/images/logo/img_logo_kakao.png" alt="" width={20} height={20} />
-              <span>링크 공유</span>
-            </button>
-          </div>
-        </div>
+        <ResultCodeCard resultCode={result.resultCode} />
         <div className="rounded-card flex flex-col gap-[30px] border border-gray-500 bg-white px-2.5 py-[50px] lg:px-[50px]">
           {result.competencies.map((competency) => (
             <LevelCompetencyCell
@@ -123,7 +117,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
           ))}
         </div>
       </Section>
-      <Section className="max-w-[1000px]">
+      <Section className="max-w-[700px] lg:max-w-[1000px]">
         <div className="flex w-full max-w-[700px] items-center justify-between">
           <div className="flex items-center gap-4">
             <BadgeCheck className="size-10 text-white" fill="#533699" />
@@ -225,8 +219,15 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
               <div key={competency.competencyCode} className="flex w-[300px] flex-col lg:w-[500px]">
                 <div className="txt-st-bold text-center">{competency.competencyName}</div>
                 <div className="flex flex-col gap-5">
-                  <div className="h-[300px] w-full lg:h-[500px]">그래프 영역</div>
-                  {resultType === 'institution' && (
+                  <div className="h-[300px] w-full lg:h-[500px]">
+                    <RadarChart
+                      seScore={competency.seScore}
+                      sjScore={competency.sjScore}
+                      bhScore={competency.bhScore}
+                      strokeColor={color?.hex ?? '#8b5cff'}
+                    />
+                  </div>
+                  {resultType === 'member' && (
                     <div className="flex flex-col">
                       {competency.tags.map((tag) => (
                         <div
@@ -338,25 +339,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
           );
         })}
         <div className="h-[3px] w-full rounded-full bg-purple-700" />
-        <div className="bg-gray-0 flex flex-col items-center gap-2.5 rounded-[12px] border-2 border-purple-800 p-4">
-          <div className="txt-b-bold rounded-[14px] border border-purple-100 bg-purple-800 px-3 text-white">
-            결과 조회 코드
-          </div>
-          <div className="txt-c1-regular text-gray-700">
-            코드를 복사해 두면 나중에 결과를 다시 확인할 수 있습니다.
-          </div>
-          <div className="flex items-center gap-2.5">
-            <div className="txt-b-bold text-purple-800">{result.resultCode}</div>
-            <Button variant="purple" size="icon">
-              {' '}
-              <CopyIcon className="size-4" strokeWidth={3} />
-            </Button>
-            <button className="txt-c2-bold flex cursor-pointer items-center gap-1 rounded-[4px] border border-[#3B1C1C] bg-[#F9E000] px-1 text-[#3B1C1C]">
-              <Image src="/images/logo/img_logo_kakao.png" alt="" width={20} height={20} />
-              <span>링크 공유</span>
-            </button>
-          </div>
-        </div>
+        <ResultCodeCard resultCode={result.resultCode} />
       </Section>
       <div className="flex justify-center gap-4 lg:gap-6">
         <Button render={<Link href="/" />} variant="gray">
