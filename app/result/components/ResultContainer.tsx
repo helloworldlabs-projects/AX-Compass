@@ -28,7 +28,6 @@ interface ResultContainerProps {
 }
 
 export default function ResultContainer({ resultType, result }: ResultContainerProps) {
-  console.log(result);
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [scoreStatGuideOpen, setScoreStatGuideOpen] = useState(false);
   const [profileTypeGuideOpen, setProfileTypeGuideOpen] = useState(false);
