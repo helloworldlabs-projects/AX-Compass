@@ -15,11 +15,13 @@ import { useState } from 'react';
 import { LearningRoadmapGuideModal } from '@/components/modals/LearningRoadmapGuideModal';
 import { ScoreStatGuideModal } from '@/components/modals/ScoreStatGuideModal';
 import { ProfileTypeStatGuideModal } from '@/components/modals/ProfileTypeStatGuideModal';
+import type { InstitutionLevel } from '@/types/institution';
 import { CompetencyLevelChart } from '@/components/institution/CompetencyLevelChart';
 import { ProfileRadarChart } from '@/components/institution/ProfileRadarChart';
 import { PROFILE_TYPE_LABEL } from '@/constants/profileTypeConfig';
 import { RadarChart } from '@/components/ui/RadarChart';
 import { COMPETENCY_COLOR_MAP, COMPETENCY_NAME_MAP } from '@/constants/competencyConfig';
+import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
 import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { useInstitutionStats } from '@/hooks/useInstitutionQueries';
 
@@ -43,6 +45,12 @@ export default function InstitutionPage() {
       : selectedRoadmap === 'beginnerElementary'
         ? stats.institutionRoadmap.beginnerElementaryRoadmap
         : stats.institutionRoadmap.intermediateAdvancedRoadmap;
+
+  const getDominantLevelLabel = (competencyCode: string) => {
+    const dominantLevel = stats.competencyStats.find((stat) => stat.competencyCode === competencyCode)
+      ?.dominantLevel as InstitutionLevel | undefined;
+    return dominantLevel ? INSTITUTION_LEVEL_LABEL_MAP[dominantLevel] : '-';
+  };
 
   return (
     <Container>
@@ -78,7 +86,7 @@ export default function InstitutionPage() {
       />
 
       <Section className="flex w-[700px] shrink-0">
-        <div className="txt-t1 flex w-full">{'기관명'}</div>
+        <div className="txt-t1 flex w-full">{stats.institutionName}</div>
         <div className="flex w-full items-center gap-4">
           <Users className="size-10 text-purple-700" />
           <span className="txt-t1 text-black">전체 평가 인원</span>
@@ -186,7 +194,7 @@ export default function InstitutionPage() {
       </Section>
       <Section className="w-[700px] shrink-0">
         <div className="flex w-full flex-col items-start">
-          <div className="txt-t1">{'기관명'}</div>
+          <div className="txt-t1">{stats.institutionName}</div>
           <span className="txt-st2-regular">기관 AX 진단 결과 입니다.</span>
         </div>
         <div className="flex items-center gap-[50px]">
@@ -449,28 +457,36 @@ export default function InstitutionPage() {
               <BadgeCheck className="size-5 text-red-500" fill="white" />
               <span className="txt-b-bold">이해</span>
             </div>
-            <div className="txt-t2">{'등급'}</div>
+            <div className="txt-t2">
+              {getDominantLevelLabel('UNDERSTAND')}
+            </div>
           </div>
           <div className="border-special-blue-300 bg-special-blue-500 flex w-[160px] flex-col items-center gap-2.5 rounded-[20px] border-3 py-5 text-white">
             <div className="flex items-center gap-1">
               <BadgeCheck className="text-special-blue-500 size-5" fill="white" />
               <span className="txt-b-bold">활용</span>
             </div>
-            <div className="txt-t2">{'등급'}</div>
+            <div className="txt-t2">
+              {getDominantLevelLabel('USE_AND_APPLY')}
+            </div>
           </div>
           <div className="flex w-[160px] flex-col items-center gap-2.5 rounded-[20px] border-3 border-purple-300 bg-purple-700 py-5 text-white">
             <div className="flex items-center gap-1">
               <BadgeCheck className="size-5 text-purple-700" fill="white" />
               <span className="txt-b-bold">평가·개선</span>
             </div>
-            <div className="txt-t2">{'등급'}</div>
+            <div className="txt-t2">
+              {getDominantLevelLabel('EVALUATE')}
+            </div>
           </div>
           <div className="flex w-[160px] flex-col items-center gap-2.5 rounded-[20px] border-3 border-gray-300 bg-gray-700 py-5 text-white">
             <div className="flex items-center gap-1">
               <BadgeCheck className="size-5 text-gray-700" fill="white" />
               <span className="txt-b-bold">책임·거버넌스</span>
             </div>
-            <div className="txt-t2">{'등급'}</div>
+            <div className="txt-t2">
+              {getDominantLevelLabel('RESPONSIBLE')}
+            </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-y-[50px]">
