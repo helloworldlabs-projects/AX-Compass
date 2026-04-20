@@ -30,7 +30,7 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     ],
     tags: ['#자기평가_현실일치', '#상황판단_높음', '#행동빈도_높음', '#균형갭_작음'],
   },
-  ACTION_ORIENTED: {
+  DOER: {
     typeEn: 'Doer',
     imageUrl: '/images/profile-type/img_doer.png',
     description:
@@ -47,7 +47,7 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     ],
     tags: ['#행동빈도_매우높음', '#상황판단_중간이하', '#실행우선', '#빠른활용전환'],
   },
-  JUDGEMENT_ORIENTED: {
+  ANALYST: {
     typeEn: 'Analyst',
     imageUrl: '/images/profile-type/img_analyst.png',
     description:
@@ -64,7 +64,7 @@ const PROFILE_DATA: Record<ProfileType, ProfileData> = {
     ],
     tags: ['#상황판단_매우높음', '#행동빈도_낮음', '#판단우선', '#신중한실행전환'],
   },
-  UNDERSTAND_FOCUSED: {
+  LEARNER: {
     typeEn: 'Learner',
     imageUrl: '/images/profile-type/img_learner.png',
     description:

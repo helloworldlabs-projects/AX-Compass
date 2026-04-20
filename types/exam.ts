@@ -8,11 +8,11 @@ export type ItemComponent = 'SELF_ESTIMATE' | 'SITUATIONAL_JUDGMENT' | 'BEHAVIOR
 export type ItemType = 'LIKERT' | 'SJT' | 'LIKERT_FREQ';
 export type ProfileType =
   | 'BALANCED'
-  | 'ACTION_ORIENTED'
-  | 'JUDGEMENT_ORIENTED'
-  | 'UNDERSTAND_FOCUSED'
   | 'OVERCONFIDENT'
-  | 'CAUTIOUS';
+  | 'DOER'
+  | 'ANALYST'
+  | 'CAUTIOUS'
+  | 'LEARNER';
 
 // ─── Shared option ────────────────────────────────────────────────────────────
 
@@ -156,8 +156,8 @@ export interface ExamResultScoreStatsDTO {
 
 export interface ExamResultRoadmapCurriculumItemDTO {
   curriculumName: string;
-  levelTarget: Level;
-  curriculumRole: string;
+  step: Level;
+  role: string;
   durationHour: number;
 }
 
@@ -166,6 +166,10 @@ export interface ExamResultRoadmapStepDTO {
   stepName: string;
   curriculumItems: ExamResultRoadmapCurriculumItemDTO[];
   learningTips: string[];
+  curriculumTree: {
+    nodes: string[];
+    edges: { from: string; to: string }[];
+  };
 }
 
 export interface ExamResultCurriculumTreeDTO {
@@ -175,7 +179,6 @@ export interface ExamResultCurriculumTreeDTO {
 
 export interface ExamResultRoadmapDTO {
   steps: ExamResultRoadmapStepDTO[];
-  curriculumTree: ExamResultCurriculumTreeDTO;
 }
 
 export interface ExamResultDTO {

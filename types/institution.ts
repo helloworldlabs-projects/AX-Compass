@@ -2,15 +2,10 @@
 // API 스펙의 영문 코드 값을 사용하는 전용 타입
 // (constants/levelConfig.ts의 Level은 한국어 UI 레이블이므로 별도 정의)
 
-export type InstitutionLevel = 'BEGINNER' | 'ELEMENTARY' | 'INTERMEDIATE' | 'ADVANCED';
+import { Level } from '@/constants/levelConfig';
+import type { ProfileType } from '@/types/exam';
 
-export type InstitutionProfileType =
-  | 'BALANCED'
-  | 'LEARNER'
-  | 'ANALYST'
-  | 'DOER'
-  | 'CAUTIOUS'
-  | 'OVERCONFIDENT';
+export type InstitutionLevel = 'BEGINNER' | 'ELEMENTARY' | 'INTERMEDIATE' | 'ADVANCED';
 
 // ─── Competency ───────────────────────────────────────────────────────────────
 
@@ -43,24 +38,17 @@ export interface InstitutionScoreStats {
 // ─── Profile Stats ────────────────────────────────────────────────────────────
 
 export interface InstitutionProfileStats {
-  top3ProfileTypes: InstitutionProfileType[];
-  profileRatios: Record<InstitutionProfileType, number>;
+  top3ProfileTypes: ProfileType[];
+  profileRatios: Record<ProfileType, number>;
 }
 
 // ─── Roadmap ──────────────────────────────────────────────────────────────────
 
 export interface InstitutionRoadmapCurriculumItem {
   curriculumName: string;
-  levelTarget: string;
-  curriculumRole: string;
+  step: Level;
+  role: '메인' | '확장' | '보조';
   durationHour: number;
-}
-
-export interface InstitutionRoadmapStep {
-  stepId: number;
-  stepName: string;
-  curriculumItems: InstitutionRoadmapCurriculumItem[];
-  learningTips: string[];
 }
 
 export interface InstitutionCurriculumTree {
@@ -68,9 +56,16 @@ export interface InstitutionCurriculumTree {
   edges: Array<{ from: string; to: string }>;
 }
 
+export interface InstitutionRoadmapStep {
+  stepId: number;
+  stepName: string;
+  curriculumItems: InstitutionRoadmapCurriculumItem[];
+  learningTips: string[];
+  curriculumTree: InstitutionCurriculumTree;
+}
+
 export interface InstitutionRoadmap {
   steps: InstitutionRoadmapStep[];
-  curriculumTree: InstitutionCurriculumTree;
 }
 
 export interface InstitutionRoadmaps {
@@ -83,6 +78,7 @@ export interface InstitutionRoadmaps {
 
 export interface InstitutionStatsDTO {
   safarionCode: string;
+  institutionName: string;
   memberCount: number;
   memberExamCount: number;
   executiveCount: number;
