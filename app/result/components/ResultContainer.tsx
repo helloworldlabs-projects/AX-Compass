@@ -18,37 +18,9 @@ import { ResultCodeCard } from '@/app/result/components/ResultCodeCard';
 import { ScoreStatGuideModal } from '@/app/result/components/modal/ScoreStatGuideModal';
 import { ProfileTypeGuideModal } from '@/app/result/components/modal/ProfileTypeGuideModal';
 import { LearningRoadmapGuideModal } from '@/app/result/components/modal/LearningRoadmapGuideModal';
+import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { useState } from 'react';
-
-const competencyColorMap: Record<
-  string,
-  { text: string; border: string; bg: string; hex: string }
-> = {
-  UNDERSTAND: {
-    text: 'text-special-pink-500',
-    border: 'border-special-pink-500',
-    bg: 'bg-special-pink-500/20',
-    hex: '#ff5a81',
-  },
-  USE_AND_APPLY: {
-    text: 'text-special-blue-500',
-    border: 'border-special-blue-500',
-    bg: 'bg-special-blue-500/20',
-    hex: '#2e75cc',
-  },
-  EVALUATE: {
-    text: 'text-purple-500',
-    border: 'border-purple-500',
-    bg: 'bg-purple-500/20',
-    hex: '#8b5cff',
-  },
-  RESPONSIBLE: {
-    text: 'text-gray-700',
-    border: 'border-gray-700',
-    bg: 'bg-gray-700/20',
-    hex: '#404040',
-  },
-};
+import { COMPETENCY_COLOR_MAP } from '@/constants/competencyConfig';
 
 interface ResultContainerProps {
   resultType: 'general' | 'member';
@@ -136,7 +108,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
         </div>
         {resultType === 'member' && (
           <div className="flex w-full max-w-[900px] flex-col gap-[30px]">
-            <div>
+            <div className="mx-auto max-w-[340px] lg:max-w-[900px]">
               <div className="flex items-end justify-center gap-2.5">
                 <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
                   <span className="txt-b-bold text-center">{result.scoreStats.seScore}</span>
@@ -183,6 +155,23 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                 </div>
               </div>
               <div className="h-[3px] w-full rounded-full bg-gray-500" />
+              <div className="txt-st2-bold mt-5 flex items-center justify-between text-center lg:px-6">
+                <div>
+                  자기 평가(SE)
+                  <br />
+                  (종합)
+                </div>
+                <div>
+                  상황 판단(SJ)
+                  <br />
+                  (종합)
+                </div>
+                <div>
+                  행동 빈도(BH)
+                  <br />
+                  (종합)
+                </div>
+              </div>
             </div>
             <div className="flex flex-col gap-6">
               <div>
@@ -220,7 +209,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
         )}
         <div className="flex flex-wrap items-center justify-center gap-y-[50px]">
           {result.competencies.map((competency) => {
-            const color = competencyColorMap[competency.competencyCode];
+            const color = COMPETENCY_COLOR_MAP[competency.competencyCode];
             return (
               <div key={competency.competencyCode} className="flex w-[300px] flex-col lg:w-[500px]">
                 <div className="txt-st-bold text-center">{competency.competencyName}</div>
@@ -295,9 +284,6 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
           />
         </div>
         {result.recommendedRoadmap.steps.map((step, index) => {
-          const node = result.recommendedRoadmap.curriculumTree.nodes[index];
-          const edges = result.recommendedRoadmap.curriculumTree.edges[index];
-
           return (
             <div
               key={step.stepId}
@@ -317,8 +303,8 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                       return (
                         <CurriculumItem
                           key={curriculumItem.curriculumName}
-                          level={curriculumItem.levelTarget}
-                          type={curriculumItem.curriculumRole as '메인' | '확장' | '보조'}
+                          level={curriculumItem.step}
+                          type={curriculumItem.role as '메인' | '확장' | '보조'}
                           title={curriculumItem.curriculumName}
                           duration={curriculumItem.durationHour.toString()}
                         />
@@ -340,6 +326,13 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                     </ul>
                   </div>
                 </div>
+              </div>
+              <div className="w-full max-w-[1000px]">
+                <CurriculumTreeChart
+                  roadmapType="overall"
+                  activeNodes={step.curriculumTree.nodes}
+                  activeEdges={step.curriculumTree.edges}
+                />
               </div>
             </div>
           );

@@ -15,15 +15,289 @@ import { useState } from 'react';
 import { LearningRoadmapGuideModal } from '@/components/modals/LearningRoadmapGuideModal';
 import { ScoreStatGuideModal } from '@/components/modals/ScoreStatGuideModal';
 import { ProfileTypeStatGuideModal } from '@/components/modals/ProfileTypeStatGuideModal';
+import type { InstitutionStatsDTO } from '@/types/institution';
+import { CompetencyLevelChart } from '@/components/institution/CompetencyLevelChart';
+import { ProfileRadarChart } from '@/components/institution/ProfileRadarChart';
+import { PROFILE_TYPE_LABEL } from '@/constants/profileTypeConfig';
+import { RadarChart } from '@/components/ui/RadarChart';
+import { COMPETENCY_COLOR_MAP, COMPETENCY_NAME_MAP } from '@/constants/competencyConfig';
+import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
+import { useInstitutionStats } from '@/hooks/useInstitutionQueries';
+
+// TODO: DB 준비 완료 후 mock 제거 및 useInstitutionStats 훅으로 교체
+// const MOCK_STATS: InstitutionStatsDTO = {
+//   safarionCode: 'S1234567',
+//   institutionName: '사파리온 캠퍼스',
+//   memberCount: 120,
+//   memberExamCount: 87,
+//   executiveCount: 15,
+//   executiveExamCount: 10,
+//   competencyStats: [
+//     {
+//       competencyCode: 'UNDERSTAND',
+//       dominantLevel: 'ELEMENTARY',
+//       levelRatios: { BEGINNER: 10.34, ELEMENTARY: 55.17, INTERMEDIATE: 27.59, ADVANCED: 6.9 },
+//       seAvg: 60.42,
+//       sjAvg: 62.5,
+//       bhAvg: 68.75,
+//       tags: [
+//         { tagCode: 'a', tagName: 'AI/LLM 작동 원리 이해 역량', avgScore: 63.5 },
+//         { tagCode: 'b', tagName: '생성형 AI 오류·리스크 이해 역량', avgScore: 58.2 },
+//         { tagCode: 'c', tagName: '컨텍스트·제약에 따른 결과 변동 이해 역량', avgScore: 70.1 },
+//       ],
+//     },
+//     {
+//       competencyCode: 'USE_AND_APPLY',
+//       dominantLevel: 'INTERMEDIATE',
+//       levelRatios: { BEGINNER: 8.05, ELEMENTARY: 36.78, INTERMEDIATE: 43.68, ADVANCED: 11.49 },
+//       seAvg: 65.8,
+//       sjAvg: 67.3,
+//       bhAvg: 72.4,
+//       tags: [
+//         { tagCode: 'd', tagName: 'AI 도구 선택·설정 역량', avgScore: 66.2 },
+//         { tagCode: 'e', tagName: '프롬프트 설계·최적화 역량', avgScore: 64.5 },
+//         { tagCode: 'f', tagName: 'AI 협업 워크플로우 구축 역량', avgScore: 68.9 },
+//       ],
+//     },
+//     {
+//       competencyCode: 'EVALUATE',
+//       dominantLevel: 'ELEMENTARY',
+//       levelRatios: { BEGINNER: 16.09, ELEMENTARY: 48.28, INTERMEDIATE: 28.74, ADVANCED: 6.89 },
+//       seAvg: 55.3,
+//       sjAvg: 57.8,
+//       bhAvg: 61.2,
+//       tags: [
+//         { tagCode: 'g', tagName: 'AI 결과 품질 검증 역량', avgScore: 54.7 },
+//         { tagCode: 'h', tagName: 'AI 산출물 개선·피드백 역량', avgScore: 56.4 },
+//         { tagCode: 'i', tagName: '비즈니스 맥락 적합성 평가 역량', avgScore: 59.8 },
+//       ],
+//     },
+//     {
+//       competencyCode: 'RESPONSIBLE',
+//       dominantLevel: 'BEGINNER',
+//       levelRatios: { BEGINNER: 39.08, ELEMENTARY: 36.78, INTERMEDIATE: 18.39, ADVANCED: 5.75 },
+//       seAvg: 48.6,
+//       sjAvg: 50.2,
+//       bhAvg: 53.4,
+//       tags: [
+//         { tagCode: 'j', tagName: 'AI 윤리·편향 인식 역량', avgScore: 47.3 },
+//         { tagCode: 'k', tagName: '데이터 보안·개인정보 보호 역량', avgScore: 50.8 },
+//         { tagCode: 'l', tagName: 'AI 거버넌스·컴플라이언스 역량', avgScore: 52.1 },
+//       ],
+//     },
+//   ],
+//   scoreStats: { seAvg: 60.42, sjAvg: 62.5, bhAvg: 68.75, gapSrAvg: -2.08, gapSbAvg: -6.25 },
+//   profileStats: {
+//     top3ProfileTypes: ['BALANCED', 'LEARNER', 'ANALYST'],
+//     profileRatios: {
+//       BALANCED: 32.18,
+//       LEARNER: 24.14,
+//       ANALYST: 18.39,
+//       DOER: 12.64,
+//       CAUTIOUS: 8.05,
+//       OVERCONFIDENT: 4.6,
+//     },
+//   },
+//   institutionRoadmap: {
+//     overallRoadmap: {
+//       steps: [
+//         {
+//           stepId: 1,
+//           stepName: '1단계',
+//           curriculumItems: [
+//             {
+//               curriculumName:
+//                 '[사전 진단 및 목표 수립] AX 성숙도 역량 진단 및 데이터 기반 AX 조직 목표 수립',
+//               step: '입문',
+//               role: '메인',
+//               durationHour: 8,
+//             },
+//           ],
+//           learningTips: [
+//             'AX 전환의 개념과 구조를 이해하고, 유사 사례를 함께 살펴보며 현재 사업과 업무에 적용할 수 있는 가능성을 넓혀 학습합니다.',
+//           ],
+//           curriculumTree: { nodes: ['BEGINNER_COMMON_1'], edges: [] },
+//         },
+//         {
+//           stepId: 2,
+//           stepName: '2단계',
+//           curriculumItems: [
+//             {
+//               curriculumName: '[맞춤 처방: 비용절감] AI 리터러시 향상 및 워크플로우 세분화 실무',
+//               step: '초급',
+//               role: '메인',
+//               durationHour: 16,
+//             },
+//           ],
+//           learningTips: [
+//             'AI 리터러시를 바탕으로 업무 혁신과 비용 절감 가능 영역을 이해하고, 업무 흐름과 비효율 사례를 함께 살펴보며 개선 기회를 넓혀 학습합니다.',
+//           ],
+//           curriculumTree: {
+//             nodes: ['BEGINNER_COMMON_1', 'ELEMENTARY_COST_DOWN_1'],
+//             edges: [{ from: 'BEGINNER_COMMON_1', to: 'ELEMENTARY_COST_DOWN_1' }],
+//           },
+//         },
+//         {
+//           stepId: 3,
+//           stepName: '3단계',
+//           curriculumItems: [
+//             {
+//               curriculumName: '[맞춤 처방: 신사업] AI 리터러시 향상 및 신규 비즈니스 기획 창출',
+//               step: '초급',
+//               role: '메인',
+//               durationHour: 16,
+//             },
+//           ],
+//           learningTips: [
+//             'AI 리터러시를 바탕으로 새로운 사업 기회와 전환 가능성을 이해하고, 신사업 사례와 연결하며 우리 조직에 적용할 수 있는 방향으로 확장해 학습합니다.',
+//           ],
+//           curriculumTree: {
+//             nodes: ['BEGINNER_COMMON_1', 'ELEMENTARY_COST_DOWN_1', 'ELEMENTARY_NEW_BIZ_1'],
+//             edges: [
+//               { from: 'BEGINNER_COMMON_1', to: 'ELEMENTARY_COST_DOWN_1' },
+//               { from: 'BEGINNER_COMMON_1', to: 'ELEMENTARY_NEW_BIZ_1' },
+//             ],
+//           },
+//         },
+//       ],
+//     },
+//     beginnerElementaryRoadmap: {
+//       steps: [
+//         {
+//           stepId: 1,
+//           stepName: '1단계',
+//           curriculumItems: [
+//             {
+//               curriculumName:
+//                 '[사전 진단 및 목표 수립] AX 성숙도 역량 진단 및 데이터 기반 AX 조직 목표 수립',
+//               step: '입문',
+//               role: '메인',
+//               durationHour: 8,
+//             },
+//           ],
+//           learningTips: [
+//             'AX 전환의 개념과 구조를 이해하고, 유사 사례를 함께 살펴보며 현재 사업과 업무에 적용할 수 있는 가능성을 넓혀 학습합니다.',
+//           ],
+//           curriculumTree: { nodes: ['BEGINNER_COMMON_1'], edges: [] },
+//         },
+//         {
+//           stepId: 2,
+//           stepName: '2단계',
+//           curriculumItems: [
+//             {
+//               curriculumName: '[기초 역량 강화] AI 리터러시 기초 및 업무 적용 입문',
+//               step: '초급',
+//               role: '메인',
+//               durationHour: 12,
+//             },
+//             {
+//               curriculumName: '[실습] 프롬프트 작성 기초 실습',
+//               step: '초급',
+//               role: '보조',
+//               durationHour: 4,
+//             },
+//           ],
+//           learningTips: [
+//             '기초 개념을 익힌 뒤 실제 업무에서 AI를 활용하는 작은 과제부터 시작해 보세요.',
+//           ],
+//           curriculumTree: {
+//             nodes: ['BEGINNER_COMMON_1', 'ELEMENTARY_COMMON_1', 'ELEMENTARY_PROMPT_1'],
+//             edges: [
+//               { from: 'BEGINNER_COMMON_1', to: 'ELEMENTARY_COMMON_1' },
+//               { from: 'ELEMENTARY_COMMON_1', to: 'ELEMENTARY_PROMPT_1' },
+//             ],
+//           },
+//         },
+//       ],
+//     },
+//     intermediateAdvancedRoadmap: {
+//       steps: [
+//         {
+//           stepId: 1,
+//           stepName: '1단계',
+//           curriculumItems: [
+//             {
+//               curriculumName: '[심화 역량 강화] AI 워크플로우 설계 및 자동화 실무',
+//               step: '중급',
+//               role: '메인',
+//               durationHour: 16,
+//             },
+//           ],
+//           learningTips: [
+//             '현재 업무 흐름을 AI 기반으로 재설계하고, 자동화 가능한 영역을 직접 찾아 적용해 보세요.',
+//           ],
+//           curriculumTree: { nodes: ['INTERMEDIATE_WORKFLOW_1'], edges: [] },
+//         },
+//         {
+//           stepId: 2,
+//           stepName: '2단계',
+//           curriculumItems: [
+//             {
+//               curriculumName: '[고도화] AI 거버넌스·품질 관리 및 조직 확산 전략',
+//               step: '고급',
+//               role: '메인',
+//               durationHour: 20,
+//             },
+//             {
+//               curriculumName: '[실습] AI 결과 품질 검증 체크리스트 구축',
+//               step: '고급',
+//               role: '확장',
+//               durationHour: 8,
+//             },
+//           ],
+//           learningTips: [
+//             '조직 전체로 AI 활용을 확산하기 위한 거버넌스 체계와 품질 기준을 수립해 보세요.',
+//           ],
+//           curriculumTree: {
+//             nodes: ['INTERMEDIATE_WORKFLOW_1', 'ADVANCED_GOVERNANCE_1', 'ADVANCED_QUALITY_1'],
+//             edges: [
+//               { from: 'INTERMEDIATE_WORKFLOW_1', to: 'ADVANCED_GOVERNANCE_1' },
+//               { from: 'ADVANCED_GOVERNANCE_1', to: 'ADVANCED_QUALITY_1' },
+//             ],
+//           },
+//         },
+//       ],
+//     },
+//   },
+// };
 
 export default function InstitutionPage() {
+  // const stats = MOCK_STATS;
+  const { data: stats, isLoading, isError } = useInstitutionStats();
+  const [selectedRoadmap, setSelectedRoadmap] = useState<
+    'overall' | 'beginnerElementary' | 'intermediateAdvanced'
+  >('overall');
+  const [selectedProfileIndex, setSelectedProfileIndex] = useState<number>(0);
   const [openGradeStatGuideModal, setOpenGradeStatGuideModal] = useState(false);
   const [openLearningRoadmapGuideModal, setOpenLearningRoadmapGuideModal] = useState(false);
   const [openScoreStatGuideModal, setOpenScoreStatGuideModal] = useState(false);
   const [openProfileTypeStatGuideModal, setOpenProfileTypeStatGuideModal] = useState(false);
 
+  if (isLoading) return <div>로딩 중...</div>;
+  if (isError || !stats) return <div>데이터를 불러올 수 없습니다.</div>;
+
+  const roadmap =
+    selectedRoadmap === 'overall'
+      ? stats.institutionRoadmap.overallRoadmap
+      : selectedRoadmap === 'beginnerElementary'
+        ? stats.institutionRoadmap.beginnerElementaryRoadmap
+        : stats.institutionRoadmap.intermediateAdvancedRoadmap;
+
   return (
     <Container>
+      {/** TODO: 디버깅용 패널 - 작업 완료 후 제거 */}
+      <details
+        open
+        className="fixed right-4 bottom-4 z-[9999] w-[400px] rounded-[12px] border-2 border-dashed border-yellow-400 bg-yellow-50 p-4 shadow-lg"
+      >
+        <summary className="cursor-pointer font-mono text-sm font-bold text-yellow-700">
+          [DEBUG] institution stats
+        </summary>
+        <pre className="mt-2 max-h-[400px] overflow-auto font-mono text-xs text-yellow-900">
+          {JSON.stringify(stats, null, 2)}
+        </pre>
+      </details>
+
       {/** 모달 - 추후 페이지 분리 예정 */}
       <GradeStatGuideModal
         open={openGradeStatGuideModal}
@@ -54,7 +328,9 @@ export default function InstitutionPage() {
               <span className="bg-special-dark-blue-500 absolute top-[-3px] left-[-3px] rounded-[20px] border-3 border-gray-300 px-2.5 py-2 text-white">
                 임원진
               </span>
-              <div className="txt-t1 text-black">{'2/3'}명</div>
+              <div className="txt-t1 text-black">
+                {stats.executiveExamCount} / {stats.executiveCount} 명
+              </div>
             </div>
             <Button
               render={<Link href="/institution/executive" />}
@@ -70,7 +346,9 @@ export default function InstitutionPage() {
               <span className="bg-special-navy-500 absolute top-[-3px] left-[-3px] rounded-[20px] border-3 border-gray-300 px-2.5 py-2 text-white">
                 구성원
               </span>
-              <div className="txt-t1 text-black">{'0/25'}명</div>
+              <div className="txt-t1 text-black">
+                {stats.memberExamCount} / {stats.memberCount} 명
+              </div>
             </div>
             <Button
               render={<Link href="/institution/member" />}
@@ -83,40 +361,44 @@ export default function InstitutionPage() {
           </div>
         </div>
       </Section>
-      <Section className="max-w-[1000px] shrink-0">
-        <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
-          <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
-            <Check className="size-4.5 text-white" strokeWidth={3} />
-            <span className="txt-c1-bold text-white">기관 통계 안내</span>
+      {stats.executiveExamCount < 2 && (
+        <Section className="max-w-[1000px] shrink-0">
+          <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+            <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
+              <Check className="size-4.5 text-white" strokeWidth={3} />
+              <span className="txt-c1-bold text-white">기관 통계 안내</span>
+            </div>
+            <div className="txt-st2-bold text-center text-black">
+              임원진 검사 응답 수가 부족하여 기관 AX 성숙도 통계를 제공할 수 없습니다.
+              <br />
+              <span className="text-special-pink-600">임원진 검사 2명 이상 참여 시</span> 확인할 수
+              있습니다.
+            </div>
+            <span className="txt-c2-regular text-end">
+              [임원진] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
+            </span>
           </div>
-          <div className="txt-st2-bold text-center text-black">
-            임원진 검사 응답 수가 부족하여 기관 AX 성숙도 통계를 제공할 수 없습니다.
-            <br />
-            <span className="text-special-pink-600">임원진 검사 2명 이상 참여 시</span> 확인할 수
-            있습니다.
+        </Section>
+      )}
+      {stats.memberExamCount < 5 && (
+        <Section className="max-w-[1000px] shrink-0">
+          <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+            <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
+              <Check className="size-4.5 text-white" strokeWidth={3} />
+              <span className="txt-c1-bold text-white">기관 통계 안내</span>
+            </div>
+            <div className="txt-st2-bold text-center text-black">
+              구성원 검사 응답 수가 부족하여 기관 AX 역량 통계를 제공할 수 없습니다.
+              <br />
+              <span className="text-special-pink-600">구성원 검사 5명 이상 참여 시</span> 확인할 수
+              있습니다.
+            </div>
+            <span className="txt-c2-regular text-end">
+              [구성원] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
+            </span>
           </div>
-          <span className="txt-c2-regular text-end">
-            [임원진] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
-          </span>
-        </div>
-      </Section>
-      <Section className="max-w-[1000px] shrink-0">
-        <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
-          <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
-            <Check className="size-4.5 text-white" strokeWidth={3} />
-            <span className="txt-c1-bold text-white">기관 통계 안내</span>
-          </div>
-          <div className="txt-st2-bold text-center text-black">
-            구성원 검사 응답 수가 부족하여 기관 AX 역량 통계를 제공할 수 없습니다.
-            <br />
-            <span className="text-special-pink-600">구성원 검사 5명 이상 참여 시</span> 확인할 수
-            있습니다.
-          </div>
-          <span className="txt-c2-regular text-end">
-            [구성원] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
-          </span>
-        </div>
-      </Section>
+        </Section>
+      )}
       <Section className="max-w-[1000px] shrink-0">
         <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
           <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
@@ -137,17 +419,13 @@ export default function InstitutionPage() {
             본 문서는 AX Compass 진단 결과를 바탕으로 생성되었습니다.
           </div>
           <div className="txt-c2-regular flex items-center justify-end gap-2">
-            <span>발급일: 2026.03.13</span>
-            <div>|</div>
-            <span>결과 코드: 7F3K2Q9M</span>
-            <div>|</div>
             <span>발급 기관: (주)헬로월드랩스</span>
           </div>
         </div>
       </Section>
       <Section className="w-[700px] shrink-0">
         <div className="flex w-full flex-col items-start">
-          <div className="txt-t1">헬로월드랩스</div>
+          <div className="txt-t1">{'기관명'}</div>
           <span className="txt-st2-regular">기관 AX 진단 결과 입니다.</span>
         </div>
         <div className="flex items-center gap-[50px]">
@@ -435,22 +713,9 @@ export default function InstitutionPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-y-[50px]">
-          <div className="w-[500px] bg-white">
-            <div>이해 (Understand)</div>
-            <div className="h-[400px] w-full"></div>
-          </div>
-          <div className="w-[500px] bg-white">
-            <div>활용 (Use & Apply)</div>
-            <div className="h-[400px] w-full"></div>
-          </div>
-          <div className="w-[500px] bg-white">
-            <div>평가·개선 (Evaluate & Improve)</div>
-            <div className="h-[400px] w-full"></div>
-          </div>
-          <div className="w-[500px] bg-white">
-            <div>책임·거버넌스 (Responsible Use)</div>
-            <div className="h-[400px] w-full"></div>
-          </div>
+          {stats.competencyStats.map((stat) => (
+            <CompetencyLevelChart key={stat.competencyCode} stat={stat} />
+          ))}
         </div>
       </Section>
       <Section className="max-w-[1000px] shrink-0">
@@ -465,307 +730,157 @@ export default function InstitutionPage() {
           />
         </div>
         <div className="flex w-full flex-col gap-[30px]">
-          <div className="h-[640px] w-full">그래프 영역</div>
-          <div className="mx-auto flex w-[700px] flex-col gap-6">
+          <div className="flex w-full max-w-[900px] flex-col gap-[30px]">
             <div>
-              <div className="txt-st-bold">
-                <span className="text-purple-700">* </span>
-                Gap_SR (SE − SJ)
+              <div className="flex items-end justify-center gap-2.5">
+                <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
+                  <span className="txt-b-bold text-center">{stats.scoreStats.seAvg}</span>
+                  <div
+                    className="bg-special-dark-blue-200 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
+                    style={{ height: `${stats.scoreStats.seAvg}%` }}
+                  />
+                </div>
+                <div className="w-[50px] lg:w-[120px]">
+                  <div
+                    className={`txt-b-bold flex h-[100px] flex-col text-center ${stats.scoreStats.gapSrAvg > 0 ? 'text-green-500' : 'text-red-500'}`}
+                  >
+                    <span>Gap_SR</span>
+                    <span>
+                      ({stats.scoreStats.gapSrAvg > 0 ? '+' : ''}{' '}
+                      {stats.scoreStats.gapSrAvg.toFixed(1)})
+                    </span>
+                  </div>
+                </div>
+                <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
+                  <span className="txt-b-bold text-center">{stats.scoreStats.sjAvg}</span>
+                  <div
+                    className="bg-special-dark-blue-400 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
+                    style={{ height: `${stats.scoreStats.sjAvg}%` }}
+                  />
+                </div>
+                <div className="w-[50px] lg:w-[120px]">
+                  <div
+                    className={`txt-b-bold flex h-[100px] flex-col text-center ${stats.scoreStats.gapSbAvg > 0 ? 'text-green-500' : 'text-red-500'}`}
+                  >
+                    <span>Gap_SB</span>
+                    <span>
+                      ({stats.scoreStats.gapSbAvg > 0 ? '+' : ''}{' '}
+                      {stats.scoreStats.gapSbAvg.toFixed(1)})
+                    </span>
+                  </div>
+                </div>
+                <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
+                  <span className="txt-b-bold text-center">{stats.scoreStats.bhAvg}</span>
+                  <div
+                    className="bg-special-dark-blue-600 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
+                    style={{ height: `${stats.scoreStats.bhAvg}%` }}
+                  />
+                </div>
               </div>
-              <div>
-                자기평가(Self-Estimate)와 상황판단(Situational Judgment)의 차이입니다.
-                <br />
-                <span className="txt-b-bold text-green-600">[양수(+)]</span> 자기평가가 상황판단보다
-                높아, 자신감이 실제 판단보다 앞서는 경향이 있습니다.
-                <br />
-                <span className="txt-b-bold text-red-500">[음수(−)]</span> 상황판단이 자기평가보다
-                높아, 스스로를 보수적으로 평가하거나 실제 판단이 더 강한 경향이 있습니다.
+              <div className="h-[3px] w-full rounded-full bg-gray-500" />
+              <div className="txt-st2-bold mt-5 flex items-center justify-center gap-[170px] text-center">
+                <div>
+                  자기 평가(SE)
+                  <br />
+                  (종합)
+                </div>
+                <div>
+                  상황 판단(SJ)
+                  <br />
+                  (종합)
+                </div>
+                <div>
+                  행동 빈도(BH)
+                  <br />
+                  (종합)
+                </div>
               </div>
             </div>
-            <div>
-              <div className="txt-st-bold">
-                <span className="text-purple-700">* </span>
-                Gap_SB (SJ − BH)
+            <div className="flex flex-col gap-6">
+              <div>
+                <div className="txt-st-bold">
+                  <span className="text-purple-700">* </span>
+                  Gap_SR (SE − SJ)
+                </div>
+                <div>
+                  자기평가(Self-Estimate)와 상황판단(Situational Judgment)의 차이입니다.
+                  <br />
+                  <span className="txt-b-bold text-green-600">[양수(+)]</span> 자기평가가
+                  상황판단보다 높아, 자신감이 실제 판단보다 앞서는 경향이 있습니다.
+                  <br />
+                  <span className="txt-b-bold text-red-500">[음수(−)]</span> 상황판단이 자기평가보다
+                  높아, 스스로를 보수적으로 평가하거나 실제 판단이 더 강한 경향이 있습니다.
+                </div>
               </div>
               <div>
-                상황판단(Situational Judgment)과 행동빈도(Behavior Habit)의 차이입니다.
-                <br />
-                <span className="txt-b-bold text-green-600">[양수(+)]</span> 상황판단이 행동빈도보다
-                높아, 판단은 좋지만 실사용/실행이 부족한 경향이 있습니다.
-                <br />
-                <span className="txt-b-bold text-red-500">[음수(−)]</span> 행동빈도가 상황판단보다
-                높아, 실행은 많지만 판단·검증이 따라오지 않을 수 있는 경향이 있습니다.
+                <div className="txt-st-bold">
+                  <span className="text-purple-700">* </span>
+                  Gap_SB (SJ − BH)
+                </div>
+                <div>
+                  상황판단(Situational Judgment)과 행동빈도(Behavior Habit)의 차이입니다.
+                  <br />
+                  <span className="txt-b-bold text-green-600">[양수(+)]</span> 상황판단이
+                  행동빈도보다 높아, 판단은 좋지만 실사용/실행이 부족한 경향이 있습니다.
+                  <br />
+                  <span className="txt-b-bold text-red-500">[음수(−)]</span> 행동빈도가 상황판단보다
+                  높아, 실행은 많지만 판단·검증이 따라오지 않을 수 있는 경향이 있습니다.
+                </div>
               </div>
             </div>
           </div>
         </div>
+
         <div className="flex flex-wrap items-center justify-center gap-y-[50px]">
-          {/* 이해(Understand) */}
-          <div className="flex w-[500px] flex-col">
-            <div className="txt-st-bold text-center">이해(Understand)</div>
-            <div className="flex flex-col gap-5">
-              <div className="h-[500px] w-full">그래프 영역</div>
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-pink-500">* </span>AI/LLM 작동 원리 이해 역량
-                  </div>
-                  <div
-                    className="border-special-pink-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${80}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-pink-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'80'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
+          {stats.competencyStats.map((competency) => {
+            const color = COMPETENCY_COLOR_MAP[competency.competencyCode];
+            return (
+              <div key={competency.competencyCode} className="flex w-[300px] flex-col lg:w-[500px]">
+                <div className="txt-st-bold text-center">
+                  {COMPETENCY_NAME_MAP[competency.competencyCode]}
                 </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-pink-500">* </span>생성형 AI 오류·리스크 이해 역량
+                <div className="flex flex-col gap-5">
+                  <div className="h-[300px] w-full lg:h-[500px]">
+                    <RadarChart
+                      seScore={competency.seAvg}
+                      sjScore={competency.sjAvg}
+                      bhScore={competency.bhAvg}
+                      strokeColor={color?.hex ?? '#8b5cff'}
+                    />
                   </div>
-                  <div
-                    className="border-special-pink-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${25}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-pink-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'25'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-pink-500">* </span>컨텍스트·제약에 따른 결과 변동
-                    이해 역량
-                  </div>
-                  <div
-                    className="border-special-pink-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${100}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-pink-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'100'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
+                  <div className="flex flex-col">
+                    {competency.tags.map((tag) => (
+                      <div
+                        key={tag.tagCode}
+                        className="flex flex-col gap-1.5 px-5 py-1.5 lg:px-[50px]"
+                      >
+                        <div className="txt-b-bold">
+                          <span className={color?.text}>* </span>
+                          {tag.tagName}
+                        </div>
+                        <div
+                          className={`${color?.border} relative h-9 w-full overflow-hidden rounded-[12px] border-3`}
+                          style={{ '--progress': `${tag.avgScore}%` } as React.CSSProperties}
+                        >
+                          <div
+                            className={`${color?.bg} absolute inset-y-0 left-0 h-full w-(--progress)`}
+                          />
+                          <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
+                            {tag.avgScore}점
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-gray-500">
+                          <span>0</span>
+                          <span>50</span>
+                          <span>100</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-          {/* 활용(Use & Apply) */}
-          <div className="flex w-[500px] flex-col">
-            <div className="txt-st-bold text-center">활용(Use & Apply)</div>
-            <div className="flex flex-col gap-5">
-              <div className="h-[500px] w-full">그래프 영역</div>
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-blue-500">* </span>프롬프트·요구사항 명세화 역량
-                  </div>
-                  <div
-                    className="border-special-blue-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${80}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-blue-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'80'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-blue-500">* </span>업무 유스케이스 선정·적용 설계
-                    역량
-                  </div>
-                  <div
-                    className="border-special-blue-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${25}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-blue-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'25'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-blue-500">* </span>워크플로우·도구 조합 운영 역량
-                  </div>
-                  <div
-                    className="border-special-blue-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${100}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-blue-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'100'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* 평가·개선(Evaluate & Improve) */}
-          <div className="flex w-[500px] flex-col">
-            <div className="txt-st-bold text-center">평가·개선 (Evaluate & Improve)</div>
-            <div className="flex flex-col gap-5">
-              <div className="h-[500px] w-full">그래프 영역</div>
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-purple-500">* </span>AI 출력 사실·근거 검증 역량
-                  </div>
-                  <div
-                    className="relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3 border-purple-500"
-                    style={{ '--progress': `${80}%` } as React.CSSProperties}
-                  >
-                    <div className="absolute inset-y-0 left-0 h-full w-(--progress) bg-purple-500/20" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'80'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-purple-500">* </span>AI 결과 품질 기준 평가 역량
-                  </div>
-                  <div
-                    className="relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3 border-purple-500"
-                    style={{ '--progress': `${25}%` } as React.CSSProperties}
-                  >
-                    <div className="absolute inset-y-0 left-0 h-full w-(--progress) bg-purple-500/20" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'25'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-purple-500">* </span>실험·피드백 기반 반복 개선 역량
-                  </div>
-                  <div
-                    className="relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3 border-purple-500"
-                    style={{ '--progress': `${100}%` } as React.CSSProperties}
-                  >
-                    <div className="absolute inset-y-0 left-0 h-full w-(--progress) bg-purple-500/20" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'100'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* 책임·거버넌스(Responsible Use) */}
-          <div className="flex w-[500px] flex-col">
-            <div className="txt-st-bold text-center">책임·거버넌스 (Responsible Use)</div>
-            <div className="flex flex-col gap-5">
-              <div className="h-[500px] w-full">그래프 영역</div>
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-gray-700">* </span>AI 데이터 보안·개인정보 처리 역량
-                  </div>
-                  <div
-                    className="relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3 border-gray-700"
-                    style={{ '--progress': `${80}%` } as React.CSSProperties}
-                  >
-                    <div className="absolute inset-y-0 left-0 h-full w-(--progress) bg-gray-700/20" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'80'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-gray-700">* </span>AI 저작권·윤리 리스크 대응 역량
-                  </div>
-                  <div
-                    className="relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3 border-gray-700"
-                    style={{ '--progress': `${25}%` } as React.CSSProperties}
-                  >
-                    <div className="absolute inset-y-0 left-0 h-full w-(--progress) bg-gray-700/20" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'25'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-gray-700">* </span>AI 운영 거버넌스 준수 역량
-                  </div>
-                  <div
-                    className="relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3 border-gray-700"
-                    style={{ '--progress': `${100}%` } as React.CSSProperties}
-                  >
-                    <div className="absolute inset-y-0 left-0 h-full w-(--progress) bg-gray-700/20" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {'100'}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </Section>
       <Section className="max-w-[700px] shrink-0">
@@ -779,34 +894,26 @@ export default function InstitutionPage() {
             onClick={() => setOpenProfileTypeStatGuideModal(true)}
           />
         </div>
-        <div className="h-[500px] w-[500px]">그래프 영역</div>
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            className="flex h-fit w-[160px] flex-col gap-2.5 py-5 text-white"
-            variant="purple"
-          >
-            <div className="flex items-center gap-1">
-              <Trophy className="size-4.5" />
-              <span className="txt-b-bold">1순위</span>
-            </div>
-            <div className="txt-t2">{'균형형'}</div>
-          </Button>
-          <Button className="flex h-fit w-[160px] flex-col gap-2.5 py-5 text-white" variant="gray">
-            <div className="flex items-center gap-1">
-              <Trophy className="size-4.5" />
-              <span className="txt-b-bold">2순위</span>
-            </div>
-            <div className="txt-t2">{'실행형'}</div>
-          </Button>
-          <Button className="flex h-fit w-[160px] flex-col gap-2.5 py-5 text-white" variant="gray">
-            <div className="flex items-center gap-1">
-              <Trophy className="size-4.5" />
-              <span className="txt-b-bold">3순위</span>
-            </div>
-            <div className="txt-t2">{'이해형'}</div>
-          </Button>
+        <div className="h-[500px] w-[500px]">
+          <ProfileRadarChart profileRatios={stats.profileStats.profileRatios} />
         </div>
-        <ProfileResultCard type="BALANCED" />
+        <div className="flex items-center justify-center gap-4">
+          {stats.profileStats.top3ProfileTypes.map((type, index) => (
+            <Button
+              key={type}
+              className="flex h-fit w-[160px] flex-col gap-2.5 py-5 text-white"
+              variant={selectedProfileIndex === index ? 'purple' : 'gray'}
+              onClick={() => setSelectedProfileIndex(index)}
+            >
+              <div className="flex items-center gap-1">
+                <Trophy className="size-4.5" />
+                <span className="txt-b-bold">{index + 1}순위</span>
+              </div>
+              <div className="txt-t2">{PROFILE_TYPE_LABEL[type]}</div>
+            </Button>
+          ))}
+        </div>
+        <ProfileResultCard type={stats.profileStats.top3ProfileTypes[selectedProfileIndex]} />
       </Section>
       <Section className="max-w-[1000px] shrink-0">
         <div className="flex w-[700px] items-center justify-between">
@@ -821,55 +928,75 @@ export default function InstitutionPage() {
         </div>
         <div className="flex w-full flex-col gap-6 rounded-[20px] border border-gray-500 p-6 shadow">
           <div className="flex w-full gap-4">
-            <Button variant="purple" className="txt-t3 h-20 flex-1">
-              전체({'12'}명)
+            <Button
+              variant={selectedRoadmap === 'overall' ? 'purple' : 'gray'}
+              className="txt-t3 h-20 flex-1"
+              onClick={() => setSelectedRoadmap('overall')}
+            >
+              전체({stats.memberExamCount}명)
             </Button>
-            <Button variant="gray" className="txt-t3 h-20 flex-1">
-              입문-초급({'7'}명)
+            <Button
+              variant={selectedRoadmap === 'beginnerElementary' ? 'purple' : 'gray'}
+              className="txt-t3 h-20 flex-1"
+              onClick={() => setSelectedRoadmap('beginnerElementary')}
+            >
+              입문-초급
             </Button>
-            <Button variant="gray" className="txt-t3 h-20 flex-1">
-              중급-고급({'5'}명)
+            <Button
+              variant={selectedRoadmap === 'intermediateAdvanced' ? 'purple' : 'gray'}
+              className="txt-t3 h-20 flex-1"
+              onClick={() => setSelectedRoadmap('intermediateAdvanced')}
+            >
+              중급-고급
             </Button>
           </div>
         </div>
-        <div className="h-[3px] w-full rounded-full bg-purple-700" />
-        <div className="flex w-[700px] flex-col gap-2.5">
-          <div className="txt-st-bold">
-            <span className="text-purple-700">* </span>
-            Step 1. 기반 다지기
-          </div>
-          <div className="flex flex-col gap-2.5">
-            <div className="txt-b-bold text-purple-700">[커리큘럼 가이드]</div>
-            <div className="flex flex-col gap-2.5">
-              <CurriculumItem
-                level="입문"
-                type="메인"
-                title="[사전 진단 및 목표 수립] AX 성숙도 역량 진단 및 데이터 기반 AX 조직 목표 수립"
-                duration="8h"
-              />
-              <CurriculumItem
-                level="초급"
-                type="메인"
-                title="[맞춤 처방: 신사업] AI 리터러시 향상 및 신규 비즈니스 기획 창출"
-                duration="10h"
+
+        {roadmap.steps.map((step, index) => (
+          <div
+            key={step.stepId}
+            className="flex w-full flex-col items-center gap-[50px] lg:gap-[75px]"
+          >
+            <div className="h-[3px] w-full rounded-full bg-purple-700" />
+            <div className="flex w-full max-w-[700px] flex-col gap-2.5">
+              <div className="txt-st-bold">
+                <span className="text-purple-700">* </span>
+                <span>Step {index + 1}. </span>
+                <span>{step.stepName}</span>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <div className="txt-b-bold text-purple-700">[커리큘럼 가이드]</div>
+                <div className="flex flex-col gap-2.5">
+                  {step.curriculumItems.map((curriculumItem) => (
+                    <CurriculumItem
+                      key={curriculumItem.curriculumName}
+                      level={curriculumItem.step}
+                      type={curriculumItem.role}
+                      title={curriculumItem.curriculumName}
+                      duration={curriculumItem.durationHour.toString()}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <div className="txt-b-bold text-purple-700">[프로필 유형별 학습 Tip]</div>
+                <ul className="txt-b-regular flex list-outside list-disc flex-col gap-2.5 pl-5 text-black marker:text-black">
+                  {step.learningTips.map((tip) => (
+                    <li key={tip} className="leading-relaxed">
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="w-full max-w-[1000px]">
+              <CurriculumTreeChart
+                activeNodes={step.curriculumTree.nodes}
+                activeEdges={step.curriculumTree.edges}
               />
             </div>
           </div>
-          <div className="flex flex-col gap-2.5">
-            <div className="txt-b-bold text-purple-700">[프로필 유형별 학습 Tip]</div>
-            <ul className="txt-b-regular flex list-outside list-disc flex-col gap-2.5 pl-5 text-black marker:text-black">
-              <li className="leading-relaxed">
-                AX 전환의 개념과 구조를 이해하고, 유사 사례를 함께 살펴보며 현재 사업과 업무에
-                적용할 수 있는 가능성을 넓혀 학습합니다.
-              </li>
-              <li className="leading-relaxed">
-                AI 리터러시를 바탕으로 새로운 사업 기회와 전환 가능성을 이해하고, 신사업 사례와
-                연결하며 우리 조직에 적용할 수 있는 방향으로 확장해 학습합니다.
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="h-[640px] w-full shadow">커리큘럼 가이드 영역</div>
+        ))}
       </Section>
       <div className="h-[3px] w-full max-w-[1000px] rounded-full bg-purple-700" />
       <Button render={<Link href="/" />} variant="gray">
