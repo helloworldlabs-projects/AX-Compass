@@ -3,14 +3,25 @@
 import Link from 'next/link';
 import { Building } from 'lucide-react';
 import { AdminLoginModal } from '../modals/AdminLoginModal';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useLoginAdmin } from '@/hooks/useLoginAdmin';
 
+function subscribeToStorage(callback: () => void) {
+  window.addEventListener('storage', callback);
+  window.addEventListener('axcompass:tokenChanged', callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener('axcompass:tokenChanged', callback);
+  };
+}
+
 export default function InstitutionLoginButton() {
-  const [isLoggedIn] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('axcompass:adminToken');
-  });
+  const token = useSyncExternalStore<string | null | undefined>(
+    subscribeToStorage,
+    () => localStorage.getItem('axcompass:adminToken'),
+    () => undefined,
+  );
+
   const [open, setOpen] = useState(false);
   const { mutate: loginAdmin } = useLoginAdmin();
 
@@ -18,7 +29,9 @@ export default function InstitutionLoginButton() {
     loginAdmin({ safarionCode: code, password }, { onSuccess: () => setOpen(false) });
   };
 
-  if (isLoggedIn) {
+  if (token === undefined) return null;
+
+  if (token) {
     return (
       <Link href="/institution" className="flex items-center gap-1.5 text-white">
         <Building className="size-5" />
