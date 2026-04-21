@@ -7,6 +7,7 @@ import {
   ExamSubmitResponse,
   ExamType,
   ExpectationForm,
+  FormDTO,
   ItemComponent,
   ItemType,
   QuestionDTO,
@@ -96,7 +97,7 @@ function mapQuestion(raw: RawQuestion): QuestionDTO {
   };
 }
 
-function mapForm(raw: RawFormDTO): ExpectationForm | ExamineeProfiles {
+function mapForm(raw: RawFormDTO): FormDTO {
   return {
     formTitle: raw.formTitle,
     questions: raw.questions.map(mapQuestion),
@@ -131,12 +132,12 @@ function mapExamItems(raw: RawExamItemsDTO): ExamItems {
 export const examService = {
   getExpectationForm: async (): Promise<ExpectationForm> => {
     const raw = await apiFetch<RawFormDTO>('/exam/expectation-form');
-    return mapForm(raw) as ExpectationForm;
+    return mapForm(raw);
   },
 
   getExamineeProfiles: async (): Promise<ExamineeProfiles> => {
     const raw = await apiFetch<RawFormDTO>('/exam/examinee-profiles');
-    return mapForm(raw) as ExamineeProfiles;
+    return mapForm(raw);
   },
 
   getExamItems: async (
