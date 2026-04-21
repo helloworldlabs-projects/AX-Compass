@@ -93,3 +93,43 @@ export interface InstitutionStatsDTO {
 // DTO 구조가 이미 정제된 형태이므로 Domain Model은 DTO를 그대로 alias
 
 export type InstitutionStats = InstitutionStatsDTO;
+
+// ─── Member List ──────────────────────────────────────────────────────────────
+
+export interface MemberDTO {
+  memberId: number;
+  memberName: string;
+  resultCode: string | null;
+  overallLevel: InstitutionLevel | null;
+  profileType: string | null;
+  understandLevel: InstitutionLevel | null;
+  useApplyLevel: InstitutionLevel | null;
+  evaluateLevel: InstitutionLevel | null;
+  responsibleLevel: InstitutionLevel | null;
+  seScore: number | null;
+  sjScore: number | null;
+  bhScore: number | null;
+}
+
+export interface MemberPageInfo {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalElements: number;
+}
+
+export interface MemberListDTO {
+  institutionCode: string;
+  institutionName: string;
+  totalMemberCount: number;
+  examCompletedCount: number;
+  pageInfo: MemberPageInfo;
+  members: MemberDTO[];
+}
+
+export interface MemberListParams {
+  name?: string;
+  examCompleted?: boolean;
+  page?: number;
+  size?: number;
+}
