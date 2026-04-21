@@ -30,6 +30,10 @@ export const apiFetch = async <T>(
     throw new ApiError(errorDTO);
   }
 
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return undefined as T;
+  }
+
   // 성공 응답은 항상 { data: T } 구조
   const { data } = (await response.json()) as ApiResponse<T>;
   return data;

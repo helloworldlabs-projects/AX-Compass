@@ -1,5 +1,10 @@
 import { apiFetch } from '../client';
-import type { InstitutionStats, InstitutionStatsDTO } from '@/types/institution';
+import type {
+  InstitutionStats,
+  InstitutionStatsDTO,
+  MemberListDTO,
+  MemberListParams,
+} from '@/types/institution';
 
 function mapInstitutionStats(dto: InstitutionStatsDTO): InstitutionStats {
   return dto;
@@ -11,5 +16,26 @@ export const institutionService = {
       tokenKey: 'axcompass:adminToken',
     });
     return mapInstitutionStats(dto);
+  },
+
+  getMembers: async (params: MemberListParams): Promise<MemberListDTO> => {
+    const query = new URLSearchParams();
+    if (params.name) query.set('name', params.name);
+    if (params.examCompleted !== undefined)
+      query.set('examCompleted', String(params.examCompleted));
+    if (params.page !== undefined) query.set('page', String(params.page));
+    if (params.size !== undefined) query.set('size', String(params.size));
+
+    const qs = query.toString();
+    return apiFetch<MemberListDTO>(`/members${qs ? `?${qs}` : ''}`, {
+      tokenKey: 'axcompass:adminToken',
+    });
+  },
+
+  deleteMember: async (memberId: number): Promise<void> => {
+    return apiFetch<void>(`/members/${memberId}`, {
+      tokenKey: 'axcompass:adminToken',
+      method: 'DELETE',
+    });
   },
 };
