@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Container from '@/components/layout/Container';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import ExamineeProfilesStep from '@/app/assessment/components/steps/ExamineeProf
 import ExamItemsStep from '@/app/assessment/components/steps/ExamItemsStep';
 import ExpectationsStep from '@/app/assessment/components/steps/ExpectationsStep';
 import { useExamItems, useSubmitExam } from '@/hooks/useExamQueries';
-import { useEffect } from 'react';
 import type {
   ExpectationFormDTO,
   ExamineeProfilesDTO,
@@ -72,20 +71,19 @@ export default function SurveyContainer({
   const [examAnswers, setExamAnswers] = useState<Record<string, number | string>>({});
   const [expectationAnswers, setExpectationAnswers] = useState<Record<string, string>>({});
 
-  if (isLoadingItems || !examItems) return <SurveyLoadingSkeleton />;
-
-  const flatItems: FlatItem[] = examItems.sections.flatMap((section) =>
-    section.items.map((item) => ({
-      ...item,
-      component: section.component,
-      itemType: section.itemType,
-    })),
-  );
+  const flatItems: FlatItem[] =
+    examItems?.sections.flatMap((section) =>
+      section.items.map((item) => ({
+        ...item,
+        component: section.component,
+        itemType: section.itemType,
+      })),
+    ) ?? [];
 
   // Progress percent
   let progressPercent = 0;
   if (step === 'EXAM_ITEMS') {
-    progressPercent = Math.round(((examItemIndex + 1) / examItems.totalItems) * 100);
+    progressPercent = examItems ? Math.round((examItemIndex / examItems.totalItems) * 100) : 0;
   } else if (step === 'EXPECTATION_FORM') {
     progressPercent = 100;
   }
@@ -98,9 +96,9 @@ export default function SurveyContainer({
     sectionLabel = `※ ${examineeProfiles.formTitle}`;
   } else if (step === 'EXAM_ITEMS') {
     const currentItem = flatItems[examItemIndex];
-    if (currentItem.component === 'SELF_ESTIMATE') {
+    if (currentItem?.component === 'SELF_ESTIMATE') {
       sectionLabel = '* 자기평가(Self-Estimate)';
-    } else if (currentItem.component === 'SITUATIONAL_JUDGMENT') {
+    } else if (currentItem?.component === 'SITUATIONAL_JUDGMENT') {
       sectionLabel = '* 상황판단(Situational Judgment)';
     } else {
       sectionLabel = '* 행동습관(Behavior Habit)';
@@ -119,7 +117,8 @@ export default function SurveyContainer({
   } else if (step === 'EXAMINEE_PROFILES') {
     canProceed = currentBatch.every((q) => hasAnswer(examineeAnswers[q.questionCode]));
   } else if (step === 'EXAM_ITEMS') {
-    canProceed = examAnswers[flatItems[examItemIndex].itemId] !== undefined;
+    const currentItemId = flatItems[examItemIndex]?.itemId;
+    canProceed = currentItemId !== undefined && examAnswers[currentItemId] !== undefined;
   } else {
     canProceed = expectationForm.questions
       .filter((q) => q.required)
@@ -132,7 +131,8 @@ export default function SurveyContainer({
   }
 
   function handleExamAnswer(value: number | string) {
-    const itemId = flatItems[examItemIndex].itemId;
+    const itemId = flatItems[examItemIndex]?.itemId;
+    if (itemId === undefined) return;
     setExamAnswers((prev) => ({ ...prev, [itemId]: value }));
   }
 
@@ -191,6 +191,29 @@ export default function SurveyContainer({
       });
     }
   }
+
+  const handleNextRef = useRef<() => void>(() => {});
+
+  useLayoutEffect(() => {
+    handleNextRef.current = canProceed && !isSubmitting ? handleNext : () => {};
+  });
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Enter') return;
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA') return;
+      if (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'checkbox') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      handleNextRef.current();
+    }
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, []);
+
+  if (isLoadingItems || !examItems) return <SurveyLoadingSkeleton />;
 
   if (isSubmitting) {
     return (
