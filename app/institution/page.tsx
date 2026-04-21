@@ -21,17 +21,20 @@ export default function InstitutionPage() {
   return (
     <Container>
       {/* 디버그 패널 */}
-      <details
-        open
-        className="fixed right-4 bottom-4 z-[9999] w-[400px] rounded-[12px] border-2 border-dashed border-yellow-400 bg-yellow-50 p-4 shadow-lg"
-      >
-        <summary className="cursor-pointer font-mono text-sm font-bold text-yellow-700">
-          [DEBUG] institution stats
-        </summary>
-        <pre className="mt-2 max-h-[400px] overflow-auto font-mono text-xs text-yellow-900">
-          {JSON.stringify(stats, null, 2)}
-        </pre>
-      </details>
+      {(process.env.NEXT_PUBLIC_APP_ENV === 'local' ||
+        process.env.NEXT_PUBLIC_APP_ENV === 'dev') && (
+        <details
+          open
+          className="fixed right-4 bottom-4 z-[9999] w-[400px] rounded-[12px] border-2 border-dashed border-yellow-400 bg-yellow-50 p-4 shadow-lg"
+        >
+          <summary className="cursor-pointer font-mono text-sm font-bold text-yellow-700">
+            [DEBUG] institution stats
+          </summary>
+          <pre className="mt-2 max-h-[400px] overflow-auto font-mono text-xs text-yellow-900">
+            {JSON.stringify(stats, null, 2)}
+          </pre>
+        </details>
+      )}
 
       <InstitutionHeaderSection stats={stats} />
       <InstitutionNoticeBanners
