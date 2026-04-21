@@ -1,16 +1,9 @@
 'use client';
 
-import {
-  Bar,
-  BarChart,
-  Cell,
-  LabelList,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import type { InstitutionCompetencyStat, InstitutionLevel } from '@/types/institution';
+import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
+import { COMPETENCY_NAME_MAP } from '@/constants/competencyConfig';
 
 const COMPETENCY_COLORS: Record<string, string[]> = {
   UNDERSTAND: ['#FFBDC7', '#F97190', '#D43F5A', '#8B1A2B'],
@@ -26,21 +19,7 @@ const COMPETENCY_BORDER: Record<string, string> = {
   RESPONSIBLE: '#E1E1E1',
 };
 
-const COMPETENCY_LABELS: Record<string, string> = {
-  UNDERSTAND: '이해 (Understand)',
-  USE_AND_APPLY: '활용 (Use & Apply)',
-  EVALUATE: '평가·개선 (Evaluate & Improve)',
-  RESPONSIBLE: '책임·거버넌스 (Responsible Use)',
-};
-
 const LEVELS: InstitutionLevel[] = ['BEGINNER', 'ELEMENTARY', 'INTERMEDIATE', 'ADVANCED'];
-
-const LEVEL_LABELS: Record<InstitutionLevel, string> = {
-  BEGINNER: '입문',
-  ELEMENTARY: '초급',
-  INTERMEDIATE: '중급',
-  ADVANCED: '고급',
-};
 
 const AXIS_TICK_STYLE = { fill: '#6b6b6b', fontSize: 16, fontWeight: 700 } as const;
 
@@ -72,10 +51,10 @@ export interface CompetencyLevelChartProps {
 export function CompetencyLevelChart({ stat }: CompetencyLevelChartProps) {
   const colors = COMPETENCY_COLORS[stat.competencyCode] ?? COMPETENCY_COLORS['RESPONSIBLE'];
   const border = COMPETENCY_BORDER[stat.competencyCode] ?? COMPETENCY_BORDER['RESPONSIBLE'];
-  const title = COMPETENCY_LABELS[stat.competencyCode] ?? stat.competencyCode;
+  const title = COMPETENCY_NAME_MAP[stat.competencyCode];
 
   const data = LEVELS.map((level, i) => ({
-    name: LEVEL_LABELS[level],
+    name: INSTITUTION_LEVEL_LABEL_MAP[level],
     value: stat.levelRatios[level] ?? 0,
     fill: colors[i],
     stroke: border,

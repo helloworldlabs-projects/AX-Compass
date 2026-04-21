@@ -16,9 +16,8 @@ function getDominantLevelLabel(
   competencyCode: string,
   competencyStats: InstitutionCompetencyStat[],
 ): string {
-  const dominantLevel = competencyStats.find(
-    (stat) => stat.competencyCode === competencyCode,
-  )?.dominantLevel as InstitutionLevel | undefined;
+  const dominantLevel = competencyStats.find((stat) => stat.competencyCode === competencyCode)
+    ?.dominantLevel as InstitutionLevel | undefined;
   return dominantLevel ? INSTITUTION_LEVEL_LABEL_MAP[dominantLevel] : '-';
 }
 
