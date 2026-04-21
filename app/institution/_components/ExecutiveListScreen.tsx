@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { useRegister } from '@/hooks/useRegister';
+import { useRegisterMember } from '@/hooks/useInstitutionQueries';
 import InstitutionListLayout from './shared/InstitutionListLayout';
 import { getApiErrorDetail } from '@/types/common';
 
@@ -64,7 +64,7 @@ export default function ExecutiveListScreen() {
   const [searchValue, setSearchValue] = useState('');
   const [filterCompleted, setFilterCompleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const { mutate: register } = useRegister();
+  const { mutate: register } = useRegisterMember();
   const [registerError, setRegisterError] = useState('');
 
   const completedCount = executives.filter((e) => e.resultCode !== null).length;
