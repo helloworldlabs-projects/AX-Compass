@@ -13,6 +13,7 @@ import {
   QuestionDTO,
   QuestionType,
 } from '@/types/exam';
+import type { TokenKey } from '@/types/common';
 import { apiFetch } from '../client';
 
 // ─── Raw API response types (actual field names from server) ──────────────────
@@ -142,7 +143,7 @@ export const examService = {
 
   getExamItems: async (
     examType: ExamType,
-    tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+    tokenKey?: TokenKey,
   ): Promise<ExamItems> => {
     const raw = await apiFetch<RawExamItemsDTO>(`/exam/items?examType=${examType}`, {
       ...(tokenKey && { tokenKey }),
@@ -152,7 +153,7 @@ export const examService = {
 
   submitExam: async (
     body: ExamSubmitRequest,
-    tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+    tokenKey?: TokenKey,
   ): Promise<ExamSubmitResponse> => {
     return apiFetch<ExamSubmitResponse>('/exam/submit', {
       method: 'POST',
