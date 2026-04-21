@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Building } from 'lucide-react';
 import { AdminLoginModal } from '../modals/AdminLoginModal';
 import { useState } from 'react';
-import { useLoginAdmin } from '@/hooks/userLoginAdmin';
+import { useLoginAdmin } from '@/hooks/useLoginAdmin';
 
 export default function InstitutionLoginButton() {
   const [isLoggedIn] = useState(() => {
