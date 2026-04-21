@@ -76,8 +76,8 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
           </div>
           <div className="flex w-[140px] flex-col items-center gap-2.5 rounded-[12px] border-3 border-purple-300 bg-purple-700 py-5 shadow lg:w-[160px]">
             <div className="flex items-center gap-1">
-              <BadgeCheck className="size-5" />
-              <span className="txt-b-bold">종합 역량 등급</span>
+              <ContactRound className="size-5" />
+              <span className="txt-b-bold">프로필 유형</span>
             </div>
             <div className="txt-t2">{PROFILE_TYPE_LABEL[result.profileType]}</div>
           </div>
