@@ -59,6 +59,7 @@ export default function MemberListScreen() {
     register(
       { safarionCode: data?.institutionCode ?? '', name, role: 'MEMBER' },
       {
+        onSuccess: () => setCurrentPage(0),
         onError: (error) => {
           const detail = getApiErrorDetail(error);
           setRegisterError(detail ?? '초대에 실패했습니다.');
