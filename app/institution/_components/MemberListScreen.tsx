@@ -7,6 +7,7 @@ import {
   useInstitutionMembers,
   useRegisterMember,
   useDeleteMember,
+  useDownloadMemberExcel,
 } from '@/hooks/useInstitutionQueries';
 import { useDebounce } from '@/hooks/useDebounce';
 import InstitutionListLayout from './shared/InstitutionListLayout';
@@ -28,6 +29,7 @@ export default function MemberListScreen() {
 
   const { mutate: register } = useRegisterMember();
   const { mutate: deleteMember, isPending: isDeletePending } = useDeleteMember();
+  const { mutate: downloadExcel, isPending: isDownloading } = useDownloadMemberExcel();
   const [registerError, setRegisterError] = useState('');
 
   const params: MemberListParams = {
@@ -75,7 +77,9 @@ export default function MemberListScreen() {
   }
 
   function handleDownload() {
-    // 추후 다운로드 API 연동 예정
+    downloadExcel(data?.institutionCode ?? 'S0000000', {
+      onError: () => toast.error('다운로드에 실패했습니다.'),
+    });
   }
 
   return (
@@ -89,6 +93,7 @@ export default function MemberListScreen() {
       registerPlaceholder="구성원명을 입력해 주세요."
       filterLabel="검사 완료 구성원만 확인"
       onDownload={handleDownload}
+      isDownloading={isDownloading}
       onSearch={handleSearch}
       registerError={registerError}
       onRegisterErrorClear={() => setRegisterError('')}

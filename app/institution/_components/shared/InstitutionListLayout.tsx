@@ -27,6 +27,7 @@ interface InstitutionListLayoutProps {
   registerPlaceholder: string;
   filterLabel: string;
   onDownload: () => void;
+  isDownloading?: boolean;
   onSearch: (value: string) => void;
   onRegister: (name: string) => void;
   onRegisterErrorClear: () => void;
@@ -48,6 +49,7 @@ export default function InstitutionListLayout({
   registerPlaceholder,
   filterLabel,
   onDownload,
+  isDownloading = false,
   onSearch,
   onRegister,
   onRegisterErrorClear,
@@ -136,9 +138,10 @@ export default function InstitutionListLayout({
               size="pill"
               className="txt-c1-bold"
               onClick={onDownload}
+              disabled={isDownloading}
               aria-label="전체 리스트 다운로드"
             >
-              전체 리스트 다운
+              {isDownloading ? '다운로드 중...' : '전체 리스트 다운'}
               <FileDown className="size-6" aria-hidden />
             </Button>
           </div>
