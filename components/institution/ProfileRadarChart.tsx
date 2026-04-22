@@ -38,8 +38,9 @@ function getLabelAnchor(angle: number): {
 }
 
 export function ProfileRadarChart({ profileRatios }: ProfileRadarChartProps) {
-  const polygonPoints = AXES.filter((axis) => profileRatios[axis.key] !== undefined)
-    .map((axis) => polarToPoint(profileRatios[axis.key]!, axis.angle, CX, CY, MAX_R))
+  const polygonPoints = AXES.map((axis) =>
+    polarToPoint(profileRatios[axis.key] ?? 0, axis.angle, CX, CY, MAX_R),
+  )
     .map((p) => `${p.x},${p.y}`)
     .join(' ');
 
