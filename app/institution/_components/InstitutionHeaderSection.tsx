@@ -1,5 +1,3 @@
-'use client';
-
 import Section from '@/components/layout/Section';
 import { Button } from '@/components/ui/button';
 import { Users } from 'lucide-react';

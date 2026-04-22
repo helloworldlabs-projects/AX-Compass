@@ -101,11 +101,6 @@ export function RadarChart({ seScore, sjScore, bhScore, strokeColor }: RadarChar
         strokeLinejoin="round"
       />
 
-      {/* 데이터 포인트 */}
-      {/* {dataPoints.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={4} fill={strokeColor} />
-      ))} */}
-
       {/* 축 레이블 */}
       {AXES.map((axis) => {
         const { x, y, anchor } = labelPosition(axis.angle);
