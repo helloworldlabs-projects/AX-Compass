@@ -1,7 +1,7 @@
 import type { ProfileType } from '@/types/exam';
 
 interface ProfileRadarChartProps {
-  profileRatios: Record<ProfileType, number>;
+  profileRatios: Partial<Record<ProfileType, number>>;
 }
 
 const CX = 250;
@@ -38,10 +38,11 @@ function getLabelAnchor(angle: number): {
 }
 
 export function ProfileRadarChart({ profileRatios }: ProfileRadarChartProps) {
-  const dataPoints = AXES.map((axis) =>
-    polarToPoint(profileRatios[axis.key], axis.angle, CX, CY, MAX_R),
-  );
-  const polygonPoints = dataPoints.map((p) => `${p.x},${p.y}`).join(' ');
+  const polygonPoints = AXES.map((axis) =>
+    polarToPoint(profileRatios[axis.key] ?? 0, axis.angle, CX, CY, MAX_R),
+  )
+    .map((p) => `${p.x},${p.y}`)
+    .join(' ');
 
   return (
     <svg

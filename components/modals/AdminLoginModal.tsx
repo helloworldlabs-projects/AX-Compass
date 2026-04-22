@@ -28,7 +28,6 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
 
   function handleConfirm() {
     onConfirm(code, password);
-    reset();
   }
 
   return (

@@ -22,7 +22,6 @@ function ResultCodeModal({ open, onClose, onConfirm }: ResultCodeModalProps) {
 
   function handleConfirm() {
     onConfirm(code);
-    setCode('');
   }
 
   return (

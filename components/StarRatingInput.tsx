@@ -7,7 +7,7 @@ import { StarGlyph } from '@/components/StarGlyph';
 export type StarRatingValue = 1 | 2 | 3 | 4 | 5;
 
 type StarRatingInputProps = {
-  value: StarRatingValue;
+  value: StarRatingValue | 0;
   onChange: (value: StarRatingValue) => void;
   /** 생략 시 모바일 40px · lg 52px (`StarGlyph` 기본) */
   size?: number;

@@ -1,6 +1,7 @@
 import { examService } from '@/api/services/exam.service';
 import { examKeys } from '@/api/keys/exam.keys';
 import { ExamSubmitRequest, ExamType } from '@/types/exam';
+import type { TokenKey } from '@/types/common';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 export const useExpectationForm = () =>
@@ -17,14 +18,14 @@ export const useExamineeProfiles = () =>
 
 export const useExamItems = (
   examType: ExamType,
-  tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+  tokenKey?: TokenKey,
 ) =>
   useQuery({
     queryKey: examKeys.items(examType),
     queryFn: () => examService.getExamItems(examType, tokenKey),
   });
 
-export const useSubmitExam = (tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken') =>
+export const useSubmitExam = (tokenKey?: TokenKey) =>
   useMutation({
     mutationFn: (body: ExamSubmitRequest) => examService.submitExam(body, tokenKey),
     onSuccess: () => {

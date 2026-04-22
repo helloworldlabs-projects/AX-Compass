@@ -7,11 +7,13 @@ import {
   ExamSubmitResponse,
   ExamType,
   ExpectationForm,
+  FormDTO,
   ItemComponent,
   ItemType,
   QuestionDTO,
   QuestionType,
 } from '@/types/exam';
+import type { TokenKey } from '@/types/common';
 import { apiFetch } from '../client';
 
 // ─── Raw API response types (actual field names from server) ──────────────────
@@ -96,7 +98,7 @@ function mapQuestion(raw: RawQuestion): QuestionDTO {
   };
 }
 
-function mapForm(raw: RawFormDTO): ExpectationForm | ExamineeProfiles {
+function mapForm(raw: RawFormDTO): FormDTO {
   return {
     formTitle: raw.formTitle,
     questions: raw.questions.map(mapQuestion),
@@ -131,17 +133,17 @@ function mapExamItems(raw: RawExamItemsDTO): ExamItems {
 export const examService = {
   getExpectationForm: async (): Promise<ExpectationForm> => {
     const raw = await apiFetch<RawFormDTO>('/exam/expectation-form');
-    return mapForm(raw) as ExpectationForm;
+    return mapForm(raw);
   },
 
   getExamineeProfiles: async (): Promise<ExamineeProfiles> => {
     const raw = await apiFetch<RawFormDTO>('/exam/examinee-profiles');
-    return mapForm(raw) as ExamineeProfiles;
+    return mapForm(raw);
   },
 
   getExamItems: async (
     examType: ExamType,
-    tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+    tokenKey?: TokenKey,
   ): Promise<ExamItems> => {
     const raw = await apiFetch<RawExamItemsDTO>(`/exam/items?examType=${examType}`, {
       ...(tokenKey && { tokenKey }),
@@ -151,7 +153,7 @@ export const examService = {
 
   submitExam: async (
     body: ExamSubmitRequest,
-    tokenKey?: 'axcompass:accessToken' | 'axcompass:adminToken',
+    tokenKey?: TokenKey,
   ): Promise<ExamSubmitResponse> => {
     return apiFetch<ExamSubmitResponse>('/exam/submit', {
       method: 'POST',

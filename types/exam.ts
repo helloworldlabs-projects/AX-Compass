@@ -49,19 +49,15 @@ export interface TextQuestionDTO {
 
 export type QuestionDTO = SingleChoiceQuestionDTO | MultiChoiceQuestionDTO | TextQuestionDTO;
 
-// ─── Expectation Form ────────────────────────────────────────────────────────
+// ─── Form (shared base for expectation form and examinee profiles) ────────────
 
-export interface ExpectationFormDTO {
+export interface FormDTO {
   formTitle: string;
   questions: QuestionDTO[];
 }
 
-// ─── Examinee Profiles ───────────────────────────────────────────────────────
-
-export interface ExamineeProfilesDTO {
-  formTitle: string;
-  questions: QuestionDTO[];
-}
+export type ExpectationFormDTO = FormDTO;
+export type ExamineeProfilesDTO = FormDTO;
 
 // ─── Exam Items ──────────────────────────────────────────────────────────────
 

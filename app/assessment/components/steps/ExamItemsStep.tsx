@@ -19,7 +19,9 @@ export default function ExamItemsStep({
   answer,
   onAnswer,
 }: ExamItemsStepProps) {
-  const [starValue, setStarValue] = useState<number>(typeof answer === 'number' ? answer : 0);
+  const [starValue, setStarValue] = useState<StarRatingValue | 0>(
+    typeof answer === 'number' && answer >= 1 && answer <= 5 ? (answer as StarRatingValue) : 0,
+  );
 
   const itemType = item.itemType?.toUpperCase();
   const isLikert = itemType === 'LIKERT' || itemType === 'LIKERT_FREQ';
@@ -43,7 +45,7 @@ export default function ExamItemsStep({
       {isLikert && (
         <div className="flex flex-col items-center">
           <StarRatingInput
-            value={starValue as unknown as StarRatingValue}
+            value={starValue}
             onChange={(v) => {
               setStarValue(v);
               onAnswer(v);

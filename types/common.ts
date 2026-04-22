@@ -14,6 +14,9 @@ export interface ApiErrorDTO {
   timestamp: string;
 }
 
+// 브라우저 저장소 기반 인증 토큰 키
+export type TokenKey = 'axcompass:accessToken' | 'axcompass:adminToken';
+
 export class ApiError extends Error {
   status: number;
   errorCode: string;

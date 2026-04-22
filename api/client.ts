@@ -1,6 +1,4 @@
-import { ApiError, ApiErrorDTO, ApiResponse } from '@/types/common';
-
-type TokenKey = 'axcompass:accessToken' | 'axcompass:adminToken';
+import { ApiError, ApiErrorDTO, ApiResponse, type TokenKey } from '@/types/common';
 
 function getAuthHeader(tokenKey?: TokenKey): Record<string, string> {
   if (!tokenKey || typeof window === 'undefined') return {};

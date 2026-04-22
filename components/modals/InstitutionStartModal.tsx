@@ -13,7 +13,12 @@ interface InstitutionStartModalProps {
   isLoading?: boolean;
 }
 
-function InstitutionStartModal({ open, onClose, onConfirm, isLoading }: InstitutionStartModalProps) {
+function InstitutionStartModal({
+  open,
+  onClose,
+  onConfirm,
+  isLoading,
+}: InstitutionStartModalProps) {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
 
@@ -29,7 +34,6 @@ function InstitutionStartModal({ open, onClose, onConfirm, isLoading }: Institut
 
   function handleConfirm() {
     onConfirm(code, name);
-    reset();
   }
 
   return (

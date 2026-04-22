@@ -1,37 +1,52 @@
 'use client';
 
-import { startTransition, useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 
 const PC_MIN_WIDTH = 1024;
 
+function subscribeToStorage(callback: () => void) {
+  window.addEventListener('storage', callback);
+  window.addEventListener('axcompass:tokenChanged', callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener('axcompass:tokenChanged', callback);
+  };
+}
+
+function subscribeToResize(callback: () => void) {
+  window.addEventListener('resize', callback);
+  return () => window.removeEventListener('resize', callback);
+}
+
 export default function InstitutionLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(
-    () => typeof window === 'undefined' || window.innerWidth >= PC_MIN_WIDTH,
+
+  const token = useSyncExternalStore<string | null | undefined>(
+    subscribeToStorage,
+    () => localStorage.getItem('axcompass:adminToken'),
+    () => undefined,
+  );
+
+  const isDesktop = useSyncExternalStore(
+    subscribeToResize,
+    () => window.innerWidth >= PC_MIN_WIDTH,
+    () => true,
   );
 
   useEffect(() => {
-    const token = localStorage.getItem('axcompass:adminToken');
-    if (!token) {
-      router.replace('/');
-      return;
-    }
+    if (token === null) router.replace('/');
+  }, [token, router]);
 
-    startTransition(() => setIsAuthorized(true));
-  }, [router]);
+  if (token === undefined) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-white">로딩 중...</div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    function check() {
-      setIsDesktop(window.innerWidth >= PC_MIN_WIDTH);
-    }
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
-  if (!isAuthorized) return null;
+  if (!token) return null;
 
   if (!isDesktop) {
     return (
