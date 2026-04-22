@@ -1,11 +1,7 @@
 import ResultContainer from '@/app/result/components/ResultContainer';
 import { examService } from '@/api/services/exam.service';
 
-export default async function GeneralAssessmentPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function GeneralResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const result = await examService.getExamResult(id);
 
