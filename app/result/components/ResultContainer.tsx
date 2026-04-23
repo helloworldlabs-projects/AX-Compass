@@ -88,7 +88,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
           </div>
         </div>
         <ResultCodeCard resultCode={result.resultCode} />
-        <div className="rounded-card flex flex-col gap-[30px] border border-gray-500 bg-white px-2.5 py-[50px] lg:px-[50px]">
+        <div className="rounded-card flex flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:px-[50px]">
           {result.competencies.map((competency) => (
             <LevelCompetencyCell
               key={competency.competencyCode}

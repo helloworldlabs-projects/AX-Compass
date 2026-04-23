@@ -26,7 +26,7 @@ function LevelCompetencyCell({
   categoryTitle,
   categorySummary,
   description,
-  gapClassName = 'gap-3 lg:gap-6',
+  gapClassName = 'gap-4 lg:gap-6',
   className,
 }: LevelCompetencyCellProps) {
   return (
