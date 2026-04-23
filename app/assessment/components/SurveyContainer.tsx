@@ -145,6 +145,7 @@ export default function SurveyContainer({
 
   function handleNext() {
     if (!examItems) return;
+    window.scrollTo({ top: 0 });
     if (step === 'INTRO') {
       setStep('EXAMINEE_PROFILES');
       setProfilePage(0);
