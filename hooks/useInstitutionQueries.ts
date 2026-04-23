@@ -3,7 +3,7 @@ import { institutionService } from '@/api/services/institution.service';
 import { authService } from '@/api/services/auth.service';
 import { institutionKeys } from '@/api/keys/institution.keys';
 import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
-import type { MemberListParams } from '@/types/institution';
+import type { ExecutiveListParams, MemberListParams } from '@/types/institution';
 import type { RegisterRequestDTO } from '@/types/auth';
 
 export const useInstitutionStats = () =>
@@ -36,6 +36,22 @@ export const useDeleteMember = () => {
       queryClient.invalidateQueries({
         queryKey: institutionKeys.all,
       });
+    },
+  });
+};
+
+export const useInstitutionExecutives = (params: ExecutiveListParams) =>
+  useQuery({
+    queryKey: institutionKeys.executives(params as Record<string, unknown>),
+    queryFn: () => institutionService.getExecutives(params),
+  });
+
+export const useDeleteExecutive = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (executiveId: number) => institutionService.deleteExecutive(executiveId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: institutionKeys.all });
     },
   });
 };
