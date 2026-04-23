@@ -21,6 +21,7 @@ import { LearningRoadmapGuideModal } from '@/app/result/components/modal/Learnin
 import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { useState } from 'react';
 import { COMPETENCY_COLOR_MAP } from '@/constants/competencyConfig';
+import { roundScore } from '@/lib/utils';
 
 interface ResultContainerProps {
   resultType: 'general' | 'member';
@@ -115,10 +116,14 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             <div className="mx-auto max-w-[340px] lg:max-w-[900px]">
               <div className="flex items-end justify-center gap-2.5">
                 <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
-                  <span className="txt-b-bold text-center">{result.scoreStats.seScore}</span>
+                  <span className="txt-b-bold text-center">
+                    {roundScore(result.scoreStats.seScore)}
+                  </span>
                   <div
                     className="bg-special-dark-blue-200 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
-                    style={{ height: `${result.scoreStats.seScore}%` }}
+                    style={{
+                      height: `${roundScore(result.scoreStats.seScore)}%`,
+                    }}
                   />
                 </div>
                 <div className="w-[50px] lg:w-[120px]">
@@ -133,10 +138,12 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                   </div>
                 </div>
                 <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
-                  <span className="txt-b-bold text-center">{result.scoreStats.sjScore}</span>
+                  <span className="txt-b-bold text-center">
+                    {roundScore(result.scoreStats.sjScore)}
+                  </span>
                   <div
                     className="bg-special-dark-blue-400 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
-                    style={{ height: `${result.scoreStats.sjScore}%` }}
+                    style={{ height: `${roundScore(result.scoreStats.sjScore)}%` }}
                   />
                 </div>
                 <div className="w-[50px] lg:w-[120px]">
@@ -151,10 +158,12 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                   </div>
                 </div>
                 <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
-                  <span className="txt-b-bold text-center">{result.scoreStats.bhScore}</span>
+                  <span className="txt-b-bold text-center">
+                    {roundScore(result.scoreStats.bhScore)}
+                  </span>
                   <div
                     className="bg-special-dark-blue-600 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
-                    style={{ height: `${result.scoreStats.bhScore}%` }}
+                    style={{ height: `${roundScore(result.scoreStats.bhScore)}%` }}
                   />
                 </div>
               </div>
@@ -239,13 +248,17 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                           </div>
                           <div
                             className={`${color?.border} relative h-9 w-full overflow-hidden rounded-[12px] border-3`}
-                            style={{ '--progress': `${tag.avgScore}%` } as React.CSSProperties}
+                            style={
+                              {
+                                '--progress': `${roundScore(tag.avgScore)}%`,
+                              } as React.CSSProperties
+                            }
                           >
                             <div
                               className={`${color?.bg} absolute inset-y-0 left-0 h-full w-(--progress)`}
                             />
                             <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                              {tag.avgScore}점
+                              {roundScore(tag.avgScore)}점
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-gray-500">
