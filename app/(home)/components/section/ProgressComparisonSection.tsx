@@ -31,7 +31,7 @@ export function ProgressComparisonSection() {
             width={300}
             height={300}
             alt=""
-            className="h-[300px] w-[300px] shrink-0 object-cover"
+            className="rounded-card h-[300px] w-[300px] shrink-0 object-cover shadow"
           />
           <div className="rounded-card border-special-navy-200 flex max-w-[380px] min-w-[320px] flex-1 shrink-0 flex-col gap-1.5 border-3 bg-white p-4 lg:gap-2.5">
             <div className="txt-st2-bold text-center">다면 진단 변화 비교</div>
@@ -48,7 +48,7 @@ export function ProgressComparisonSection() {
             width={300}
             height={211}
             alt=""
-            className="h-[211px] w-[300px] shrink-0 object-cover"
+            className="rounded-card h-[211px] w-[300px] shrink-0 object-cover shadow"
           />
           <div className="rounded-card border-special-navy-200 flex max-w-[380px] min-w-[320px] flex-1 shrink-0 flex-col gap-1.5 border-3 bg-white p-4 lg:gap-2.5">
             <div className="txt-st2-bold text-center">역량 분포 변화 비교</div>
