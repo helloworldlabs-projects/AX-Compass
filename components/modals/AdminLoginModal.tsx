@@ -43,6 +43,7 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
         <div className="flex flex-col gap-2">
           <FieldLabel required>비밀번호</FieldLabel>
           <Input
+            type="password"
             placeholder="관리자 비밀번호를 입력해 주세요."
             value={password}
             onChange={setPassword}
