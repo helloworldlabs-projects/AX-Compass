@@ -65,7 +65,7 @@ export default function IntroStep({
               onCheckedChange={(checked) => setAgreed(checked === true)}
               label={
                 <div className="txt-c1-bold flex gap-1">
-                  <span className="text-red-500">[필수]</span>검사 결고의 연구 및 마케팅 활용 동의
+                  <span className="text-red-500">[필수]</span>검사 결과의 연구 및 마케팅 활용 동의
                 </div>
               }
             />
