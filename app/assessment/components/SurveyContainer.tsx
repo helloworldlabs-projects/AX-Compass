@@ -274,7 +274,7 @@ export default function SurveyContainer({
               진행 <br className="block lg:hidden" />
               현황
             </div>
-            <div className="bg-special-dark-blue-100 h-full flex-1 overflow-hidden rounded-[20px] p-0.5 lg:p-1">
+            <div className="bg-special-dark-blue-100 h-full flex-1 overflow-hidden rounded-[20px] p-1">
               <div
                 className="bg-special-dark-blue-500 flex h-full min-w-[36px] items-center justify-center rounded-[20px] lg:h-[36px] lg:min-w-[36px]"
                 style={{ width: `${progressPercent}%` }}
