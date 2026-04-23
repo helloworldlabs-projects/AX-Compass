@@ -49,6 +49,10 @@ export function ScoreStatSection({ scoreStats, competencyStats }: ScoreStatSecti
                   <span>
                     ({scoreStats.gapSrAvg > 0 ? '+' : ''} {scoreStats.gapSrAvg.toFixed(1)})
                   </span>
+                  <div className="flex w-full items-center">
+                    <div className="h-px flex-1 bg-current" />
+                    <div className="h-0 w-0 border-y-[5px] border-l-8 border-y-transparent border-l-current" />
+                  </div>
                 </div>
               </div>
               <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
@@ -66,6 +70,10 @@ export function ScoreStatSection({ scoreStats, competencyStats }: ScoreStatSecti
                   <span>
                     ({scoreStats.gapSbAvg > 0 ? '+' : ''} {scoreStats.gapSbAvg.toFixed(1)})
                   </span>
+                  <div className="flex w-full items-center">
+                    <div className="h-px flex-1 bg-current" />
+                    <div className="h-0 w-0 border-y-[5px] border-l-8 border-y-transparent border-l-current" />
+                  </div>
                 </div>
               </div>
               <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
@@ -95,7 +103,7 @@ export function ScoreStatSection({ scoreStats, competencyStats }: ScoreStatSecti
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-6">
+          <div className="mx-auto flex max-w-[700px] flex-col gap-6">
             <div>
               <div className="txt-st-bold">
                 <span className="text-purple-700">* </span>
