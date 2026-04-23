@@ -315,15 +315,19 @@ export default function SurveyContainer({
           />
         )}
 
-        {/* Next button */}
-        <Button
-          variant="purple"
-          className="mx-auto w-fit"
-          disabled={!canProceed || showSpinner}
-          onClick={handleNext}
-        >
-          {step === 'EXPECTATION_FORM' ? '결과 확인' : '다음으로'}
-        </Button>
+        <div className="flex items-center justify-center gap-2.5">
+          <Button
+            variant="purple"
+            className="w-fit"
+            disabled={!canProceed || showSpinner}
+            onClick={handleNext}
+          >
+            {step === 'EXPECTATION_FORM' ? '결과 확인' : '다음으로'}
+          </Button>
+          <div className="border-special-orange-100 txt-c2-bold bg-special-orange-300 hidden rounded-[20px] border px-2 py-0.5 text-white lg:block">
+            ENTER 대응
+          </div>
+        </div>
       </div>
 
       {/* ===== DEBUG PANEL START — DELETE BEFORE RELEASE ===== */}
