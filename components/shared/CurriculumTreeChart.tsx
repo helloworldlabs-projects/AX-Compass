@@ -435,13 +435,13 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
 
   return (
     <>
-      <div className="bg-special-orange-0 relative w-full overflow-hidden p-[30px]">
+      <div className="bg-special-orange-0 relative w-full overflow-hidden p-2.5 lg:p-[30px]">
         {/* 돋보기 버튼 */}
         <button
           type="button"
           aria-label="전체 화면으로 보기"
           onClick={() => setFullscreen(true)}
-          className="bg-special-dark-blue-500 border-special-navy-100 absolute top-[30px] right-[30px] z-10 flex items-center justify-center rounded-[12px] border-2 p-2"
+          className="bg-special-dark-blue-500 border-special-navy-100 absolute top-[30px] right-[30px] z-10 flex hidden items-center justify-center rounded-[12px] border-2 p-2 lg:block"
         >
           <Search className="size-6 text-white" strokeWidth={3} />
         </button>
