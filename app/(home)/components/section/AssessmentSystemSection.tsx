@@ -64,7 +64,7 @@ export function AssessmentSystemSection() {
               width={300}
               height={300}
               alt=""
-              className="h-[300px] w-[300px] shrink-0 object-cover"
+              className="rounded-card h-[300px] w-[300px] shrink-0 object-cover shadow"
             />
             <div className="bg-special-pink-0 rounded-card border-special-pink-100 flex max-w-[380px] min-w-[320px] flex-1 shrink-0 flex-col gap-1.5 border-3 p-4 lg:gap-2.5">
               <div className="txt-st2-bold text-center">{item.title}</div>

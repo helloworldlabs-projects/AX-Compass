@@ -48,7 +48,7 @@ export function OrganizationBenefitSection() {
         {cards.map(({ icon: Icon, title, description }) => (
           <div
             key={title}
-            className="bg-special-pink-0 rounded-card border-special-pink-100 flex max-w-[380px] min-w-[320px] flex-1 shrink-0 flex-col gap-1.5 border-3 p-4 lg:gap-2.5"
+            className="bg-special-pink-0 rounded-card border-special-pink-100 flex max-w-[728px] min-w-[320px] flex-1 shrink-0 flex-col gap-1.5 border-3 p-4 lg:gap-2.5"
           >
             <div className="flex items-center justify-center gap-2 lg:gap-3">
               <Icon className="text-special-pink-600 size-6 lg:size-[30px]" />

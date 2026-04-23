@@ -76,7 +76,7 @@ export function CompetencyLevelChart({ stat }: CompetencyLevelChartProps) {
               width={30}
               tick={AXIS_TICK_STYLE}
             />
-            <Bar dataKey="value" shape={<RoundedBar />} isAnimationActive={false}>
+            <Bar dataKey="value" barSize={54} shape={<RoundedBar />} isAnimationActive={false}>
               <LabelList
                 dataKey="value"
                 position="top"

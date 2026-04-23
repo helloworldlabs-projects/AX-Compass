@@ -63,6 +63,9 @@ export default function SurveyContainer({
     }
   }, [examItemsError, router]);
 
+  const [showSpinner, setShowSpinner] = useState(false);
+  const spinnerStartRef = useRef<number>(0);
+
   const [step, setStep] = useState<Step>('INTRO');
   const [agreed, setAgreed] = useState(false);
   const [profilePage, setProfilePage] = useState(0);
@@ -101,7 +104,7 @@ export default function SurveyContainer({
     } else if (currentItem?.component === 'SITUATIONAL_JUDGMENT') {
       sectionLabel = '* 상황판단(Situational Judgment)';
     } else {
-      sectionLabel = '* 행동습관(Behavior Habit)';
+      sectionLabel = '* 행동빈도(Behavior Habit)';
     }
   } else {
     sectionLabel = `※ ${expectationForm.formTitle}`;
@@ -142,6 +145,7 @@ export default function SurveyContainer({
 
   function handleNext() {
     if (!examItems) return;
+    window.scrollTo({ top: 0 });
     if (step === 'INTRO') {
       setStep('EXAMINEE_PROFILES');
       setProfilePage(0);
@@ -183,11 +187,23 @@ export default function SurveyContainer({
           learningExpectation: expectationAnswers['LEARNING_EXPECTATION'] || undefined,
         },
       };
+      spinnerStartRef.current = Date.now();
+      setShowSpinner(true);
       submitExam(body, {
-        onSuccess: (data) =>
-          router.push(
-            `/result/${examType === 'STANDARD' ? 'general' : 'member'}/${data.resultCode}`,
-          ),
+        onSuccess: (data) => {
+          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
+          setTimeout(
+            () =>
+              router.push(
+                `/result/${examType === 'STANDARD' ? 'general' : 'member'}/${data.resultCode}`,
+              ),
+            remaining,
+          );
+        },
+        onError: () => {
+          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
+          setTimeout(() => setShowSpinner(false), remaining);
+        },
       });
     }
   }
@@ -195,7 +211,7 @@ export default function SurveyContainer({
   const handleNextRef = useRef<() => void>(() => {});
 
   useLayoutEffect(() => {
-    handleNextRef.current = canProceed && !isSubmitting ? handleNext : () => {};
+    handleNextRef.current = canProceed && !showSpinner ? handleNext : () => {};
   });
 
   useEffect(() => {
@@ -215,7 +231,7 @@ export default function SurveyContainer({
 
   if (isLoadingItems || !examItems) return <SurveyLoadingSkeleton />;
 
-  if (isSubmitting) {
+  if (showSpinner) {
     return (
       <Container>
         <CompassIcon className="h-[300px] w-[270px] lg:h-[600px] lg:w-[540px]" />
@@ -259,7 +275,7 @@ export default function SurveyContainer({
               진행 <br className="block lg:hidden" />
               현황
             </div>
-            <div className="bg-special-dark-blue-100 h-full flex-1 overflow-hidden rounded-[20px] p-0.5 lg:p-1">
+            <div className="bg-special-dark-blue-100 h-full flex-1 overflow-hidden rounded-[20px] p-1">
               <div
                 className="bg-special-dark-blue-500 flex h-full min-w-[36px] items-center justify-center rounded-[20px] lg:h-[36px] lg:min-w-[36px]"
                 style={{ width: `${progressPercent}%` }}
@@ -300,15 +316,19 @@ export default function SurveyContainer({
           />
         )}
 
-        {/* Next button */}
-        <Button
-          variant="purple"
-          className="mx-auto w-fit"
-          disabled={!canProceed || isSubmitting}
-          onClick={handleNext}
-        >
-          {step === 'EXPECTATION_FORM' ? '결과 확인' : '다음으로'}
-        </Button>
+        <div className="flex items-center justify-center gap-2.5">
+          <Button
+            variant="purple"
+            className="w-fit"
+            disabled={!canProceed || showSpinner}
+            onClick={handleNext}
+          >
+            {step === 'EXPECTATION_FORM' ? '결과 확인' : '다음으로'}
+          </Button>
+          <div className="border-special-orange-100 txt-c2-bold bg-special-orange-300 hidden rounded-[20px] border px-2 py-0.5 text-white lg:block">
+            ENTER 대응
+          </div>
+        </div>
       </div>
 
       {/* ===== DEBUG PANEL START — DELETE BEFORE RELEASE ===== */}

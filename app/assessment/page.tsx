@@ -84,7 +84,7 @@ export default function AssessmentPage() {
           </div>
         </div>
         <div className="flex w-[300px] flex-col gap-1.5 lg:gap-2.5">
-          <div className="bg-special-navy-700 rounded-card border-special-navy-100 relative flex flex-col items-center justify-center gap-2.5 border-3 py-[50px] lg:gap-[20px]">
+          <div className="bg-special-dark-blue-500 rounded-card border-special-navy-100 relative flex flex-col items-center justify-center gap-2.5 border-3 py-[50px] lg:gap-[20px]">
             <div className="txt-c2-bold absolute top-2.5 left-0 flex items-center rounded-l-[4px] bg-purple-800 py-1.5 pr-6 pl-3 text-white [clip-path:polygon(0_0,100%_0,calc(100%-14px)_50%,100%_100%,0_100%)] lg:top-5">
               정밀 검사
             </div>

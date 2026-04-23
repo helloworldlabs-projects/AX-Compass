@@ -65,7 +65,7 @@ export function FaqSection() {
               </div>
             </div>
           ))}
-          <div>※ 추가 문의나 기관 코드 발급 요청은 [검사 문의] 로 연락해 주세요.</div>
+          <div>※ 추가 문의나 기관 코드 발급 요청은 [문의하기] 로 연락해 주세요.</div>
         </div>
       </div>
     </Section>

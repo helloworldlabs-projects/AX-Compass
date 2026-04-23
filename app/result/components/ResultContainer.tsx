@@ -21,6 +21,7 @@ import { LearningRoadmapGuideModal } from '@/app/result/components/modal/Learnin
 import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { useState } from 'react';
 import { COMPETENCY_COLOR_MAP } from '@/constants/competencyConfig';
+import { roundScore } from '@/lib/utils';
 
 interface ResultContainerProps {
   resultType: 'general' | 'member';
@@ -34,7 +35,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
   const [roadmapGuideOpen, setRoadmapGuideOpen] = useState(false);
   return (
     <Container>
-      <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+      <div className="bg-gray-0 flex w-full max-w-[1000px] flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
         <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
           <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
           <span className="txt-c1-bold text-white">공식 인증</span>
@@ -60,10 +61,14 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
       </div>
       <Section className="w-full max-w-[700px]">
         <div className="w-full">
-          <div>
-            <span className="txt-t1 mr-1.5">{result.userName}</span>
-            <span className="txt-st-bold">님의</span>
-          </div>
+          {resultType === 'general' ? (
+            <span className="txt-t1 mr-1.5">AX Compass</span>
+          ) : (
+            <div>
+              <span className="txt-t1 mr-1.5">{result.userName}</span>
+              <span className="txt-st-bold">님의</span>
+            </div>
+          )}
           <div className="txt-st2-regular">인공지능 역량 진단 결과 입니다.</div>
         </div>
         <div className="flex items-center justify-center gap-6 text-white lg:gap-[50px]">
@@ -83,7 +88,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
           </div>
         </div>
         <ResultCodeCard resultCode={result.resultCode} />
-        <div className="rounded-card flex flex-col gap-[30px] border border-gray-500 bg-white px-2.5 py-[50px] lg:px-[50px]">
+        <div className="rounded-card flex flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:px-[50px]">
           {result.competencies.map((competency) => (
             <LevelCompetencyCell
               key={competency.competencyCode}
@@ -111,10 +116,14 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             <div className="mx-auto max-w-[340px] lg:max-w-[900px]">
               <div className="flex items-end justify-center gap-2.5">
                 <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
-                  <span className="txt-b-bold text-center">{result.scoreStats.seScore}</span>
+                  <span className="txt-b-bold text-center">
+                    {roundScore(result.scoreStats.seScore)}
+                  </span>
                   <div
                     className="bg-special-dark-blue-200 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
-                    style={{ height: `${result.scoreStats.seScore}%` }}
+                    style={{
+                      height: `${roundScore(result.scoreStats.seScore)}%`,
+                    }}
                   />
                 </div>
                 <div className="w-[50px] lg:w-[120px]">
@@ -126,13 +135,19 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                       ({result.scoreStats.gapSr > 0 ? '+' : ''} {result.scoreStats.gapSr.toFixed(1)}
                       )
                     </span>
+                    <div className="flex w-full items-center">
+                      <div className="h-px flex-1 bg-current" />
+                      <div className="h-0 w-0 border-y-[5px] border-l-8 border-y-transparent border-l-current" />
+                    </div>
                   </div>
                 </div>
                 <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
-                  <span className="txt-b-bold text-center">{result.scoreStats.sjScore}</span>
+                  <span className="txt-b-bold text-center">
+                    {roundScore(result.scoreStats.sjScore)}
+                  </span>
                   <div
                     className="bg-special-dark-blue-400 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
-                    style={{ height: `${result.scoreStats.sjScore}%` }}
+                    style={{ height: `${roundScore(result.scoreStats.sjScore)}%` }}
                   />
                 </div>
                 <div className="w-[50px] lg:w-[120px]">
@@ -144,13 +159,19 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                       ({result.scoreStats.gapSb > 0 ? '+' : ''} {result.scoreStats.gapSb.toFixed(1)}
                       )
                     </span>
+                    <div className="flex w-full items-center">
+                      <div className="h-px flex-1 bg-current" />
+                      <div className="h-0 w-0 border-y-[5px] border-l-8 border-y-transparent border-l-current" />
+                    </div>
                   </div>
                 </div>
                 <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
-                  <span className="txt-b-bold text-center">{result.scoreStats.bhScore}</span>
+                  <span className="txt-b-bold text-center">
+                    {roundScore(result.scoreStats.bhScore)}
+                  </span>
                   <div
                     className="bg-special-dark-blue-600 border-special-dark-blue-100 w-full rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
-                    style={{ height: `${result.scoreStats.bhScore}%` }}
+                    style={{ height: `${roundScore(result.scoreStats.bhScore)}%` }}
                   />
                 </div>
               </div>
@@ -173,7 +194,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-6">
+            <div className="mx-auto flex max-w-[700px] flex-col gap-6">
               <div>
                 <div className="txt-st-bold">
                   <span className="text-purple-700">* </span>
@@ -235,13 +256,17 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                           </div>
                           <div
                             className={`${color?.border} relative h-9 w-full overflow-hidden rounded-[12px] border-3`}
-                            style={{ '--progress': `${tag.avgScore}%` } as React.CSSProperties}
+                            style={
+                              {
+                                '--progress': `${roundScore(tag.avgScore)}%`,
+                              } as React.CSSProperties
+                            }
                           >
                             <div
                               className={`${color?.bg} absolute inset-y-0 left-0 h-full w-(--progress)`}
                             />
                             <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                              {tag.avgScore}점
+                              {roundScore(tag.avgScore)}점
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-gray-500">

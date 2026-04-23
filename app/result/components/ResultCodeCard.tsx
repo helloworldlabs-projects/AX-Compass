@@ -42,10 +42,12 @@ export function ResultCodeCard({ resultCode }: ResultCodeCardProps) {
         코드를 복사해 두면 나중에 결과를 다시 확인할 수 있습니다.
       </div>
       <div className="flex items-center gap-2.5">
-        <div className="txt-b-bold text-purple-800">{resultCode}</div>
-        <Button variant="purple" size="icon" onClick={handleCopy}>
-          <CopyIcon className="size-4" strokeWidth={3} />
-        </Button>
+        <button className="flex cursor-pointer items-center gap-2.5" onClick={handleCopy}>
+          <div className="txt-b-bold text-purple-800">{resultCode}</div>
+          <div className="rounded-[4px] border-purple-100 bg-purple-800 p-1">
+            <CopyIcon className="size-4 text-white" strokeWidth={3} />
+          </div>
+        </button>
         <button
           onClick={handleKakaoShare}
           className="txt-c2-bold flex cursor-pointer items-center gap-1 rounded-[4px] border border-[#3B1C1C] bg-[#F9E000] px-1 text-[#3B1C1C]"
