@@ -34,7 +34,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
   const [roadmapGuideOpen, setRoadmapGuideOpen] = useState(false);
   return (
     <Container>
-      <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+      <div className="bg-gray-0 flex w-full max-w-[1000px] flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
         <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
           <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
           <span className="txt-c1-bold text-white">공식 인증</span>
@@ -60,10 +60,14 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
       </div>
       <Section className="w-full max-w-[700px]">
         <div className="w-full">
-          <div>
-            <span className="txt-t1 mr-1.5">{result.userName}</span>
-            <span className="txt-st-bold">님의</span>
-          </div>
+          {resultType === 'general' ? (
+            <span className="txt-t1 mr-1.5">AX Compass</span>
+          ) : (
+            <div>
+              <span className="txt-t1 mr-1.5">{result.userName}</span>
+              <span className="txt-st-bold">님의</span>
+            </div>
+          )}
           <div className="txt-st2-regular">인공지능 역량 진단 결과 입니다.</div>
         </div>
         <div className="flex items-center justify-center gap-6 text-white lg:gap-[50px]">
