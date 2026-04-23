@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useDebounce } from '@/hooks/useDebounce';
 import {
   useDeleteExecutive,
+  useDownloadExecutiveExcel,
   useInstitutionExecutives,
   useRegisterMember,
 } from '@/hooks/useInstitutionQueries';
@@ -27,6 +28,7 @@ export default function ExecutiveListScreen() {
   const debouncedSearch = useDebounce(searchValue);
   const { mutate: register } = useRegisterMember();
   const { mutate: deleteExecutive } = useDeleteExecutive();
+  const { mutate: downloadExcel, isPending: isDownloading } = useDownloadExecutiveExcel();
 
   const params: ExecutiveListParams = {
     name: debouncedSearch || undefined,
@@ -73,7 +75,9 @@ export default function ExecutiveListScreen() {
   }
 
   function handleDownload() {
-    // 추후 API 연동 예정
+    downloadExcel(data?.institutionCode ?? 'S0000000', {
+      onError: () => toast.error('다운로드에 실패했습니다.'),
+    });
   }
 
   return (
@@ -87,6 +91,7 @@ export default function ExecutiveListScreen() {
       registerPlaceholder="임원진명을 입력해 주세요."
       filterLabel="검사 완료 임원진만 확인"
       onDownload={handleDownload}
+      isDownloading={isDownloading}
       onSearch={handleSearch}
       onRegister={handleRegister}
       onRegisterErrorClear={() => setRegisterError('')}
