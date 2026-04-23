@@ -25,6 +25,10 @@ export const apiFetch = async <T>(
 
   if (!response.ok) {
     const errorDTO: ApiErrorDTO = await response.json();
+    if (typeof window !== 'undefined' && response.status === 401 && errorDTO.errorCode === 'CMN_102') {
+      localStorage.removeItem('axcompass:adminToken');
+      window.location.replace('/');
+    }
     throw new ApiError(errorDTO);
   }
 
