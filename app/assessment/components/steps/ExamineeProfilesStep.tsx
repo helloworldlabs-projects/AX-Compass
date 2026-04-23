@@ -18,7 +18,7 @@ export default function ExamineeProfilesStep({
   startIndex,
 }: ExamineeProfilesStepProps) {
   return (
-    <div className="rounded-card flex flex-col gap-[50px] bg-white px-4 py-6 shadow lg:px-20">
+    <div className="rounded-card flex min-h-[400px] flex-col gap-[50px] bg-white px-4 py-6 shadow lg:min-h-[500px] lg:px-20">
       {questions.map((q, i) => (
         <div key={q.questionCode} className="flex flex-col gap-4">
           <div className="txt-st2-bold">
