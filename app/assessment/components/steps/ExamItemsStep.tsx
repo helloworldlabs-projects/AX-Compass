@@ -33,7 +33,7 @@ export default function ExamItemsStep({
     >
       {/* 문항 헤더 */}
       <div className="bg-special-dark-blue-500 flex w-full items-center gap-3 rounded-[10px] px-4 py-3 shadow-[0_4px_4px_rgba(0,0,0,0.14)]">
-        <span className="txt-st-bold w-[60px] min-w-[60px] text-center text-white">
+        <span className="txt-st-bold w-[40px] shrink-0 text-center text-white lg:w-[60px]">
           Q{questionNumber}
         </span>
         <div className="txt-b-bold flex-1 rounded-[12px] bg-white p-3 text-gray-700 shadow-[0_4px_4px_rgba(0,0,0,0.14)] lg:rounded-[16px] lg:p-4">
@@ -79,17 +79,17 @@ export default function ExamItemsStep({
               onClick={() => onAnswer(opt.value)}
               className="group flex w-full cursor-pointer items-stretch justify-center text-left outline-none"
             >
-              <div className="flex w-20 shrink-0 items-center justify-center">
+              <div className="flex w-10 shrink-0 items-center justify-center lg:w-20">
                 <div
                   className={cn(
-                    'border-box relative box-content size-7 overflow-hidden rounded-[20px] border-2 transition-colors',
+                    'border-box relative box-content size-5 overflow-hidden rounded-[20px] border-2 transition-colors lg:size-7',
                     answer === opt.value
                       ? 'border-special-orange-500 bg-white'
                       : 'border-gray-100 bg-gray-100',
                   )}
                 >
                   {answer === opt.value && (
-                    <div className="bg-special-orange-500 absolute top-[4px] left-[4px] size-5 rounded-full" />
+                    <div className="bg-special-orange-500 absolute top-[4px] left-[4px] size-3 rounded-full lg:size-5" />
                   )}
                 </div>
               </div>
