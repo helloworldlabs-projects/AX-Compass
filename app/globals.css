@@ -456,9 +456,13 @@ body {
     padding: 0 !important;
   }
 
-  /* Force 2-column layout for competency radar chart grid */
+  /* Force 2-column layout for competency chart grid */
   .print-chart-item {
     width: 50% !important;
+    box-sizing: border-box !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    overflow: hidden !important;
     break-inside: avoid;
   }
 
