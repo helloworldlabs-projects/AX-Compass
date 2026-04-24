@@ -316,7 +316,7 @@ export default function SurveyContainer({
           />
         )}
 
-        <div className="flex items-center justify-center gap-2.5">
+        <div className="relative flex items-center justify-center gap-2.5">
           <Button
             variant="purple"
             className="w-fit"
@@ -325,7 +325,7 @@ export default function SurveyContainer({
           >
             {step === 'EXPECTATION_FORM' ? '결과 확인' : '다음으로'}
           </Button>
-          <div className="border-special-orange-100 txt-c2-bold bg-special-orange-300 hidden rounded-[20px] border px-2 py-0.5 text-white lg:block">
+          <div className="border-special-orange-100 txt-c2-bold bg-special-orange-500 absolute top-1/2 right-1/2 hidden translate-x-[calc(50%+100px)] -translate-y-1/2 rounded-[20px] border px-2 py-0.5 text-white lg:block">
             ENTER 대응
           </div>
         </div>
