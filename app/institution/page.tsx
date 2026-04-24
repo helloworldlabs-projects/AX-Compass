@@ -41,9 +41,11 @@ export default function InstitutionPage() {
         executiveExamCount={stats.executiveExamCount}
         memberExamCount={stats.memberExamCount}
       />
-      <MaturitySection institutionName={stats.institutionName} />
 
-      {stats.memberExamCount >= 5 && (
+      {stats.executiveExamCount < 2 && <MaturitySection institutionName={stats.institutionName} />}
+
+      {/* {stats.memberExamCount >= 5 && ( */}
+      {stats.memberExamCount < 5 && (
         <>
           <GradeStatSection competencyStats={stats.competencyStats} />
           <ScoreStatSection scoreStats={stats.scoreStats} competencyStats={stats.competencyStats} />
@@ -55,8 +57,8 @@ export default function InstitutionPage() {
         </>
       )}
 
-      <div className="h-[3px] w-full max-w-[1000px] rounded-full bg-purple-700" />
-      <Button render={<Link href="/" />} variant="gray">
+      <div data-print-hidden className="h-[3px] w-full max-w-[1000px] rounded-full bg-purple-700" />
+      <Button data-print-hidden render={<Link href="/" />} variant="gray">
         메인으로
       </Button>
     </Container>

@@ -45,7 +45,10 @@ function ExamStartButton() {
 
 function PrintAndDownloadButton() {
   return (
-    <button className="group flex cursor-pointer flex-col items-center gap-1">
+    <button
+      className="group flex cursor-pointer flex-col items-center gap-1"
+      onClick={() => window.print()}
+    >
       <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[120px] w-[50px] items-center justify-center rounded-[30px] shadow transition-colors duration-200 lg:w-[60px]">
         <Printer className="size-8 text-white lg:size-9" />
       </div>
@@ -73,7 +76,7 @@ export function Floating() {
 
   return (
     <>
-      <div className="fixed right-5 bottom-5 z-50 flex flex-col gap-4 lg:gap-6">
+      <div data-print-hidden className="fixed right-5 bottom-5 z-50 flex flex-col gap-4 lg:gap-6">
         {showScrollAndInquiry && (
           <ScrollTopButton handleClick={() => window.scrollTo({ top: 0 })} />
         )}

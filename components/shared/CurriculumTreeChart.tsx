@@ -194,6 +194,22 @@ const OVERALL_LAYOUT: TreeLayout = {
   edges: OVERALL_EDGES,
 };
 
+/** 상단 [AX 컨설팅 및 분기 추천] — 신사업 중급 트랙 활성 시 강조 */
+const BRANCH_LABEL_ACTIVE_NEW_BIZ = new Set([
+  'INTERMEDIATE_NEW_BIZ_1',
+  'INTERMEDIATE_NEW_BIZ_2',
+  'INTERMEDIATE_NEW_BIZ_3',
+]);
+/** 하단 [AX 컨설팅 및 분기 추천] — 비용절감 중급 트랙 활성 시 강조 */
+const BRANCH_LABEL_ACTIVE_COST_DOWN = new Set([
+  'INTERMEDIATE_COST_DOWN_1',
+  'INTERMEDIATE_COST_DOWN_2',
+  'INTERMEDIATE_COST_DOWN_3',
+]);
+
+const BRANCH_LABEL_FILL_ACTIVE = '#e60063'; // special-pink-600
+const BRANCH_LABEL_FILL_INACTIVE = '#ff9cb3'; // special-pink-300
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function edgePath(fromNode: TreeNode, toNode: TreeNode): string {
@@ -223,6 +239,17 @@ function normalizeEdges(
     from: normalizeNodeId(edge.from),
     to: normalizeNodeId(edge.to),
   }));
+}
+
+function isBranchConsultLabelActive(edge: TreeEdge, activeNodeIds: string[]): boolean {
+  if (!edge.branchLabel) return false;
+  if (edge.from === 'ELEMENTARY_NEW_BIZ_1') {
+    return activeNodeIds.some((id) => BRANCH_LABEL_ACTIVE_NEW_BIZ.has(id));
+  }
+  if (edge.from === 'ELEMENTARY_COST_DOWN') {
+    return activeNodeIds.some((id) => BRANCH_LABEL_ACTIVE_COST_DOWN.has(id));
+  }
+  return false;
 }
 
 // ─── NodeBox ──────────────────────────────────────────────────────────────────
@@ -348,7 +375,11 @@ function ChartCanvas({
                       x={branchLabelX}
                       y={branchLabelY}
                       fontSize={14}
-                      fill="#FF9CB3"
+                      fill={
+                        isBranchConsultLabelActive(edge, normalizedActiveNodes)
+                          ? BRANCH_LABEL_FILL_ACTIVE
+                          : BRANCH_LABEL_FILL_INACTIVE
+                      }
                       fontWeight={700}
                     >
                       {edge.branchLabel}
@@ -377,14 +408,22 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
   const normalizedActiveEdges = normalizeEdges(activeEdges);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [stageScale, setStageScale] = useState(1);
-
-  const fullscreenRef = useRef<HTMLDivElement | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
-  const [fullscreenScale, setFullscreenScale] = useState(1);
 
-  // 인라인 차트 스케일
+  const chartKey = `${activeNodes.join(',')}|${activeEdges.map((e) => `${e.from}-${e.to}`).join(',')}`;
+
+  // props 변경 시 재캡처를 위해 이미지 초기화
   useEffect(() => {
+    setImageUrl(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chartKey]);
+
+  // 스케일 계산 — 이미지가 없을 때만 동작
+  useEffect(() => {
+    if (imageUrl) return;
     const element = stageRef.current;
     if (!element) return;
     const updateScale = () => {
@@ -396,22 +435,24 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
     const observer = new ResizeObserver(updateScale);
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [imageUrl]);
 
-  // 풀스크린 스케일 — 창 크기 기준
+  // 화면에 렌더링된 차트를 PNG로 캡처 — 반드시 visible 상태에서 실행
   useEffect(() => {
-    if (!fullscreen) return;
-    const compute = () => {
-      const vw = window.innerWidth - 64; // 32px padding 양쪽
-      const vh = window.innerHeight - 64;
-      const scaleByW = vw / 1600;
-      const scaleByH = vh / 1000;
-      setFullscreenScale(Math.min(scaleByW, scaleByH));
-    };
-    compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
-  }, [fullscreen]);
+    if (imageUrl) return;
+    if (stageScale <= 0) return;
+    const timer = setTimeout(async () => {
+      if (!containerRef.current) return;
+      try {
+        const { toPng } = await import('html-to-image');
+        const url = await toPng(containerRef.current, { pixelRatio: 2 });
+        setImageUrl(url);
+      } catch {
+        /* 캡처 실패 시 인터랙티브 차트 유지 */
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [stageScale, imageUrl]);
 
   // ESC 키로 닫기
   useEffect(() => {
@@ -431,32 +472,49 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
     };
   }, [fullscreen]);
 
-  const sharedProps = { layout, nodeMap, normalizedActiveNodes, normalizedActiveEdges };
-
   return (
     <>
-      <div className="bg-special-orange-0 relative w-full overflow-hidden p-2.5 lg:p-[30px]">
-        {/* 돋보기 버튼 */}
-        <button
-          type="button"
-          aria-label="전체 화면으로 보기"
-          onClick={() => setFullscreen(true)}
-          className="bg-special-dark-blue-500 border-special-navy-100 absolute top-[30px] right-[30px] z-10 flex hidden items-center justify-center rounded-[12px] border-2 p-2 lg:block"
-        >
-          <Search className="size-6 text-white" strokeWidth={3} />
-        </button>
-
+      {/* 인터랙티브 차트 — 캡처 완료 전까지 표시, 완료 후 이미지로 대체 */}
+      {!imageUrl && (
         <div
-          ref={stageRef}
-          className="relative w-full"
-          style={{ height: `${1000 * stageScale}px` }}
+          ref={containerRef}
+          className="bg-special-orange-0 relative w-full overflow-hidden p-2.5 lg:p-[30px]"
         >
-          <ChartCanvas {...sharedProps} stageScale={stageScale} idSuffix="-inline" />
+          <div
+            ref={stageRef}
+            className="relative w-full"
+            style={{ height: `${1000 * stageScale}px` }}
+          >
+            <ChartCanvas
+              layout={layout}
+              nodeMap={nodeMap}
+              normalizedActiveNodes={normalizedActiveNodes}
+              normalizedActiveEdges={normalizedActiveEdges}
+              stageScale={stageScale}
+              idSuffix="-inline"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* 풀스크린 오버레이 — createPortal로 body에 마운트 */}
+      {/* 캡처된 이미지 */}
+      {imageUrl && (
+        <div className="bg-special-orange-0 relative w-full p-2.5 lg:p-[30px]">
+          <button
+            type="button"
+            aria-label="전체 화면으로 보기"
+            onClick={() => setFullscreen(true)}
+            className="bg-special-dark-blue-500 border-special-navy-100 absolute top-[30px] right-[30px] z-10 hidden items-center justify-center rounded-[12px] border-2 p-2 lg:flex"
+          >
+            <Search className="size-6 text-white" strokeWidth={3} />
+          </button>
+          <img src={imageUrl} alt="AX 전환 커리큘럼 가이드 트리" className="h-auto w-full" />
+        </div>
+      )}
+
+      {/* 풀스크린 모달 */}
       {fullscreen &&
+        imageUrl &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
@@ -465,18 +523,13 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
               if (e.target === e.currentTarget) setFullscreen(false);
             }}
           >
-            <div
-              ref={fullscreenRef}
-              className="relative"
-              style={{
-                width: 1600 * fullscreenScale,
-                height: 1000 * fullscreenScale,
-              }}
-            >
-              <ChartCanvas {...sharedProps} stageScale={fullscreenScale} idSuffix="-fullscreen" />
+            <div className="relative max-h-[90vh] max-w-[90vw]">
+              <img
+                src={imageUrl}
+                alt="AX 전환 커리큘럼 가이드 트리"
+                className="max-h-[90vh] max-w-full object-contain"
+              />
             </div>
-
-            {/* 닫기 버튼 */}
             <button
               type="button"
               aria-label="닫기"

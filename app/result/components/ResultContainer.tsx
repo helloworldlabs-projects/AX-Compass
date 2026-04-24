@@ -232,7 +232,10 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
           {result.competencies.map((competency) => {
             const color = COMPETENCY_COLOR_MAP[competency.competencyCode];
             return (
-              <div key={competency.competencyCode} className="flex w-[300px] flex-col lg:w-[500px]">
+              <div
+                key={competency.competencyCode}
+                className="print-chart-item flex w-[300px] flex-col lg:w-[500px]"
+              >
                 <div className="txt-st-bold text-center">{competency.competencyName}</div>
                 <div className="flex flex-col gap-5">
                   <div className="h-[300px] w-full lg:h-[500px]">
@@ -352,7 +355,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                   </div>
                 </div>
               </div>
-              <div className="w-full max-w-[1000px]">
+              <div className="print-no-break w-full max-w-[1000px]">
                 <CurriculumTreeChart
                   roadmapType="overall"
                   activeNodes={step.curriculumTree.nodes}
@@ -362,10 +365,10 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             </div>
           );
         })}
-        <div className="h-[3px] w-full rounded-full bg-purple-700" />
+        <div data-print-hidden className="h-[3px] w-full rounded-full bg-purple-700" />
         <ResultCodeCard resultCode={result.resultCode} />
       </Section>
-      <div className="flex justify-center gap-4 lg:gap-6">
+      <div data-print-hidden className="flex justify-center gap-4 lg:gap-6">
         <Button render={<Link href="/" />} variant="gray">
           메인으로
         </Button>

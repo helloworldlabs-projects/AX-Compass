@@ -87,7 +87,7 @@ export default function RootLayout({
       <body className={`${pretendard.className} txt-b-regular flex min-h-screen flex-col`}>
         <Providers>
           <Header />
-          <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px]">{children}</main>
+          <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px] print:bg-transparent print:px-0">{children}</main>
           <Floating />
           <Footer />
         </Providers>
