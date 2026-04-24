@@ -31,7 +31,7 @@ export function ScoreStatSection({ scoreStats, competencyStats }: ScoreStatSecti
         />
       </div>
       <div className="flex w-full flex-col gap-[30px]">
-        <div className="flex w-full max-w-[900px] flex-col gap-[30px]">
+        <div className="mx-auto flex w-full max-w-[900px] flex-col gap-[30px]">
           <div>
             <div className="flex items-end justify-center gap-2.5">
               <div className="flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
