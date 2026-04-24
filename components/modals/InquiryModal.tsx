@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -31,40 +32,99 @@ interface InquiryFormState {
   agreed: boolean;
 }
 
+type InquiryErrors = Partial<Record<keyof Omit<InquiryFormState, 'agreed'>, string>>;
+
+const INITIAL_FORM: InquiryFormState = {
+  company: '',
+  name: '',
+  position: '',
+  phone: '',
+  email: '',
+  inquiry: '',
+  agreed: false,
+};
+
+function validate(form: InquiryFormState): InquiryErrors {
+  const errors: InquiryErrors = {};
+  if (!form.agreed) {
+    toast.error(
+      <div>
+        <p>개인정보 수집 및 이용 동의가 필요합니다.</p>
+        <p>동의 후 문의하기를 진행해 주세요.</p>
+      </div>,
+    );
+  }
+  if (!form.company.trim()) errors.company = '기업명을 입력해 주세요.';
+  if (!form.name.trim()) errors.name = '담당자 이름을 입력해 주세요.';
+  if (!form.phone.trim()) {
+    errors.phone = '전화번호를 입력해 주세요.';
+  } else if (!/^\d{9,11}$/.test(form.phone)) {
+    errors.phone = '숫자만 9~11자리로 입력해 주세요.';
+  }
+  if (!form.email.trim()) {
+    errors.email = '이메일을 입력해 주세요.';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    errors.email = '올바른 이메일 형식이 아닙니다.';
+  }
+  if (!form.inquiry.trim()) errors.inquiry = '문의 내용을 입력해 주세요.';
+  return errors;
+}
+
 function InquiryModal({ open, onClose }: InquiryModalProps) {
-  const [form, setForm] = useState<InquiryFormState>({
-    company: '',
-    name: '',
-    position: '',
-    phone: '',
-    email: '',
-    inquiry: '',
-    agreed: false,
-  });
+  const [form, setForm] = useState<InquiryFormState>(INITIAL_FORM);
+  const [errors, setErrors] = useState<InquiryErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleField(field: keyof Omit<InquiryFormState, 'agreed'>) {
-    return (value: string) => setForm((prev) => ({ ...prev, [field]: value }));
+    return (value: string) => {
+      setForm((prev) => ({ ...prev, [field]: value }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    };
   }
-
-  const initialForm: InquiryFormState = {
-    company: '',
-    name: '',
-    position: '',
-    phone: '',
-    email: '',
-    inquiry: '',
-    agreed: false,
-  };
 
   function handleClose() {
-    setForm(initialForm);
+    setForm(INITIAL_FORM);
+    setErrors({});
     onClose();
   }
 
-  function handleSubmit() {
-    // 제출 로직은 상위 컴포넌트에서 처리
-    setForm(initialForm);
-    onClose();
+  async function handleSubmit() {
+    const validationErrors = validate(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company_name: form.company,
+          contact_person: form.name,
+          position: form.position,
+          phone_number: form.phone,
+          email: form.email,
+          inquiry_content: form.inquiry,
+        }),
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        toast.error(error ?? '문의 전송에 실패했습니다.');
+        return;
+      }
+
+      toast.success('문의가 성공적으로 등록되었습니다.');
+      setForm(INITIAL_FORM);
+      setErrors({});
+      onClose();
+    } catch {
+      toast.error('문의 전송 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -86,6 +146,7 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
               placeholder="회사 이름을 입력해 주세요."
               value={form.company}
               onChange={handleField('company')}
+              error={errors.company}
             />
           </div>
 
@@ -95,6 +156,7 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
               placeholder="담당자 이름을 입력해 주세요."
               value={form.name}
               onChange={handleField('name')}
+              error={errors.name}
             />
           </div>
 
@@ -113,6 +175,7 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
               placeholder="전화번호를 입력해 주세요.(- 제외)"
               value={form.phone}
               onChange={handleField('phone')}
+              error={errors.phone}
             />
           </div>
 
@@ -123,6 +186,7 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
               placeholder="이메일을 입력해 주세요."
               value={form.email}
               onChange={handleField('email')}
+              error={errors.email}
             />
           </div>
 
@@ -132,6 +196,7 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
               placeholder="문의 내용을 입력해 주세요."
               value={form.inquiry}
               onChange={handleField('inquiry')}
+              error={errors.inquiry}
             />
           </div>
         </ModalBody>
@@ -164,8 +229,8 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
       </ModalContent>
 
       <ModalFooter>
-        <Button variant="purple" onClick={handleSubmit}>
-          문의하기
+        <Button variant="purple" onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? '전송 중...' : '문의하기'}
         </Button>
       </ModalFooter>
     </Modal>
