@@ -15,7 +15,7 @@ export function InstitutionNoticeBanners({
   memberExamCount,
 }: InstitutionNoticeBannersProps) {
   return (
-    <>
+    <Section className="max-w-[1000px] shrink-0">
       {executiveExamCount < 2 && (
         <Section data-print-hidden className="max-w-[1000px] shrink-0">
           <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
@@ -54,11 +54,11 @@ export function InstitutionNoticeBanners({
           </div>
         </Section>
       )}
-      <Section className="max-w-[1000px] shrink-0">
+      {(executiveExamCount >= 2 || memberExamCount >= 5) && (
         <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
           <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
             <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
-            <span className="txt-c1-bold text-white">기관 통계 안내</span>
+            <span className="txt-c1-bold text-white">공식 인증</span>
           </div>
           <div className="flex items-center justify-center gap-2">
             <Image
@@ -77,7 +77,7 @@ export function InstitutionNoticeBanners({
             <span>발급 기관: (주)헬로월드랩스</span>
           </div>
         </div>
-      </Section>
-    </>
+      )}
+    </Section>
   );
 }
