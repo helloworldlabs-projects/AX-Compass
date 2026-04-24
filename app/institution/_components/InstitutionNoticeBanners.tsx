@@ -17,42 +17,44 @@ export function InstitutionNoticeBanners({
   return (
     <Section className="max-w-[1000px] shrink-0">
       {executiveExamCount < 2 && (
-        <Section data-print-hidden className="max-w-[1000px] shrink-0">
-          <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
-            <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
-              <Check className="size-4.5 text-white" strokeWidth={3} />
-              <span className="txt-c1-bold text-white">기관 통계 안내</span>
-            </div>
-            <div className="txt-st2-bold text-center text-black">
-              임원진 검사 응답 수가 부족하여 기관 AX 성숙도 통계를 제공할 수 없습니다.
-              <br />
-              <span className="text-special-pink-600">임원진 검사 2명 이상 참여 시</span> 확인할 수
-              있습니다.
-            </div>
-            <span className="txt-c2-regular text-end">
-              [임원진] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
-            </span>
+        <div
+          data-print-hidden
+          className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+        >
+          <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
+            <Check className="size-4.5 text-white" strokeWidth={3} />
+            <span className="txt-c1-bold text-white">기관 통계 안내</span>
           </div>
-        </Section>
+          <div className="txt-st2-bold text-center text-black">
+            임원진 검사 응답 수가 부족하여 기관 AX 성숙도 통계를 제공할 수 없습니다.
+            <br />
+            <span className="text-special-pink-600">임원진 검사 2명 이상 참여 시</span> 확인할 수
+            있습니다.
+          </div>
+          <span className="txt-c2-regular text-end">
+            [임원진] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
+          </span>
+        </div>
       )}
       {memberExamCount < 5 && (
-        <Section data-print-hidden className="max-w-[1000px] shrink-0">
-          <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
-            <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
-              <Check className="size-4.5 text-white" strokeWidth={3} />
-              <span className="txt-c1-bold text-white">기관 통계 안내</span>
-            </div>
-            <div className="txt-st2-bold text-center text-black">
-              구성원 검사 응답 수가 부족하여 기관 AX 역량 통계를 제공할 수 없습니다.
-              <br />
-              <span className="text-special-pink-600">구성원 검사 5명 이상 참여 시</span> 확인할 수
-              있습니다.
-            </div>
-            <span className="txt-c2-regular text-end">
-              [구성원] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
-            </span>
+        <div
+          data-print-hidden
+          className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+        >
+          <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
+            <Check className="size-4.5 text-white" strokeWidth={3} />
+            <span className="txt-c1-bold text-white">기관 통계 안내</span>
           </div>
-        </Section>
+          <div className="txt-st2-bold text-center text-black">
+            구성원 검사 응답 수가 부족하여 기관 AX 역량 통계를 제공할 수 없습니다.
+            <br />
+            <span className="text-special-pink-600">구성원 검사 5명 이상 참여 시</span> 확인할 수
+            있습니다.
+          </div>
+          <span className="txt-c2-regular text-end">
+            [구성원] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
+          </span>
+        </div>
       )}
       {(executiveExamCount >= 2 || memberExamCount >= 5) && (
         <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">

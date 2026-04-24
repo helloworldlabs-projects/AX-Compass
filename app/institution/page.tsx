@@ -43,8 +43,7 @@ export default function InstitutionPage() {
       />
       {stats.executiveExamCount >= 2 && <MaturitySection institutionName={stats.institutionName} />}
 
-      {/* {stats.memberExamCount >= 5 && ( */}
-      {stats.memberExamCount < 5 && (
+      {stats.memberExamCount >= 5 && (
         <>
           <GradeStatSection competencyStats={stats.competencyStats} />
           <ScoreStatSection scoreStats={stats.scoreStats} competencyStats={stats.competencyStats} />

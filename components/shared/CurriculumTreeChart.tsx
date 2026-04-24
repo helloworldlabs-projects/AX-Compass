@@ -474,27 +474,40 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
 
   return (
     <>
-      {/* 인터랙티브 차트 — 캡처 완료 전까지 표시, 완료 후 이미지로 대체 */}
       {!imageUrl && (
-        <div
-          ref={containerRef}
-          className="bg-special-orange-0 relative w-full overflow-hidden p-2.5 lg:p-[30px]"
-        >
-          <div
-            ref={stageRef}
-            className="relative w-full"
-            style={{ height: `${1000 * stageScale}px` }}
-          >
-            <ChartCanvas
-              layout={layout}
-              nodeMap={nodeMap}
-              normalizedActiveNodes={normalizedActiveNodes}
-              normalizedActiveEdges={normalizedActiveEdges}
-              stageScale={stageScale}
-              idSuffix="-inline"
-            />
+        <>
+          {/* DOM에 유지해 캡처는 되지만 사용자에게 보이지 않음 */}
+          <div style={{ height: 0, overflow: 'hidden' }} aria-hidden="true">
+            <div
+              ref={containerRef}
+              className="bg-special-orange-0 relative w-full overflow-hidden p-2.5 lg:p-[30px]"
+            >
+              <div
+                ref={stageRef}
+                className="relative w-full"
+                style={{ height: `${1000 * stageScale}px` }}
+              >
+                <ChartCanvas
+                  layout={layout}
+                  nodeMap={nodeMap}
+                  normalizedActiveNodes={normalizedActiveNodes}
+                  normalizedActiveEdges={normalizedActiveEdges}
+                  stageScale={stageScale}
+                  idSuffix="-inline"
+                />
+              </div>
+            </div>
           </div>
-        </div>
+          <div
+            className="bg-special-orange-0 flex w-full items-center justify-center"
+            style={{ aspectRatio: '1600 / 1000' }}
+          >
+            <div className="flex flex-col items-center gap-3 text-gray-400">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-gray-400" />
+              <span className="text-sm">로드맵 생성 중...</span>
+            </div>
+          </div>
+        </>
       )}
 
       {/* 캡처된 이미지 */}
