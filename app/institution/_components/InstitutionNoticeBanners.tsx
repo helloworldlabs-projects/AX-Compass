@@ -54,30 +54,32 @@ export function InstitutionNoticeBanners({
           </div>
         </Section>
       )}
-      <Section className="max-w-[1000px] shrink-0">
-        <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
-          <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
-            <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
-            <span className="txt-c1-bold text-white">기관 통계 안내</span>
+      {(executiveExamCount >= 2 || memberExamCount >= 5) && (
+        <Section className="max-w-[1000px] shrink-0">
+          <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+            <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
+              <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
+              <span className="txt-c1-bold text-white">기관 통계 안내</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Image
+                src="/images/logo/img_logo_helloworldlabs.png"
+                alt=""
+                width={300}
+                height={30}
+                className="h-[30px] w-[300px] object-contain"
+              />
+              <div className="txt-st2-bold text-black">에서 인증하는 공식 결과입니다.</div>
+            </div>
+            <div className="text-center">
+              본 문서는 AX Compass 진단 결과를 바탕으로 생성되었습니다.
+            </div>
+            <div className="txt-c2-regular flex items-center justify-end gap-2">
+              <span>발급 기관: (주)헬로월드랩스</span>
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <Image
-              src="/images/logo/img_logo_helloworldlabs.png"
-              alt=""
-              width={300}
-              height={30}
-              className="h-[30px] w-[300px] object-contain"
-            />
-            <div className="txt-st2-bold text-black">에서 인증하는 공식 결과입니다.</div>
-          </div>
-          <div className="text-center">
-            본 문서는 AX Compass 진단 결과를 바탕으로 생성되었습니다.
-          </div>
-          <div className="txt-c2-regular flex items-center justify-end gap-2">
-            <span>발급 기관: (주)헬로월드랩스</span>
-          </div>
-        </div>
-      </Section>
+        </Section>
+      )}
     </>
   );
 }

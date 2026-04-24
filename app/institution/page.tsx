@@ -41,7 +41,7 @@ export default function InstitutionPage() {
         executiveExamCount={stats.executiveExamCount}
         memberExamCount={stats.memberExamCount}
       />
-      <MaturitySection institutionName={stats.institutionName} />
+      {stats.executiveExamCount >= 2 && <MaturitySection institutionName={stats.institutionName} />}
 
       {stats.memberExamCount >= 5 && (
         <>
