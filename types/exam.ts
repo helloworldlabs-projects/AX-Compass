@@ -98,7 +98,7 @@ export interface ExamResponseItem {
 
 export interface ExamSubmitRequest {
   examType: ExamType;
-  profile: {
+  profile?: {
     ageGroup: string;
     jobFunction: string;
     industry: string;
@@ -121,6 +121,35 @@ export interface ExamSubmitResponse {
   capApplied: boolean;
   computedAt: string;
 }
+
+// ─── Executive Submission ─────────────────────────────────────────────────────
+
+export interface ExecutiveSubmitRequest {
+  responses: Array<{ itemId: number; likertValue: number }>;
+  expectation: {
+    targetAiTask: string;
+    learningExpectation: string;
+  };
+}
+
+export interface ExecutiveSubmitResponseCompetencyScore {
+  competencyCode: string;
+  currentScore: number;
+  targetScore: number;
+}
+
+export interface ExecutiveSubmitResponseDto {
+  resultCode: string;
+  currentMaturityScore: number;
+  targetMaturityScore: number;
+  gapMs: number;
+  currentMaturityStage: string;
+  targetMaturityStage: string;
+  competencyScores: ExecutiveSubmitResponseCompetencyScore[];
+  computedAt: string;
+}
+
+export type ExecutiveSubmitResponse = ExecutiveSubmitResponseDto;
 
 // ─── Exam Result ─────────────────────────────────────────────────────────────
 

@@ -26,14 +26,14 @@ export function InstitutionHeaderSection({ stats }: InstitutionHeaderSectionProp
               {stats.executiveExamCount} / {stats.executiveCount} 명
             </div>
           </div>
-          {/* <Button
+          <Button
             render={<Link href="/institution/executive" />}
             variant="dark-blue"
             size="pill"
             className="w-fit rounded-[12px]"
           >
             상세 보기
-          </Button> */}
+          </Button>
         </div>
         <div className="flex flex-col items-center gap-4">
           <div className="relative flex h-[130px] w-[300px] items-center justify-center rounded-[20px] border-3 border-gray-300 shadow">

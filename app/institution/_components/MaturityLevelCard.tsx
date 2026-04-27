@@ -123,7 +123,7 @@ export function MaturityLevelCard({ type }: { type: MaturityLevel }) {
   } = MATURITY_DATA[type];
 
   return (
-    <div className="flex gap-6">
+    <div className="flex gap-4 lg:gap-6">
       <Icon className="size-10 shrink-0 text-purple-700" />
 
       <div className="flex flex-col gap-2.5">
@@ -150,7 +150,7 @@ export function MaturityLevelCard({ type }: { type: MaturityLevel }) {
               return (
                 <div
                   key={label}
-                  className={`flex w-[120px] flex-col items-center gap-1.5 rounded-[12px] border-3 py-2.5 text-white ${badge}`}
+                  className={`flex w-[100px] flex-col items-center gap-1.5 rounded-[12px] border-3 py-2.5 text-white lg:w-[120px] ${badge}`}
                 >
                   <div className="flex items-center gap-1">
                     <BadgeCheck className="size-4 text-white" strokeWidth={3} />
