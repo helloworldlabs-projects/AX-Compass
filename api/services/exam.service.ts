@@ -5,6 +5,9 @@ import {
   ExamResultDTO,
   ExamSubmitRequest,
   ExamSubmitResponse,
+  ExecutiveSubmitRequest,
+  ExecutiveSubmitResponse,
+  ExecutiveSubmitResponseDto,
   ExamType,
   ExpectationForm,
   FormDTO,
@@ -156,6 +159,17 @@ export const examService = {
     tokenKey?: TokenKey,
   ): Promise<ExamSubmitResponse> => {
     return apiFetch<ExamSubmitResponse>('/exam/submit', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      ...(tokenKey && { tokenKey }),
+    });
+  },
+
+  submitExecutiveExam: async (
+    body: ExecutiveSubmitRequest,
+    tokenKey?: TokenKey,
+  ): Promise<ExecutiveSubmitResponse> => {
+    return apiFetch<ExecutiveSubmitResponseDto>('/exam/executive/submit', {
       method: 'POST',
       body: JSON.stringify(body),
       ...(tokenKey && { tokenKey }),

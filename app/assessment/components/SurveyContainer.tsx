@@ -8,11 +8,12 @@ import IntroStep from '@/app/assessment/components/steps/IntroStep';
 import ExamineeProfilesStep from '@/app/assessment/components/steps/ExamineeProfilesStep';
 import ExamItemsStep from '@/app/assessment/components/steps/ExamItemsStep';
 import ExpectationsStep from '@/app/assessment/components/steps/ExpectationsStep';
-import { useExamItems, useSubmitExam } from '@/hooks/useExamQueries';
+import { useExamItems, useSubmitExam, useSubmitExecutiveExam } from '@/hooks/useExamQueries';
 import type {
   ExpectationFormDTO,
   ExamineeProfilesDTO,
   ExamSubmitRequest,
+  ExecutiveSubmitRequest,
   ItemComponent,
   ItemType,
   ExamItemDTO,
@@ -28,7 +29,7 @@ type Step = 'INTRO' | 'EXAMINEE_PROFILES' | 'EXAM_ITEMS' | 'EXPECTATION_FORM';
 interface SurveyContainerProps {
   examType: ExamType;
   expectationForm: ExpectationFormDTO;
-  examineeProfiles: ExamineeProfilesDTO;
+  examineeProfiles?: ExamineeProfilesDTO;
 }
 
 type FlatItem = ExamItemDTO & { component: ItemComponent; itemType: ItemType };
@@ -46,7 +47,12 @@ export default function SurveyContainer({
 }: SurveyContainerProps) {
   const router = useRouter();
   const tokenKey = examType !== 'STANDARD' ? ('axcompass:accessToken' as const) : undefined;
-  const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam(tokenKey);
+  const { mutate: submitExam, isPending: isSubmittingStandard } = useSubmitExam(
+    examType !== 'EXECUTIVE' ? tokenKey : undefined,
+  );
+  const { mutate: submitExecutiveExam, isPending: isSubmittingExecutive } =
+    useSubmitExecutiveExam(tokenKey);
+  const isSubmitting = isSubmittingStandard || isSubmittingExecutive;
   const {
     data: examItems,
     isLoading: isLoadingItems,
@@ -96,7 +102,7 @@ export default function SurveyContainer({
   if (step === 'INTRO') {
     sectionLabel = '※ 검사 시작 전 안내';
   } else if (step === 'EXAMINEE_PROFILES') {
-    sectionLabel = `※ ${examineeProfiles.formTitle}`;
+    sectionLabel = `※ ${examineeProfiles?.formTitle ?? ''}`;
   } else if (step === 'EXAM_ITEMS') {
     const currentItem = flatItems[examItemIndex];
     if (currentItem?.component === 'SELF_ESTIMATE') {
@@ -111,7 +117,8 @@ export default function SurveyContainer({
   }
 
   // Current profile batch (3 questions per page)
-  const currentBatch = examineeProfiles.questions.slice(profilePage * 3, profilePage * 3 + 3);
+  const currentBatch =
+    examineeProfiles?.questions.slice(profilePage * 3, profilePage * 3 + 3) ?? [];
 
   // canProceed
   let canProceed = false;
@@ -147,8 +154,13 @@ export default function SurveyContainer({
     if (!examItems) return;
     window.scrollTo({ top: 0 });
     if (step === 'INTRO') {
-      setStep('EXAMINEE_PROFILES');
-      setProfilePage(0);
+      if (examineeProfiles) {
+        setStep('EXAMINEE_PROFILES');
+        setProfilePage(0);
+      } else {
+        setStep('EXAM_ITEMS');
+        setExamItemIndex(0);
+      }
     } else if (step === 'EXAMINEE_PROFILES') {
       if (profilePage < 1) {
         setProfilePage((p) => p + 1);
@@ -162,17 +174,43 @@ export default function SurveyContainer({
       } else {
         setStep('EXPECTATION_FORM');
       }
+    } else if (examType === 'EXECUTIVE') {
+      const executiveBody: ExecutiveSubmitRequest = {
+        responses: flatItems.map((item) => ({
+          itemId: item.itemId,
+          likertValue: examAnswers[item.itemId] as number,
+        })),
+        expectation: {
+          targetAiTask: expectationAnswers['TARGET_AI_TASK'],
+          learningExpectation: expectationAnswers['LEARNING_EXPECTATION'] ?? '',
+        },
+      };
+      spinnerStartRef.current = Date.now();
+      setShowSpinner(true);
+      submitExecutiveExam(executiveBody, {
+        onSuccess: (data) => {
+          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
+          // TODO: /result/executive/:resultCode 라우트 존재 확인 후 제거
+          setTimeout(() => router.push(`/result/executive/${data.resultCode}`), remaining);
+        },
+        onError: () => {
+          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
+          setTimeout(() => setShowSpinner(false), remaining);
+        },
+      });
     } else {
       const body: ExamSubmitRequest = {
         examType,
-        profile: {
-          ageGroup: examineeAnswers['ageGroup'] as string,
-          jobFunction: examineeAnswers['jobFunction'] as string,
-          industry: examineeAnswers['industry'] as string,
-          experienceLevel: examineeAnswers['experienceLevel'] as string,
-          aiUsageFrequency: examineeAnswers['aiUsageFrequency'] as string,
-          aiUsagePurposes: examineeAnswers['aiUsagePurposes'] as string[],
-        },
+        profile: examineeProfiles
+          ? {
+              ageGroup: examineeAnswers['ageGroup'] as string,
+              jobFunction: examineeAnswers['jobFunction'] as string,
+              industry: examineeAnswers['industry'] as string,
+              experienceLevel: examineeAnswers['experienceLevel'] as string,
+              aiUsageFrequency: examineeAnswers['aiUsageFrequency'] as string,
+              aiUsagePurposes: examineeAnswers['aiUsagePurposes'] as string[],
+            }
+          : undefined,
         responses: flatItems.map((item) => {
           const answer = examAnswers[item.itemId];
           const isLikert = ['LIKERT', 'LIKERT_FREQ'].includes(item.itemType.toUpperCase());
@@ -228,8 +266,6 @@ export default function SurveyContainer({
     window.addEventListener('keydown', onKeyDown, true);
     return () => window.removeEventListener('keydown', onKeyDown, true);
   }, []);
-
-  if (isLoadingItems || !examItems) return <SurveyLoadingSkeleton />;
 
   if (showSpinner) {
     return (
