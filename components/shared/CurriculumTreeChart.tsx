@@ -368,7 +368,11 @@ function ChartCanvas({
                     fill="none"
                     stroke={active ? '#F4A418' : '#FDEDD1'}
                     strokeWidth={active ? 2.5 : 2}
-                    markerEnd={active ? `url(#${arrowActiveId})` : `url(#${arrowInactiveId})`}
+                    markerEnd={
+                      active || normalizedActiveEdges.some((e) => e.to === toNode.id)
+                        ? `url(#${arrowActiveId})`
+                        : `url(#${arrowInactiveId})`
+                    }
                   />
                   {edge.branchLabel && (
                     <text
