@@ -133,3 +133,32 @@ export interface MemberListParams {
   page?: number;
   size?: number;
 }
+
+// ─── Executive List ───────────────────────────────────────────────────────────
+
+export interface ExecutiveDTO {
+  executiveId: number;
+  executiveName: string;
+  resultCode: string | null;
+  currentMaturityStage: string | null;
+  currentScore: number | null;
+  targetMaturityStage: string | null;
+  targetScore: number | null;
+  gapMs: number | null;
+}
+
+export interface ExecutiveListDTO {
+  institutionCode: string;
+  institutionName: string;
+  totalExecutiveCount: number;
+  examCompletedCount: number;
+  pageInfo: MemberPageInfo;
+  executives: ExecutiveDTO[];
+}
+
+export interface ExecutiveListParams {
+  name?: string;
+  examCompleted?: boolean;
+  page?: number;
+  size?: number;
+}

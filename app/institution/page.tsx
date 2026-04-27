@@ -45,13 +45,26 @@ export default function InstitutionPage() {
 
       {stats.memberExamCount >= 5 && (
         <>
-          <GradeStatSection competencyStats={stats.competencyStats} />
-          <ScoreStatSection scoreStats={stats.scoreStats} competencyStats={stats.competencyStats} />
-          <ProfileStatSection profileStats={stats.profileStats} />
-          <LearningRoadmapSection
-            institutionRoadmap={stats.institutionRoadmap}
-            memberExamCount={stats.memberExamCount}
-          />
+          {stats.competencyStats.length > 0 && (
+            <GradeStatSection competencyStats={stats.competencyStats} />
+          )}
+          {stats.competencyStats.length > 0 && (
+            <ScoreStatSection
+              scoreStats={stats.scoreStats}
+              competencyStats={stats.competencyStats}
+            />
+          )}
+          {stats.profileStats.top3ProfileTypes.length > 0 && (
+            <ProfileStatSection profileStats={stats.profileStats} />
+          )}
+          {(stats.institutionRoadmap.overallRoadmap !== null ||
+            stats.institutionRoadmap.beginnerElementaryRoadmap !== null ||
+            stats.institutionRoadmap.intermediateAdvancedRoadmap !== null) && (
+            <LearningRoadmapSection
+              institutionRoadmap={stats.institutionRoadmap}
+              memberExamCount={stats.memberExamCount}
+            />
+          )}
         </>
       )}
 
