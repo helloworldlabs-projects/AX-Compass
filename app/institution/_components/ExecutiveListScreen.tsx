@@ -172,14 +172,18 @@ export default function ExecutiveListScreen() {
               <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.gapMs)}</td>
               <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.resultCode)}</td>
               <td className="w-[200px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
-                <Button
-                  variant="pink"
-                  className="h-9 rounded-[12px]!"
-                  onClick={() => handleDelete(executive.executiveId)}
-                  aria-label={`${executive.executiveName} 삭제`}
-                >
-                  삭제
-                </Button>
+                {executive.resultCode === null ? (
+                  <Button
+                    variant="pink"
+                    className="h-9 rounded-[12px]!"
+                    onClick={() => handleDelete(executive.executiveId)}
+                    aria-label={`${executive.executiveName} 삭제`}
+                  >
+                    삭제
+                  </Button>
+                ) : (
+                  <span className="txt-b-regular text-gray-400">-</span>
+                )}
               </td>
             </tr>
           ))

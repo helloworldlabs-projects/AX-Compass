@@ -19,11 +19,18 @@ export default function ResultSearchButton() {
 
   async function handleConfirm(code: string) {
     try {
-      const result = await examService.getExamResult(code);
-      router.push(`/result/${EXAM_TYPE_PATH[result.examType]}/${code}`);
-      setOpen(false);
+      // 임원
+      if (code.length === 5) {
+        await examService.getExecutiveResult(code);
+        router.push(`/result/executive/${code}`);
+      } else {
+        const result = await examService.getExamResult(code);
+        router.push(`/result/${EXAM_TYPE_PATH[result.examType]}/${code}`);
+      }
     } catch {
       toast.error('결과를 찾을 수 없습니다. 코드를 다시 확인해주세요.');
+    } finally {
+      setOpen(false);
     }
   }
 

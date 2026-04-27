@@ -6,4 +6,5 @@ export const examKeys = {
   examineeProfiles: () => [...examKeys.all, 'examineeProfiles'] as const,
   items: (examType: ExamType) => [...examKeys.all, 'items', examType] as const,
   result: (resultCode: string) => [...examKeys.all, 'result', resultCode] as const,
+  executiveResult: (resultCode: string) => [...examKeys.all, 'executiveResult', resultCode] as const,
 };

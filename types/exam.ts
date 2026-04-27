@@ -218,6 +218,58 @@ export interface ExamResultDTO {
   recommendedRoadmap: ExamResultRoadmapDTO;
 }
 
+// ─── Executive Exam Result ────────────────────────────────────────────────────
+
+export type ExecutiveCompetencyCode =
+  | 'EXEC_STRATEGY'
+  | 'EXEC_GOVERNANCE'
+  | 'EXEC_ADOPTION'
+  | 'EXEC_DATA_SYSTEM';
+
+export type MaturityStage = 'INITIATION' | 'UTILIZATION' | 'INTEGRATION' | 'INNOVATION';
+
+export interface ExecutiveResultCompetencyScoreDTO {
+  competencyCode: ExecutiveCompetencyCode;
+  score: number;
+}
+
+export interface ExecutiveResultRoadmapCurriculumDTO {
+  curriculumName: string;
+  step: Level;
+  role: '메인' | '확장' | '보조';
+  durationHour: number;
+}
+
+export interface ExecutiveResultRoadmapTreeDTO {
+  nodes: string[];
+  edges: Array<{ fromNodeId: string; toNodeId: string }>;
+}
+
+export interface ExecutiveResultRecommendedRoadmapDTO {
+  curriculums: ExecutiveResultRoadmapCurriculumDTO[];
+  curriculumTree: ExecutiveResultRoadmapTreeDTO;
+}
+
+export interface ExecutiveResultDTO {
+  resultCode: string;
+  institutionName: string;
+  computedAt: string;
+  currentMaturityStage: MaturityStage;
+  targetMaturityStage: MaturityStage;
+  currentMaturityScore: number;
+  targetMaturityScore: number;
+  currentCompetencyScores: ExecutiveResultCompetencyScoreDTO[];
+  targetCompetencyScores: ExecutiveResultCompetencyScoreDTO[];
+  resultSummary: string[];
+  recommendedRoadmap: ExecutiveResultRecommendedRoadmapDTO;
+}
+
+export type ExecutiveResultCompetencyScore = ExecutiveResultCompetencyScoreDTO;
+export type ExecutiveResultRoadmapCurriculum = ExecutiveResultRoadmapCurriculumDTO;
+export type ExecutiveResultRoadmapTree = ExecutiveResultRoadmapTreeDTO;
+export type ExecutiveResultRecommendedRoadmap = ExecutiveResultRecommendedRoadmapDTO;
+export type ExecutiveResult = ExecutiveResultDTO;
+
 // ─── Domain Models ────────────────────────────────────────────────────────────
 // In this domain the DTO shapes are already clean — domain models mirror DTOs.
 // Aliases are provided so the service layer returns named domain types.

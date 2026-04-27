@@ -5,6 +5,8 @@ import {
   ExamResultDTO,
   ExamSubmitRequest,
   ExamSubmitResponse,
+  ExecutiveResult,
+  ExecutiveResultDTO,
   ExecutiveSubmitRequest,
   ExecutiveSubmitResponse,
   ExecutiveSubmitResponseDto,
@@ -144,20 +146,14 @@ export const examService = {
     return mapForm(raw);
   },
 
-  getExamItems: async (
-    examType: ExamType,
-    tokenKey?: TokenKey,
-  ): Promise<ExamItems> => {
+  getExamItems: async (examType: ExamType, tokenKey?: TokenKey): Promise<ExamItems> => {
     const raw = await apiFetch<RawExamItemsDTO>(`/exam/items?examType=${examType}`, {
       ...(tokenKey && { tokenKey }),
     });
     return mapExamItems(raw);
   },
 
-  submitExam: async (
-    body: ExamSubmitRequest,
-    tokenKey?: TokenKey,
-  ): Promise<ExamSubmitResponse> => {
+  submitExam: async (body: ExamSubmitRequest, tokenKey?: TokenKey): Promise<ExamSubmitResponse> => {
     return apiFetch<ExamSubmitResponse>('/exam/submit', {
       method: 'POST',
       body: JSON.stringify(body),
@@ -178,5 +174,9 @@ export const examService = {
 
   getExamResult: async (resultCode: string): Promise<ExamResult> => {
     return apiFetch<ExamResultDTO>(`/exam/results/${resultCode}`);
+  },
+
+  getExecutiveResult: async (resultCode: string): Promise<ExecutiveResult> => {
+    return apiFetch<ExecutiveResultDTO>(`/exam/executive/results/${resultCode}`);
   },
 };
