@@ -3,7 +3,7 @@ import { institutionService } from '@/api/services/institution.service';
 import { authService } from '@/api/services/auth.service';
 import { institutionKeys } from '@/api/keys/institution.keys';
 import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
-import type { MemberListParams } from '@/types/institution';
+import type { ExecutiveListParams, MemberListParams } from '@/types/institution';
 import type { RegisterRequestDTO } from '@/types/auth';
 
 export const useInstitutionStats = () =>
@@ -39,6 +39,54 @@ export const useDeleteMember = () => {
     },
   });
 };
+
+export const useInstitutionExecutives = (params: ExecutiveListParams) =>
+  useQuery({
+    queryKey: institutionKeys.executives(params as Record<string, unknown>),
+    queryFn: () => institutionService.getExecutives(params),
+  });
+
+export const useDeleteExecutive = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (executiveId: number) => institutionService.deleteExecutive(executiveId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: institutionKeys.all });
+    },
+  });
+};
+
+export const useDownloadExecutiveExcel = () =>
+  useMutation({
+    mutationFn: async (institutionCode: string) => {
+      const data = await institutionService.getExecutives({ size: 9999 });
+      const { utils, writeFile } = await import('xlsx');
+
+      const rows = data.executives.map((e) => ({
+        임원진명: e.executiveName,
+        '현재 수준 AX 성숙도': e.currentMaturityStage ?? '-',
+        '현재 수준 점수(CMS)': e.currentScore ?? '-',
+        '목표 수준 AX 성숙도': e.targetMaturityStage ?? '-',
+        '목표 수준 점수(TMS)': e.targetScore ?? '-',
+        '성숙도 차이(Gap_MS)': e.gapMs ?? '-',
+        결과조회코드: e.resultCode ?? '-',
+      }));
+
+      const ws = utils.json_to_sheet(rows);
+      ws['!cols'] = [
+        { wch: 14 },
+        { wch: 20 },
+        { wch: 18 },
+        { wch: 20 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 20 },
+      ];
+      const wb = utils.book_new();
+      utils.book_append_sheet(wb, ws, '임원진 목록');
+      writeFile(wb, `AX_COMPASS_EXECUTIVE_${institutionCode}.xlsx`);
+    },
+  });
 
 export const useDownloadMemberExcel = () =>
   useMutation({
