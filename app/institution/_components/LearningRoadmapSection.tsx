@@ -69,7 +69,7 @@ export function LearningRoadmapSection({
         </div>
       </div>
 
-      {roadmap.steps.map((step, index) => (
+      {roadmap?.steps.map((step, index) => (
         <div
           key={step.stepId}
           className="flex w-full flex-col items-center gap-[50px] lg:gap-[75px]"
