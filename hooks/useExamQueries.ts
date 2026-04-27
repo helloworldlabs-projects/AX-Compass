@@ -1,6 +1,7 @@
 import { examService } from '@/api/services/exam.service';
 import { examKeys } from '@/api/keys/exam.keys';
 import { ExamSubmitRequest, ExecutiveSubmitRequest, ExamType } from '@/types/exam';
+
 import type { TokenKey } from '@/types/common';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -16,11 +17,7 @@ export const useExamineeProfiles = () =>
     queryFn: () => examService.getExamineeProfiles(),
   });
 
-export const useExamItems = (
-  examType: ExamType,
-  tokenKey?: TokenKey,
-  enabled = true,
-) =>
+export const useExamItems = (examType: ExamType, tokenKey?: TokenKey, enabled = true) =>
   useQuery({
     queryKey: examKeys.items(examType),
     queryFn: () => examService.getExamItems(examType, tokenKey),
@@ -39,8 +36,7 @@ export const useSubmitExam = (tokenKey?: TokenKey) =>
 
 export const useSubmitExecutiveExam = (tokenKey?: TokenKey) =>
   useMutation({
-    mutationFn: (body: ExecutiveSubmitRequest) =>
-      examService.submitExecutiveExam(body, tokenKey),
+    mutationFn: (body: ExecutiveSubmitRequest) => examService.submitExecutiveExam(body, tokenKey),
     onSuccess: () => {
       if (tokenKey === 'axcompass:accessToken') {
         localStorage.removeItem('axcompass:accessToken');
@@ -52,4 +48,10 @@ export const useExamResult = (resultCode: string) =>
   useQuery({
     queryKey: examKeys.result(resultCode),
     queryFn: () => examService.getExamResult(resultCode),
+  });
+
+export const useExecutiveResult = (resultCode: string) =>
+  useQuery({
+    queryKey: examKeys.executiveResult(resultCode),
+    queryFn: () => examService.getExecutiveResult(resultCode),
   });
