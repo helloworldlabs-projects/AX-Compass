@@ -34,7 +34,10 @@ export function ResultCodeCard({ resultCode }: ResultCodeCardProps) {
   };
 
   return (
-    <div className="bg-gray-0 flex flex-col items-center gap-2.5 rounded-[12px] border-2 border-purple-800 p-4">
+    <div
+      data-print-hidden
+      className="bg-gray-0 flex flex-col items-center gap-2.5 rounded-[12px] border-2 border-purple-800 p-4"
+    >
       <div className="txt-b-bold rounded-[14px] border border-purple-100 bg-purple-800 px-3 text-white">
         결과 조회 코드
       </div>

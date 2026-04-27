@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import { Providers } from './providers';
 import Script from 'next/script';
+import { Floating } from '@/components/layout/Floating';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -86,7 +87,8 @@ export default function RootLayout({
       <body className={`${pretendard.className} txt-b-regular flex min-h-screen flex-col`}>
         <Providers>
           <Header />
-          <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px]">{children}</main>
+          <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px] print:bg-transparent print:px-0">{children}</main>
+          <Floating />
           <Footer />
         </Providers>
         <Script

@@ -61,7 +61,7 @@ export function CompetencyLevelChart({ stat }: CompetencyLevelChartProps) {
   }));
 
   return (
-    <div className="w-full max-w-[500px]">
+    <div className="print-chart-item w-full max-w-[500px]">
       <p className="txt-st-bold mb-4 text-center">{title}</p>
       <div className="relative">
         <span className="txt-b-bold absolute top-0 left-4.5 text-gray-500">%</span>

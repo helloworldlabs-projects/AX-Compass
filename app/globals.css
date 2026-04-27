@@ -430,3 +430,57 @@ body {
     border-radius: 20px;
   }
 }
+
+@media print {
+  @page {
+    margin: 15mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  header,
+  footer,
+  [data-print-hidden] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  main {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  /* Force 2-column layout for competency chart grid */
+  .print-chart-item {
+    width: 50% !important;
+    box-sizing: border-box !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    overflow: hidden !important;
+    break-inside: avoid;
+  }
+
+  /* Prevent recharts from being sliced at page boundaries */
+  .recharts-wrapper,
+  .recharts-responsive-container {
+    break-inside: avoid;
+  }
+
+  /* Prevent arbitrary content blocks from being cut */
+  .print-no-break {
+    break-inside: avoid;
+    page-break-inside: avoid; /* 구형 브라우저 폴백 */
+  }
+
+  /* CurriculumTreeChart: 이미지로 렌더링되므로 페이지 경계에서 잘리지 않음 */
+  .curriculum-tree-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

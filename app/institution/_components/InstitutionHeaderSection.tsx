@@ -10,7 +10,7 @@ interface InstitutionHeaderSectionProps {
 
 export function InstitutionHeaderSection({ stats }: InstitutionHeaderSectionProps) {
   return (
-    <Section className="flex w-[700px] shrink-0">
+    <Section data-print-hidden className="flex w-[700px] shrink-0">
       <div className="txt-t1 flex w-full">{stats.institutionName}</div>
       <div className="flex w-full items-center gap-4">
         <Users className="size-10 text-purple-700" />

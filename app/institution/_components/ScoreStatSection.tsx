@@ -142,7 +142,7 @@ export function ScoreStatSection({ scoreStats, competencyStats }: ScoreStatSecti
         {competencyStats.map((competency) => {
           const color = COMPETENCY_COLOR_MAP[competency.competencyCode];
           return (
-            <div key={competency.competencyCode} className="flex w-[300px] flex-col lg:w-[500px]">
+            <div key={competency.competencyCode} className="print-chart-item flex w-[300px] flex-col lg:w-[500px]">
               <div className="txt-st-bold text-center">
                 {COMPETENCY_NAME_MAP[competency.competencyCode]}
               </div>

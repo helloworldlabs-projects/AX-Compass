@@ -68,8 +68,8 @@ export default function InstitutionPage() {
         </>
       )}
 
-      <div className="h-[3px] w-full max-w-[1000px] rounded-full bg-purple-700" />
-      <Button render={<Link href="/" />} variant="gray">
+      <div data-print-hidden className="h-[3px] w-full max-w-[1000px] rounded-full bg-purple-700" />
+      <Button data-print-hidden render={<Link href="/" />} variant="gray">
         메인으로
       </Button>
     </Container>

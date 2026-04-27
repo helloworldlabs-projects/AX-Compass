@@ -17,7 +17,10 @@ export function InstitutionNoticeBanners({
   return (
     <Section className="max-w-[1000px] shrink-0">
       {executiveExamCount < 2 && (
-        <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+        <div
+          data-print-hidden
+          className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+        >
           <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
             <Check className="size-4.5 text-white" strokeWidth={3} />
             <span className="txt-c1-bold text-white">기관 통계 안내</span>
@@ -34,7 +37,10 @@ export function InstitutionNoticeBanners({
         </div>
       )}
       {memberExamCount < 5 && (
-        <div className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+        <div
+          data-print-hidden
+          className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+        >
           <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
             <Check className="size-4.5 text-white" strokeWidth={3} />
             <span className="txt-c1-bold text-white">기관 통계 안내</span>
