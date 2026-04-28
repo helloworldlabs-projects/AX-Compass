@@ -2,10 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { company_name, contact_person, position, phone_number, email, inquiry_content } =
-      await request.json();
+    const {
+      company_name,
+      contact_person,
+      department,
+      position,
+      phone_number,
+      email,
+      inquiry_content,
+      referral_path,
+      referral,
+    } = await request.json();
 
-    if (!company_name || !contact_person || !phone_number || !email || !inquiry_content) {
+    if (
+      !company_name ||
+      !contact_person ||
+      !department ||
+      !position ||
+      !phone_number ||
+      !email ||
+      !inquiry_content ||
+      !referral_path
+    ) {
       return NextResponse.json({ error: '필수 필드를 모두 입력해주세요.' }, { status: 400 });
     }
 
@@ -36,7 +54,8 @@ export async function POST(request: NextRequest) {
           fields: [
             { type: 'mrkdwn', text: `*🏢 기업명:*\n${company_name}` },
             { type: 'mrkdwn', text: `*👤 담당자:*\n${contact_person}` },
-            { type: 'mrkdwn', text: `*💼 직급:*\n${position || '-'}` },
+            { type: 'mrkdwn', text: `*🏛️ 소속:*\n${department}` },
+            { type: 'mrkdwn', text: `*💼 직급:*\n${position}` },
             { type: 'mrkdwn', text: `*📞 전화번호:*\n${phone_number}` },
             { type: 'mrkdwn', text: `*✉️ 이메일:*\n${email}` },
           ],
@@ -47,6 +66,13 @@ export async function POST(request: NextRequest) {
             type: 'mrkdwn',
             text: `*📝 문의내용:*\n\`\`\`${inquiry_content}\`\`\``,
           },
+        },
+        {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: `*🔍 알게 된 경로:*\n${referral_path}` },
+            { type: 'mrkdwn', text: `*🤝 추천인:*\n${referral || '-'}` },
+          ],
         },
         {
           type: 'context',
