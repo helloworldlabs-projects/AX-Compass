@@ -141,6 +141,13 @@ export const examService = {
     return mapForm(raw);
   },
 
+  getExecutiveExpectationForm: async (tokenKey?: TokenKey): Promise<ExpectationForm> => {
+    const raw = await apiFetch<RawFormDTO>('/exam/executive/expectation-form', {
+      ...(tokenKey && { tokenKey }),
+    });
+    return mapForm(raw);
+  },
+
   getExamineeProfiles: async (): Promise<ExamineeProfiles> => {
     const raw = await apiFetch<RawFormDTO>('/exam/examinee-profiles');
     return mapForm(raw);
