@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ResultCodeCard } from '../../components/ResultCodeCard';
 import { BadgeCheck, Map } from 'lucide-react';
 import { MaturityLevelCard } from '@/app/institution/_components/MaturityLevelCard';
-import { CompetencyScorePanel } from './_components/CompetencyScorePanel';
+import { CompetencyScorePanel } from '@/components/ui/CompetencyScorePanel';
 import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { CurriculumItem } from '@/components/ui/CurriculumItem';
 import { Button } from '@/components/ui/button';
