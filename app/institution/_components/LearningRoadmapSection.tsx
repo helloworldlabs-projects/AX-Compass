@@ -11,13 +11,9 @@ import type { InstitutionRoadmaps } from '@/types/institution';
 
 interface LearningRoadmapSectionProps {
   institutionRoadmap: InstitutionRoadmaps;
-  memberExamCount: number;
 }
 
-export function LearningRoadmapSection({
-  institutionRoadmap,
-  memberExamCount,
-}: LearningRoadmapSectionProps) {
+export function LearningRoadmapSection({ institutionRoadmap }: LearningRoadmapSectionProps) {
   const [selectedRoadmap, setSelectedRoadmap] = useState<
     'overall' | 'beginnerElementary' | 'intermediateAdvanced'
   >('overall');
@@ -50,22 +46,26 @@ export function LearningRoadmapSection({
             className="txt-t3 h-20 flex-1"
             onClick={() => setSelectedRoadmap('overall')}
           >
-            전체({memberExamCount}명)
+            전체({institutionRoadmap.overallCount}명)
           </Button>
-          <Button
-            variant={selectedRoadmap === 'beginnerElementary' ? 'purple' : 'gray'}
-            className="txt-t3 h-20 flex-1"
-            onClick={() => setSelectedRoadmap('beginnerElementary')}
-          >
-            입문-초급
-          </Button>
-          <Button
-            variant={selectedRoadmap === 'intermediateAdvanced' ? 'purple' : 'gray'}
-            className="txt-t3 h-20 flex-1"
-            onClick={() => setSelectedRoadmap('intermediateAdvanced')}
-          >
-            중급-고급
-          </Button>
+          {institutionRoadmap.beginnerElementaryCount > 0 && (
+            <Button
+              variant={selectedRoadmap === 'beginnerElementary' ? 'purple' : 'gray'}
+              className="txt-t3 h-20 flex-1"
+              onClick={() => setSelectedRoadmap('beginnerElementary')}
+            >
+              입문-초급({institutionRoadmap.beginnerElementaryCount}명)
+            </Button>
+          )}
+          {institutionRoadmap.intermediateAdvancedCount > 0 && (
+            <Button
+              variant={selectedRoadmap === 'intermediateAdvanced' ? 'purple' : 'gray'}
+              className="txt-t3 h-20 flex-1"
+              onClick={() => setSelectedRoadmap('intermediateAdvanced')}
+            >
+              중급-고급({institutionRoadmap.intermediateAdvancedCount}명)
+            </Button>
+          )}
         </div>
       </div>
 

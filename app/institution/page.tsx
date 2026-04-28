@@ -20,28 +20,12 @@ export default function InstitutionPage() {
 
   return (
     <Container>
-      {/* 디버그 패널 */}
-      {(process.env.NEXT_PUBLIC_APP_ENV === 'local' ||
-        process.env.NEXT_PUBLIC_APP_ENV === 'dev') && (
-        <details
-          open
-          className="fixed right-4 bottom-4 z-[9999] w-[400px] rounded-[12px] border-2 border-dashed border-yellow-400 bg-yellow-50 p-4 shadow-lg"
-        >
-          <summary className="cursor-pointer font-mono text-sm font-bold text-yellow-700">
-            [DEBUG] institution stats
-          </summary>
-          <pre className="mt-2 max-h-[400px] overflow-auto font-mono text-xs text-yellow-900">
-            {JSON.stringify(stats, null, 2)}
-          </pre>
-        </details>
-      )}
-
       <InstitutionHeaderSection stats={stats} />
       <InstitutionNoticeBanners
         executiveExamCount={stats.executiveExamCount}
         memberExamCount={stats.memberExamCount}
       />
-      {stats.executiveExamCount >= 2 && <MaturitySection institutionName={stats.institutionName} />}
+      {stats.executiveExamCount >= 2 && <MaturitySection stats={stats} />}
 
       {stats.memberExamCount >= 5 && (
         <>
@@ -60,10 +44,7 @@ export default function InstitutionPage() {
           {(stats.institutionRoadmap.overallRoadmap !== null ||
             stats.institutionRoadmap.beginnerElementaryRoadmap !== null ||
             stats.institutionRoadmap.intermediateAdvancedRoadmap !== null) && (
-            <LearningRoadmapSection
-              institutionRoadmap={stats.institutionRoadmap}
-              memberExamCount={stats.memberExamCount}
-            />
+            <LearningRoadmapSection institutionRoadmap={stats.institutionRoadmap} />
           )}
         </>
       )}

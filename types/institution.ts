@@ -3,7 +3,12 @@
 // (constants/levelConfig.ts의 Level은 한국어 UI 레이블이므로 별도 정의)
 
 import { Level } from '@/constants/levelConfig';
-import type { ProfileType } from '@/types/exam';
+import type {
+  ExecutiveCompetencyCode,
+  ExecutiveResultCompetencyScoreDTO,
+  MaturityStage,
+  ProfileType,
+} from '@/types/exam';
 
 export type InstitutionLevel = 'BEGINNER' | 'ELEMENTARY' | 'INTERMEDIATE' | 'ADVANCED';
 
@@ -69,9 +74,22 @@ export interface InstitutionRoadmap {
 }
 
 export interface InstitutionRoadmaps {
-  overallRoadmap: InstitutionRoadmap;
-  beginnerElementaryRoadmap: InstitutionRoadmap;
-  intermediateAdvancedRoadmap: InstitutionRoadmap;
+  overallRoadmap: InstitutionRoadmap | null;
+  beginnerElementaryRoadmap: InstitutionRoadmap | null;
+  intermediateAdvancedRoadmap: InstitutionRoadmap | null;
+  overallCount: number;
+  beginnerElementaryCount: number;
+  intermediateAdvancedCount: number;
+}
+
+export interface ExecutiveMaturityStats {
+  avgCurrentMaturityStage: MaturityStage;
+  avgTargetMaturityStage: MaturityStage;
+  avgCurrentMaturityScore: number;
+  avgTargetMaturityScore: number;
+  resultSummary: string[];
+  currentCompetencyScores: ExecutiveResultCompetencyScoreDTO[];
+  targetCompetencyScores: ExecutiveResultCompetencyScoreDTO[];
 }
 
 // ─── Top-level DTO ────────────────────────────────────────────────────────────
@@ -87,6 +105,7 @@ export interface InstitutionStatsDTO {
   scoreStats: InstitutionScoreStats;
   profileStats: InstitutionProfileStats;
   institutionRoadmap: InstitutionRoadmaps;
+  executiveMaturityStats: ExecutiveMaturityStats;
 }
 
 // ─── Domain Model ─────────────────────────────────────────────────────────────
