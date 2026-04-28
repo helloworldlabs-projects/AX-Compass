@@ -82,7 +82,7 @@ export function Floating() {
         )}
         {showScrollAndInquiry && <InquiryButton handleClick={() => setOpen(true)} />}
         {showExamStart && <ExamStartButton />}
-        {showPrintAndDownload && <PrintAndDownloadButton />}
+        {/* {showPrintAndDownload && <PrintAndDownloadButton />} */}
       </div>
       <InquiryModal open={open} onClose={() => setOpen(false)} />
     </>
