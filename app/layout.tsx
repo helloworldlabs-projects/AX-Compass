@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import { Providers } from './providers';
 import Script from 'next/script';
 import { Floating } from '@/components/layout/Floating';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -97,6 +98,7 @@ export default function RootLayout({
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
           strategy="afterInteractive"
         />
+        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
       </body>
     </html>
   );
