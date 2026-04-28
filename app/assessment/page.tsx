@@ -139,9 +139,19 @@ export default function AssessmentPage() {
         <Button render={<Link href="/" />} nativeButton={false} variant="gray">
           메인으로
         </Button>
-        <Button variant="purple" onClick={() => setInquiryOpen(true)}>
-          검사 문의
-        </Button>
+        <div className="relative">
+          <div className="animate-bounce-up absolute top-full -right-8 mt-2.5">
+            <div className="border-b-special-pink-600 ml-5.5 h-0 w-0 border-r-8 border-b-10 border-l-8 border-r-transparent border-l-transparent" />
+            <div className="txt-c2-bold bg-special-pink-600 flex h-[45px] w-[120px] shrink-0 items-center justify-center rounded-[20px] text-center text-white lg:w-[140px]">
+              기관 검사는 문의 후
+              <br />
+              무료로 시작해 보세요.
+            </div>
+          </div>
+          <Button variant="purple" onClick={() => setInquiryOpen(true)}>
+            검사 문의
+          </Button>
+        </div>
       </div>
       <InstitutionStartModal
         open={institutionType !== null}
