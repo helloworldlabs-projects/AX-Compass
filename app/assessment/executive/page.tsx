@@ -4,12 +4,7 @@ import SurveyContainer from '@/app/assessment/components/SurveyContainer';
 export const dynamic = 'force-dynamic';
 
 export default async function ExecutiveAssessmentPage() {
-  const expectationForm = await examService.getExpectationForm();
+  const expectationForm = await examService.getExecutiveExpectationForm('axcompass:accessToken');
 
-  return (
-    <SurveyContainer
-      examType="EXECUTIVE"
-      expectationForm={expectationForm}
-    />
-  );
+  return <SurveyContainer examType="EXECUTIVE" expectationForm={expectationForm} />;
 }
