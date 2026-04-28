@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Container from '@/components/layout/Container';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,6 @@ import type {
 import { ApiError } from '@/types/common';
 import { CompassIcon } from '@/components/icons/CompassIcon';
 import Image from 'next/image';
-import SurveyLoadingSkeleton from './SurveyLoadingSkeleton';
 
 type Step = 'INTRO' | 'EXAMINEE_PROFILES' | 'EXAM_ITEMS' | 'EXPECTATION_FORM';
 
@@ -80,14 +79,17 @@ export default function SurveyContainer({
   const [examAnswers, setExamAnswers] = useState<Record<string, number | string>>({});
   const [expectationAnswers, setExpectationAnswers] = useState<Record<string, string>>({});
 
-  const flatItems: FlatItem[] =
-    examItems?.sections.flatMap((section) =>
-      section.items.map((item) => ({
-        ...item,
-        component: section.component,
-        itemType: section.itemType,
-      })),
-    ) ?? [];
+  const flatItems = useMemo<FlatItem[]>(
+    () =>
+      examItems?.sections.flatMap((section) =>
+        section.items.map((item) => ({
+          ...item,
+          component: section.component,
+          itemType: section.itemType,
+        })),
+      ) ?? [],
+    [examItems],
+  );
 
   // Progress percent
   let progressPercent = 0;
@@ -117,8 +119,10 @@ export default function SurveyContainer({
   }
 
   // Current profile batch (3 questions per page)
-  const currentBatch =
-    examineeProfiles?.questions.slice(profilePage * 3, profilePage * 3 + 3) ?? [];
+  const currentBatch = useMemo(
+    () => examineeProfiles?.questions.slice(profilePage * 3, profilePage * 3 + 3) ?? [],
+    [examineeProfiles, profilePage],
+  );
 
   // canProceed
   let canProceed = false;
