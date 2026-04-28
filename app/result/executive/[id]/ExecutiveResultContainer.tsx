@@ -5,11 +5,11 @@ import Container from '@/components/layout/Container';
 import Section from '@/components/layout/Section';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { ResultCodeCard } from '../../components/ResultCodeCard';
 import { BadgeCheck, Map } from 'lucide-react';
 import { MaturityLevelCard } from '@/app/institution/_components/MaturityLevelCard';
 import { CompetencyScorePanel } from '@/components/ui/CompetencyScorePanel';
-import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { CurriculumItem } from '@/components/ui/CurriculumItem';
 import { Button } from '@/components/ui/button';
 import { InquiryModal } from '@/components/modals/InquiryModal';
@@ -17,6 +17,11 @@ import { useState } from 'react';
 import type { ExecutiveResult } from '@/types/exam';
 import { MATURITY_STAGE_LABEL, getCompetencyScore } from '@/constants/maturityConfig';
 import { roundScore } from '@/lib/utils';
+
+const CurriculumTreeChart = dynamic(
+  () => import('@/components/shared/CurriculumTreeChart').then((m) => ({ default: m.CurriculumTreeChart })),
+  { ssr: false },
+);
 
 export default function ExecutiveResultContainer({ result }: { result: ExecutiveResult }) {
   const [inquiryOpen, setInquiryOpen] = useState(false);

@@ -13,12 +13,20 @@ import { PROFILE_TYPE_LABEL } from '@/constants/profileTypeConfig';
 import { ProfileResultCard } from '@/components/ui/ProfileResultCard';
 import { CurriculumItem } from '@/components/ui/CurriculumItem';
 import { InquiryModal } from '@/components/modals/InquiryModal';
-import { RadarChart } from '@/components/ui/RadarChart';
+import dynamic from 'next/dynamic';
 import { ResultCodeCard } from '@/app/result/components/ResultCodeCard';
 import { ScoreStatGuideModal } from '@/app/result/components/modal/ScoreStatGuideModal';
 import { ProfileTypeGuideModal } from '@/app/result/components/modal/ProfileTypeGuideModal';
 import { LearningRoadmapGuideModal } from '@/app/result/components/modal/LearningRoadmapGuideModal';
-import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
+
+const RadarChart = dynamic(
+  () => import('@/components/ui/RadarChart').then(m => ({ default: m.RadarChart })),
+);
+
+const CurriculumTreeChart = dynamic(
+  () => import('@/components/shared/CurriculumTreeChart').then(m => ({ default: m.CurriculumTreeChart })),
+  { ssr: false },
+);
 import { useState } from 'react';
 import { COMPETENCY_COLOR_MAP } from '@/constants/competencyConfig';
 import { roundScore } from '@/lib/utils';
