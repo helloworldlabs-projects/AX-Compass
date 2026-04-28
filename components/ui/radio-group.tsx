@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { Radio as RadioPrimitive } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 
@@ -23,12 +24,16 @@ function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
 
 interface RadioGroupItemProps extends RadioPrimitive.Root.Props {
   label?: string;
+  labelClassName?: string;
 }
 
-function RadioGroupItem({ className, label, id, ...props }: RadioGroupItemProps) {
+function RadioGroupItem({ className, label, id, labelClassName, ...props }: RadioGroupItemProps) {
+  const generatedId = useId();
+  const resolvedId = id ?? generatedId;
+
   const radio = (
     <RadioPrimitive.Root
-      id={id}
+      id={resolvedId}
       data-slot="radio-group-item"
       className={cn(
         radioGroupItemRootLayoutClassName,
@@ -50,10 +55,10 @@ function RadioGroupItem({ className, label, id, ...props }: RadioGroupItemProps)
   if (!label) return radio;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className={cn('flex items-center gap-3', labelClassName)}>
       {radio}
       <label
-        htmlFor={id}
+        htmlFor={resolvedId}
         className={cn(
           'txt-c1-bold cursor-pointer text-gray-500',
           props.disabled && 'cursor-not-allowed',

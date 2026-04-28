@@ -153,6 +153,10 @@
   --color-special-dark-blue-700: #1f2731;
   --color-special-dark-blue-800: #151a20;
   --color-special-dark-blue-900: #0a0d10;
+
+  /* Elevation — 공통 그림자 (카드·입력·버튼 등) */
+  --shadow-elevation: 0px 4px 4px 0px rgba(0, 0, 0, 0.14);
+  --text-shadow-elevation: 0px 4px 4px rgba(0, 0, 0, 0.14);
 }
 
 /* Typography - Responsive Font Sizes (PC: 1024px 이상) */
@@ -326,7 +330,7 @@ body {
 
 :root {
   --background: oklch(0.1571 0.0081 248.36);
-  --foreground: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -406,5 +410,90 @@ body {
 }
 
 .shadow {
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.14);
+  box-shadow: var(--shadow-elevation);
+}
+
+.text-shadow {
+  text-shadow: var(--text-shadow-elevation);
+}
+
+.rounded-card {
+  border-radius: 12px;
+}
+
+.recharts-responsive-container * {
+  outline: none;
+}
+
+@keyframes bounce-up {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.animate-bounce-up {
+  animation: bounce-up 1s infinite;
+}
+
+@media (min-width: 1024px) {
+  .rounded-card {
+    border-radius: 20px;
+  }
+}
+
+@media print {
+  @page {
+    margin: 15mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  header,
+  footer,
+  [data-print-hidden] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  main {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  /* Force 2-column layout for competency chart grid */
+  .print-chart-item {
+    width: 50% !important;
+    box-sizing: border-box !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    overflow: hidden !important;
+    break-inside: avoid;
+  }
+
+  /* Prevent recharts from being sliced at page boundaries */
+  .recharts-wrapper,
+  .recharts-responsive-container {
+    break-inside: avoid;
+  }
+
+  /* Prevent arbitrary content blocks from being cut */
+  .print-no-break {
+    break-inside: avoid;
+    page-break-inside: avoid; /* 구형 브라우저 폴백 */
+  }
+
+  /* CurriculumTreeChart: 이미지로 렌더링되므로 페이지 경계에서 잘리지 않음 */
+  .curriculum-tree-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

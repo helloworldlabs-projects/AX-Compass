@@ -26,7 +26,7 @@ function LevelCompetencyCell({
   categoryTitle,
   categorySummary,
   description,
-  gapClassName = 'gap-3 lg:gap-6',
+  gapClassName = 'gap-4 lg:gap-6',
   className,
 }: LevelCompetencyCellProps) {
   return (
@@ -35,7 +35,7 @@ function LevelCompetencyCell({
       <div className={cn('flex min-h-0 min-w-0 flex-1 flex-col gap-2.5 text-black')}>
         <div className="txt-st-bold">{categoryTitle}</div>
         <p className="txt-b-regular">{categorySummary}</p>
-        <div>
+        <div className="flex flex-col gap-1">
           <div className="txt-b-bold text-purple-700">[{level}]</div>
           <div className="txt-b-regular">{description}</div>
         </div>

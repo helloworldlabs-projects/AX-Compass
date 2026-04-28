@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useId, useState } from 'react';
-import { Search } from 'lucide-react';
+import { Eye, EyeOff, Search } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -45,7 +45,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const uid = useId();
   const id = idProp ?? `input-${uid}`;
   const isSearch = type === 'search';
-  const htmlType = type;
+  const isPassword = type === 'password';
+  const [showPassword, setShowPassword] = useState(false);
+  const htmlType = isPassword ? (showPassword ? 'text' : 'password') : type;
 
   const isControlled = value !== undefined;
   const [uncontrolledFilled, setUncontrolledFilled] = useState(() =>
@@ -56,7 +58,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const describedBy = error ? `${id}-error` : undefined;
 
   const control = (
-    <div className="relative w-full">
+    <div className="group relative w-full">
       {isSearch ? (
         <Search
           className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-purple-500 lg:left-4 lg:size-6"
@@ -83,23 +85,39 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           onChange?.(v);
         }}
         className={cn(
-          'txt-b-regular bg-gray-0 w-full rounded-[12px] border-0 text-black caret-purple-800 shadow transition-colors',
+          'txt-b-regular bg-gray-0 w-full rounded-[12px] border-2 border-transparent text-black caret-purple-800 shadow transition-colors',
           'h-12 px-3 lg:h-[46px] lg:px-4',
           'placeholder:text-gray-500',
-          'focus:bg-white focus:text-black focus:outline-none',
+          'focus:border-special-orange-500 focus:bg-white focus:text-black focus:outline-none',
           'data-filled:bg-white data-filled:text-gray-700',
           'disabled:cursor-not-allowed disabled:bg-white disabled:text-gray-700',
           isSearch && 'pr-3 pl-[44px] lg:pr-4 lg:pl-14',
-          !isSearch && 'px-3 lg:px-4',
+          isPassword && 'pr-10 pl-3 lg:pr-12 lg:pl-4',
+          !isSearch && !isPassword && 'px-3 lg:px-4',
           className,
         )}
         {...rest}
       />
+      {isPassword && (
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={() => setShowPassword((v) => !v)}
+          aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+          className="group-focus-within:text-special-orange-500 absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 lg:right-4"
+        >
+          {showPassword ? (
+            <EyeOff className="size-[21px] lg:size-6" aria-hidden />
+          ) : (
+            <Eye className="size-[21px] lg:size-6" aria-hidden />
+          )}
+        </button>
+      )}
     </div>
   );
 
   return (
-    <div className="flex w-full flex-col gap-2.5 lg:gap-3.5">
+    <div className="flex w-full flex-col gap-1.5 lg:gap-2">
       {label ? (
         <label htmlFor={id} className="txt-c1-bold text-gray-500 uppercase">
           {label}
@@ -107,7 +125,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       ) : null}
       {control}
       {error ? (
-        <p id={`${id}-error`} role="alert" className="txt-c1-bold mt-1.5 text-red-500 lg:mt-2">
+        <p id={`${id}-error`} role="alert" className="txt-c1-bold text-red-500">
           {error}
         </p>
       ) : null}
