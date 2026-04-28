@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ResultCodeCard } from '../../components/ResultCodeCard';
 import { BadgeCheck, Map } from 'lucide-react';
 import { MaturityLevelCard } from '@/app/institution/_components/MaturityLevelCard';
-import { ExecutiveRadarChart } from '@/components/ui/ExecutiveRadarChart';
+import { CompetencyScorePanel } from './_components/CompetencyScorePanel';
 import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { CurriculumItem } from '@/components/ui/CurriculumItem';
 import { Button } from '@/components/ui/button';
@@ -66,8 +66,8 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
           <span>발급 기관: (주)헬로월드랩스</span>
         </div>
       </div>
-      <Section className="w-full max-w-[700px]">
-        <div className="w-full">
+      <Section className="w-full max-w-[1000px]">
+        <div className="w-full max-w-[700px]">
           <div>
             <span className="txt-t1 mr-1.5">{result.institutionName}</span>
           </div>
@@ -90,16 +90,14 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
           </div>
         </div>
         <ResultCodeCard resultCode={result.resultCode} />
-        <div className="rounded-card flex w-full flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:px-[50px]">
+        <div className="rounded-card flex w-full max-w-[700px] flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:px-[50px]">
           <MaturityLevelCard type={result.currentMaturityStage} />
           <MaturityLevelCard type={result.targetMaturityStage} />
         </div>
-      </Section>
-      <Section className="max-w-[1000px]">
         <div className="flex w-full flex-col gap-[30px]">
-          <div className="mx-auto max-w-[340px] lg:max-w-[900px]">
+          <div className="mx-auto w-full max-w-[340px] lg:max-w-[900px]">
             <div className="flex items-end justify-center gap-2.5">
-              <div className="relative flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
+              <div className="relative flex h-[200px] w-[100px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
                 <span className="txt-b-bold text-center">
                   {Math.round(result.currentMaturityScore * 10) / 10}
                 </span>
@@ -124,7 +122,7 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
                   </div>
                 </div>
               </div>
-              <div className="relative flex h-[200px] w-[60px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
+              <div className="relative flex h-[200px] w-[100px] flex-col justify-end lg:h-[300px] lg:w-[140px]">
                 <span className="txt-b-bold text-center">{result.targetMaturityScore}</span>
                 <div
                   className="bg-special-pink-600 border-special-pink-200 flex w-full items-center justify-center rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
@@ -135,7 +133,7 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
               </div>
             </div>
             <div className="h-[3px] w-full rounded-full bg-gray-500" />
-            <div className="txt-st2-bold mt-5 flex items-center justify-between text-center lg:px-6">
+            <div className="txt-st2-bold mt-5 flex items-center justify-center gap-[50px] text-center lg:gap-[120px] lg:px-6">
               <div>
                 현재 성숙도(CMS)
                 <br />
@@ -148,7 +146,7 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
               </div>
             </div>
           </div>
-          <div className="mx-auto w-[700px]">
+          <div className="mx-auto w-full max-w-[700px]">
             <div className="txt-st-bold">
               <span className="text-purple-700">* </span>
               Gap_MS (CMS − TMS)
@@ -166,193 +164,27 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-y-[50px]">
-          <div className="flex w-[500px] flex-col">
-            <div className="txt-st-bold text-center">현재 영역별 성숙도</div>
-            <div className="flex flex-col gap-5">
-              <div className="h-[500px] w-full">
-                <ExecutiveRadarChart
-                  strategyScore={Math.round(currentStrategy * 10) / 10}
-                  governanceScore={Math.round(currentGovernance * 10) / 10}
-                  adoptionScore={Math.round(currentAdoption * 10) / 10}
-                  dataSystemScore={Math.round(currentDataSystem * 10) / 10}
-                  strokeColor="#ff5a81"
-                />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-pink-500">* </span>전략·리더십
-                  </div>
-                  <div
-                    className="border-special-pink-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${currentStrategy}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-pink-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {currentStrategy}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-pink-500">* </span>운영체계·확산
-                  </div>
-                  <div
-                    className="border-special-pink-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${currentGovernance}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-pink-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {currentGovernance}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-pink-500">* </span>업무 적용
-                  </div>
-                  <div
-                    className="border-special-pink-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${currentAdoption}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-pink-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {currentAdoption}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-pink-500">* </span>데이터·시스템 기반
-                  </div>
-                  <div
-                    className="border-special-pink-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${currentDataSystem}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-pink-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {currentDataSystem}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex w-[500px] flex-col">
-            <div className="txt-st-bold text-center">목표 영역별 성숙도</div>
-            <div className="flex flex-col gap-5">
-              <div className="h-[500px] w-full">
-                <ExecutiveRadarChart
-                  strategyScore={targetStrategy}
-                  governanceScore={targetGovernance}
-                  adoptionScore={targetAdoption}
-                  dataSystemScore={targetDataSystem}
-                  strokeColor="#2e75cc"
-                />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-blue-500">* </span>전략·리더십
-                  </div>
-                  <div
-                    className="border-special-blue-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${targetStrategy}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-blue-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {targetStrategy}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-blue-500">* </span>운영체계·확산
-                  </div>
-                  <div
-                    className="border-special-blue-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${targetGovernance}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-blue-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {targetGovernance}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-blue-500">* </span>업무 적용
-                  </div>
-                  <div
-                    className="border-special-blue-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${targetAdoption}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-blue-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {targetAdoption}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5 px-[50px] py-1.5">
-                  <div className="txt-b-bold">
-                    <span className="text-special-blue-500">* </span>데이터·시스템 기반
-                  </div>
-                  <div
-                    className="border-special-blue-500 relative h-9 w-[400px] overflow-hidden rounded-[12px] border-3"
-                    style={{ '--progress': `${targetDataSystem}%` } as React.CSSProperties}
-                  >
-                    <div className="bg-special-blue-500/20 absolute inset-y-0 left-0 h-full w-(--progress)" />
-                    <span className="txt-b-bold absolute inset-0 flex items-center justify-center">
-                      {targetDataSystem}점
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="flex w-full max-w-[728px] flex-wrap items-center justify-center gap-y-[50px] lg:max-w-[1000px]">
+          <CompetencyScorePanel
+            title="현재 영역별 성숙도"
+            strategy={currentStrategy}
+            governance={currentGovernance}
+            adoption={currentAdoption}
+            dataSystem={currentDataSystem}
+            strokeColor="#ff5a81"
+            variant="pink"
+          />
+          <CompetencyScorePanel
+            title="목표 영역별 성숙도"
+            strategy={targetStrategy}
+            governance={targetGovernance}
+            adoption={targetAdoption}
+            dataSystem={targetDataSystem}
+            strokeColor="#2e75cc"
+            variant="blue"
+          />
         </div>
-        <div className="flex max-w-[700px] flex-col gap-2.5 rounded-[20px] border border-gray-500 bg-white px-[50px] py-[30px] shadow">
+        <div className="flex max-w-[700px] flex-col gap-2.5 rounded-[20px] border border-gray-500 bg-white px-2.5 py-[30px] shadow lg:px-[50px]">
           <div className="txt-st-bold">
             <span className="text-purple-700">* </span>
             검사 결과 요약
@@ -366,11 +198,9 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
       </Section>
       <Section className="max-w-[728px] lg:max-w-[1000px]">
         <div className="flex w-full max-w-[700px] items-center">
-          <div className="flex items-center gap-4">
-            <Map className="size-10 text-purple-700" />
-            <div className="txt-t1">
-              <span className="mr-3 hidden lg:inline-block">기관 </span>추천 학습 로드맵
-            </div>
+          <div className="flex items-center gap-2 lg:gap-4">
+            <Map className="size-8 text-purple-700 lg:size-10" />
+            <div className="txt-t1">기관 추천 학습 로드맵</div>
           </div>
         </div>
         <div className="h-[3px] w-full rounded-full bg-purple-700" />
