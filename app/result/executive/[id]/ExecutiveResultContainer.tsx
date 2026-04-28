@@ -191,7 +191,13 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
           </div>
           <ul className="list-outside list-decimal pl-5 text-black marker:text-black">
             {result.resultSummary.map((line, index) => (
-              <li key={index}>{line}</li>
+              <li key={index}>
+                {line.split(/\*([^*]*)\*/g).map((word, i) =>
+                  i % 2 === 0 ? word : (
+                    <span key={i} className="txt-b-bold">{word}</span>
+                  ),
+                )}
+              </li>
             ))}
           </ul>
         </div>
