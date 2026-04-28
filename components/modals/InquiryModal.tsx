@@ -16,6 +16,7 @@ import {
   ModalTitle,
 } from '@/components/ui/Modal';
 import { TextArea } from '@/components/ui/TextArea';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 interface InquiryModalProps {
   open: boolean;
@@ -25,10 +26,13 @@ interface InquiryModalProps {
 interface InquiryFormState {
   company: string;
   name: string;
+  department: string;
   position: string;
   phone: string;
   email: string;
   inquiry: string;
+  referralPath: string;
+  referral: string;
   agreed: boolean;
 }
 
@@ -37,10 +41,13 @@ type InquiryErrors = Partial<Record<keyof Omit<InquiryFormState, 'agreed'>, stri
 const INITIAL_FORM: InquiryFormState = {
   company: '',
   name: '',
+  department: '',
   position: '',
   phone: '',
   email: '',
   inquiry: '',
+  referralPath: '',
+  referral: '',
   agreed: false,
 };
 
@@ -56,6 +63,8 @@ function validate(form: InquiryFormState): InquiryErrors {
   }
   if (!form.company.trim()) errors.company = '기업명을 입력해 주세요.';
   if (!form.name.trim()) errors.name = '담당자 이름을 입력해 주세요.';
+  if (!form.department.trim()) errors.department = '소속을 입력해 주세요.';
+  if (!form.position.trim()) errors.position = '직급을 입력해 주세요.';
   if (!form.phone.trim()) {
     errors.phone = '전화번호를 입력해 주세요.';
   } else if (!/^\d{9,11}$/.test(form.phone)) {
@@ -67,6 +76,7 @@ function validate(form: InquiryFormState): InquiryErrors {
     errors.email = '올바른 이메일 형식이 아닙니다.';
   }
   if (!form.inquiry.trim()) errors.inquiry = '문의 내용을 입력해 주세요.';
+  if (!form.referralPath) errors.referralPath = '알게 된 경로를 선택해 주세요.';
   return errors;
 }
 
@@ -103,10 +113,13 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
         body: JSON.stringify({
           company_name: form.company,
           contact_person: form.name,
+          department: form.department,
           position: form.position,
           phone_number: form.phone,
           email: form.email,
           inquiry_content: form.inquiry,
+          referral_path: form.referralPath,
+          referral: form.referral,
         }),
       });
 
@@ -161,11 +174,22 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <FieldLabel>직급</FieldLabel>
+            <FieldLabel required>소속</FieldLabel>
+            <Input
+              placeholder="담당자 소속을 입력해 주세요."
+              value={form.department}
+              onChange={handleField('department')}
+              error={errors.department}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <FieldLabel required>직급</FieldLabel>
             <Input
               placeholder="담당자 직급을 입력해 주세요."
               value={form.position}
               onChange={handleField('position')}
+              error={errors.position}
             />
           </div>
 
@@ -197,6 +221,40 @@ function InquiryModal({ open, onClose }: InquiryModalProps) {
               value={form.inquiry}
               onChange={handleField('inquiry')}
               error={errors.inquiry}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <FieldLabel required>알게 된 경로</FieldLabel>
+            <RadioGroup
+              className="flex flex-wrap gap-4"
+              value={form.referralPath}
+              onValueChange={(value) => {
+                setForm((prev) => ({ ...prev, referralPath: value }));
+                setErrors((prev) => ({ ...prev, referralPath: undefined }));
+              }}
+            >
+              <RadioGroupItem labelClassName="min-w-[75px]" label="검색 포털" value="검색 포털" />
+              <RadioGroupItem label="블로그" value="블로그" />
+              <RadioGroupItem label="지인 / 동료 추천" value="지인 / 동료 추천" />
+              <RadioGroupItem label="기업 / 기관 소개" value="기업 / 기관 소개" />
+              <RadioGroupItem label="교육 / 세미나" value="교육 / 세미나" />
+              <RadioGroupItem label="광고 / 프로모션" value="광고 / 프로모션" />
+              <RadioGroupItem label="기타" value="기타" />
+            </RadioGroup>
+            {errors.referralPath && (
+              <p role="alert" className="txt-c1-bold text-red-500">
+                {errors.referralPath}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <FieldLabel>추천인</FieldLabel>
+            <Input
+              placeholder="추천인을 입력해 주세요."
+              value={form.referral}
+              onChange={handleField('referral')}
             />
           </div>
         </ModalBody>
