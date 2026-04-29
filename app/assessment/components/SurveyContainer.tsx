@@ -8,12 +8,10 @@ import IntroStep from '@/app/assessment/components/steps/IntroStep';
 import ExamineeProfilesStep from '@/app/assessment/components/steps/ExamineeProfilesStep';
 import ExamItemsStep from '@/app/assessment/components/steps/ExamItemsStep';
 import ExpectationsStep from '@/app/assessment/components/steps/ExpectationsStep';
-import { useExamItems, useSubmitExam, useSubmitExecutiveExam } from '@/hooks/useExamQueries';
+import { useExamItems } from '@/hooks/useExamQueries';
 import type {
   ExpectationFormDTO,
   ExamineeProfilesDTO,
-  ExamSubmitRequest,
-  ExecutiveSubmitRequest,
   ItemComponent,
   ItemType,
   ExamItemDTO,
@@ -23,8 +21,8 @@ import { ApiError, getApiErrorDetail } from '@/types/common';
 import { CompassIcon } from '@/components/icons/CompassIcon';
 import Image from 'next/image';
 import { toast } from 'sonner';
-
-type Step = 'INTRO' | 'EXAMINEE_PROFILES' | 'EXAM_ITEMS' | 'EXPECTATION_FORM';
+import { useSurveyStep } from '@/app/assessment/hooks/useSurveyStep';
+import { useSurveySubmit } from '@/app/assessment/hooks/useSurveySubmit';
 
 interface SurveyContainerProps {
   examType: ExamType;
@@ -47,8 +45,6 @@ export default function SurveyContainer({
 }: SurveyContainerProps) {
   const router = useRouter();
   const tokenKey = examType !== 'STANDARD' ? ('axcompass:accessToken' as const) : undefined;
-  const { mutate: submitExam } = useSubmitExam(examType !== 'EXECUTIVE' ? tokenKey : undefined);
-  const { mutate: submitExecutiveExam } = useSubmitExecutiveExam(tokenKey);
   const { data: examItems, error: examItemsError } = useExamItems(examType, tokenKey);
 
   useEffect(() => {
@@ -62,13 +58,7 @@ export default function SurveyContainer({
     }
   }, [examItemsError, router]);
 
-  const [showSpinner, setShowSpinner] = useState(false);
-  const spinnerStartRef = useRef<number>(0);
-
-  const [step, setStep] = useState<Step>('INTRO');
   const [agreed, setAgreed] = useState(false);
-  const [profilePage, setProfilePage] = useState(0);
-  const [examItemIndex, setExamItemIndex] = useState(0);
   const [examineeAnswers, setExamineeAnswers] = useState<Record<string, string | string[]>>({});
   const [examAnswers, setExamAnswers] = useState<Record<string, number | string>>({});
   const [expectationAnswers, setExpectationAnswers] = useState<Record<string, string>>({});
@@ -84,6 +74,28 @@ export default function SurveyContainer({
       ) ?? [],
     [examItems],
   );
+
+  const totalProfilePages = useMemo(
+    () => Math.ceil((examineeProfiles?.questions.length ?? 0) / 3),
+    [examineeProfiles],
+  );
+
+  const { step, profilePage, examItemIndex, goNext, isLastStep } = useSurveyStep({
+    hasProfiles: !!examineeProfiles,
+    totalExamItems: examItems?.totalItems ?? 0,
+    totalProfilePages,
+  });
+
+  const { submit, showSpinner } = useSurveySubmit({
+    examType,
+    tokenKey,
+    flatItems,
+    examineeProfiles,
+    examineeAnswers,
+    examAnswers,
+    expectationAnswers,
+    router,
+  });
 
   // Progress percent
   let progressPercent = 0;
@@ -150,97 +162,10 @@ export default function SurveyContainer({
 
   function handleNext() {
     if (!examItems) return;
-    window.scrollTo({ top: 0 });
-    if (step === 'INTRO') {
-      if (examineeProfiles) {
-        setStep('EXAMINEE_PROFILES');
-        setProfilePage(0);
-      } else {
-        setStep('EXAM_ITEMS');
-        setExamItemIndex(0);
-      }
-    } else if (step === 'EXAMINEE_PROFILES') {
-      if (profilePage < 1) {
-        setProfilePage((p) => p + 1);
-      } else {
-        setStep('EXAM_ITEMS');
-        setExamItemIndex(0);
-      }
-    } else if (step === 'EXAM_ITEMS') {
-      if (examItemIndex < examItems.totalItems - 1) {
-        setExamItemIndex((i) => i + 1);
-      } else {
-        setStep('EXPECTATION_FORM');
-      }
-    } else if (examType === 'EXECUTIVE') {
-      const executiveBody: ExecutiveSubmitRequest = {
-        responses: flatItems.map((item) => ({
-          itemId: item.itemId,
-          likertValue: examAnswers[item.itemId] as number,
-        })),
-        expectation: {
-          targetAiTask: expectationAnswers['TARGET_AI_TASK'],
-          learningExpectation: expectationAnswers['LEARNING_EXPECTATION'] ?? '',
-        },
-      };
-      spinnerStartRef.current = Date.now();
-      setShowSpinner(true);
-      submitExecutiveExam(executiveBody, {
-        onSuccess: (data) => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          // TODO: /result/executive/:resultCode 라우트 존재 확인 후 제거
-          setTimeout(() => router.push(`/result/executive/${data.resultCode}`), remaining);
-        },
-        onError: () => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          setTimeout(() => setShowSpinner(false), remaining);
-        },
-      });
+    if (isLastStep) {
+      submit();
     } else {
-      const body: ExamSubmitRequest = {
-        examType,
-        profile: examineeProfiles
-          ? {
-              ageGroup: examineeAnswers['ageGroup'] as string,
-              jobFunction: examineeAnswers['jobFunction'] as string,
-              industry: examineeAnswers['industry'] as string,
-              experienceLevel: examineeAnswers['experienceLevel'] as string,
-              aiUsageFrequency: examineeAnswers['aiUsageFrequency'] as string,
-              aiUsagePurposes: examineeAnswers['aiUsagePurposes'] as string[],
-            }
-          : undefined,
-        responses: flatItems.map((item) => {
-          const answer = examAnswers[item.itemId];
-          const isLikert = ['LIKERT', 'LIKERT_FREQ'].includes(item.itemType.toUpperCase());
-          return {
-            itemId: item.itemId,
-            likertValue: isLikert ? (answer as number) : null,
-            optionCode: !isLikert ? (answer as string) : null,
-          };
-        }),
-        expectation: {
-          targetAiTask: expectationAnswers['TARGET_AI_TASK'],
-          learningExpectation: expectationAnswers['LEARNING_EXPECTATION'] || undefined,
-        },
-      };
-      spinnerStartRef.current = Date.now();
-      setShowSpinner(true);
-      submitExam(body, {
-        onSuccess: (data) => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          setTimeout(
-            () =>
-              router.push(
-                `/result/${examType === 'STANDARD' ? 'general' : 'member'}/${data.resultCode}`,
-              ),
-            remaining,
-          );
-        },
-        onError: () => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          setTimeout(() => setShowSpinner(false), remaining);
-        },
-      });
+      goNext();
     }
   }
 
