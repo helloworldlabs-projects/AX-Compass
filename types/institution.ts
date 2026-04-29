@@ -4,10 +4,10 @@
 
 import { Level } from '@/constants/levelConfig';
 import type {
-  ExecutiveCompetencyCode,
   ExecutiveResultCompetencyScoreDTO,
   MaturityStage,
   ProfileType,
+  ProfileTypeLabel,
 } from '@/types/exam';
 
 export type InstitutionLevel = 'BEGINNER' | 'ELEMENTARY' | 'INTERMEDIATE' | 'ADVANCED';
@@ -120,7 +120,7 @@ export interface MemberDTO {
   memberName: string;
   resultCode: string | null;
   overallLevel: InstitutionLevel | null;
-  profileType: string | null;
+  profileType: ProfileTypeLabel | null;
   understandLevel: InstitutionLevel | null;
   useApplyLevel: InstitutionLevel | null;
   evaluateLevel: InstitutionLevel | null;
@@ -159,9 +159,9 @@ export interface ExecutiveDTO {
   executiveId: number;
   executiveName: string;
   resultCode: string | null;
-  currentMaturityStage: string | null;
+  currentMaturityStage: MaturityStage | null;
   currentScore: number | null;
-  targetMaturityStage: string | null;
+  targetMaturityStage: MaturityStage | null;
   targetScore: number | null;
   gapMs: number | null;
 }
