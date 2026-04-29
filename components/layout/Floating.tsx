@@ -32,7 +32,10 @@ function InquiryButton({ handleClick }: { handleClick: () => void }) {
 
 function ExamStartButton() {
   return (
-    <Link href="/assessment" className="group flex cursor-pointer flex-col items-center gap-1">
+    <Link
+      href="/assessment"
+      className="group hidden cursor-pointer flex-col items-center gap-1 lg:flex"
+    >
       <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[120px] w-[50px] items-center justify-center rounded-[30px] shadow transition-colors duration-200 lg:w-[60px]">
         <SquarePen className="size-8 text-white lg:size-9" />
       </div>
