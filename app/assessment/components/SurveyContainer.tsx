@@ -19,9 +19,10 @@ import type {
   ExamItemDTO,
   ExamType,
 } from '@/types/exam';
-import { ApiError } from '@/types/common';
+import { ApiError, getApiErrorDetail } from '@/types/common';
 import { CompassIcon } from '@/components/icons/CompassIcon';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 type Step = 'INTRO' | 'EXAMINEE_PROFILES' | 'EXAM_ITEMS' | 'EXPECTATION_FORM';
 
@@ -46,17 +47,9 @@ export default function SurveyContainer({
 }: SurveyContainerProps) {
   const router = useRouter();
   const tokenKey = examType !== 'STANDARD' ? ('axcompass:accessToken' as const) : undefined;
-  const { mutate: submitExam, isPending: isSubmittingStandard } = useSubmitExam(
-    examType !== 'EXECUTIVE' ? tokenKey : undefined,
-  );
-  const { mutate: submitExecutiveExam, isPending: isSubmittingExecutive } =
-    useSubmitExecutiveExam(tokenKey);
-  const isSubmitting = isSubmittingStandard || isSubmittingExecutive;
-  const {
-    data: examItems,
-    isLoading: isLoadingItems,
-    error: examItemsError,
-  } = useExamItems(examType, tokenKey);
+  const { mutate: submitExam } = useSubmitExam(examType !== 'EXECUTIVE' ? tokenKey : undefined);
+  const { mutate: submitExecutiveExam } = useSubmitExecutiveExam(tokenKey);
+  const { data: examItems, error: examItemsError } = useExamItems(examType, tokenKey);
 
   useEffect(() => {
     if (!examItemsError) return;
@@ -64,6 +57,7 @@ export default function SurveyContainer({
       examItemsError instanceof ApiError &&
       (examItemsError.status === 401 || examItemsError.status === 403)
     ) {
+      toast.error(getApiErrorDetail(examItemsError));
       router.replace('/assessment');
     }
   }, [examItemsError, router]);
