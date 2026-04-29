@@ -18,18 +18,21 @@ import { ResultCodeCard } from '@/app/result/components/ResultCodeCard';
 import { ScoreStatGuideModal } from '@/app/result/components/modal/ScoreStatGuideModal';
 import { ProfileTypeGuideModal } from '@/app/result/components/modal/ProfileTypeGuideModal';
 import { LearningRoadmapGuideModal } from '@/app/result/components/modal/LearningRoadmapGuideModal';
-
-const RadarChart = dynamic(
-  () => import('@/components/ui/RadarChart').then(m => ({ default: m.RadarChart })),
-);
-
-const CurriculumTreeChart = dynamic(
-  () => import('@/components/shared/CurriculumTreeChart').then(m => ({ default: m.CurriculumTreeChart })),
-  { ssr: false },
-);
 import { useState } from 'react';
 import { COMPETENCY_COLOR_MAP } from '@/constants/competencyConfig';
 import { roundScore } from '@/lib/utils';
+
+const RadarChart = dynamic(() =>
+  import('@/components/ui/RadarChart').then((m) => ({ default: m.RadarChart })),
+);
+
+const CurriculumTreeChart = dynamic(
+  () =>
+    import('@/components/shared/CurriculumTreeChart').then((m) => ({
+      default: m.CurriculumTreeChart,
+    })),
+  { ssr: false },
+);
 
 interface ResultContainerProps {
   resultType: 'general' | 'member';
