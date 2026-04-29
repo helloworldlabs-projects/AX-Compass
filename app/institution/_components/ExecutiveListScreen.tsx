@@ -37,7 +37,7 @@ export default function ExecutiveListScreen() {
     size: 10,
   };
 
-  const { data, isLoading } = useInstitutionExecutives(params);
+  const { data, isLoading, isError } = useInstitutionExecutives(params);
 
   const executives = data?.executives ?? [];
   const totalPages = data?.pageInfo.totalPages ?? 1;
@@ -144,6 +144,12 @@ export default function ExecutiveListScreen() {
           <tr>
             <td colSpan={8} className="txt-b-bold py-10 text-center text-gray-500">
               불러오는 중...
+            </td>
+          </tr>
+        ) : isError ? (
+          <tr>
+            <td colSpan={8} className="txt-b-bold py-10 text-center text-red-500">
+              데이터를 불러오지 못했습니다.
             </td>
           </tr>
         ) : executives.length === 0 ? (
