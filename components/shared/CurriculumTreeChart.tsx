@@ -422,7 +422,6 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
   // props 변경 시 재캡처를 위해 이미지 초기화
   useEffect(() => {
     setImageUrl(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartKey]);
 
   // 스케일 계산 — 이미지가 없을 때만 동작
@@ -525,6 +524,7 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
           >
             <Search className="size-6 text-white" strokeWidth={3} />
           </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imageUrl} alt="AX 전환 커리큘럼 가이드 트리" className="h-auto w-full" />
         </div>
       )}
@@ -541,6 +541,7 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
             }}
           >
             <div className="relative max-h-[90vh] max-w-[90vw]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl}
                 alt="AX 전환 커리큘럼 가이드 트리"

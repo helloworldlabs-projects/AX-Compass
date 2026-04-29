@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import { CopyIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
