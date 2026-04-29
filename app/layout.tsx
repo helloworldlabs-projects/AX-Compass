@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import { Providers } from './providers';
 import Script from 'next/script';
 import { Floating } from '@/components/layout/Floating';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://ax-compass.helloworldlabs.kr'),
   title: `${titlePrefix}AX Compass | AX 역량·성숙도 진단 기반 AX 컨설팅 서비스`,
   description:
-    '구성원의 AX 역량과 기업의 AX 성숙도를 진단해 맞춤형 AX 컨설팅과 학습 로드맵을 제안합니다.',
+    'AX Compass는 구성원의 AX 역량과 기업의 AX 성숙도를 함께 진단하고, 현재 수준과 목표 수준의 차이를 분석해 맞춤형 AX 컨설팅, AI 학습 로드맵, 조직 맞춤형 교육과 실행 전략을 제안합니다.',
   keywords:
     'AX Compass, AX 컨설팅, AX 역량 진단, AX 성숙도 진단, 기업 AX 진단, 조직 AX 진단, AI 역량 진단, AI 성숙도 진단, AX 전환, 학습 로드맵, 기업 교육 컨설팅',
   alternates: {
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'AX Compass | AX 역량·성숙도 진단 기반 AX 컨설팅 서비스',
     description:
-      '구성원의 AX 역량과 기업의 AX 성숙도를 진단해 맞춤형 AX 컨설팅과 학습 로드맵을 제안합니다.',
+      'AX Compass는 구성원의 AX 역량과 기업의 AX 성숙도를 함께 진단하고, 현재 수준과 목표 수준의 차이를 분석해 맞춤형 AX 컨설팅, AI 학습 로드맵, 조직 맞춤형 교육과 실행 전략을 제안합니다.',
     url: '/',
     siteName: 'AX Compass',
     type: 'website',
@@ -61,7 +62,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'AX Compass | AX 역량·성숙도 진단 기반 AX 컨설팅 서비스',
     description:
-      '구성원의 AX 역량과 기업의 AX 성숙도를 진단해 맞춤형 AX 컨설팅과 학습 로드맵을 제안합니다.',
+      'AX Compass는 구성원의 AX 역량과 기업의 AX 성숙도를 함께 진단하고, 현재 수준과 목표 수준의 차이를 분석해 맞춤형 AX 컨설팅, AI 학습 로드맵, 조직 맞춤형 교육과 실행 전략을 제안합니다.',
     images: ['/og_image.png'],
   },
   icons: {
@@ -97,6 +98,7 @@ export default function RootLayout({
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
           strategy="afterInteractive"
         />
+        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
       </body>
     </html>
   );
