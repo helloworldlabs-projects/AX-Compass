@@ -21,6 +21,14 @@ export default function InstitutionPage() {
 
   return (
     <Container>
+      <Link
+        href="https://helloworldlabs-1.gitbook.io/helloworldlabs-manual/IEjzBMwL1CRDQtU4u05j/ax-compass"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="txt-b-bold bg-special-pink-600 border-special-pink-0 absolute top-10 right-10 flex h-10 items-center justify-center rounded-[20px] border-2 px-6 text-white shadow"
+      >
+        기관 관리 매뉴얼 Link
+      </Link>
       <InstitutionHeaderSection stats={stats} />
       <InstitutionNoticeBanners
         executiveExamCount={stats.executiveExamCount}
