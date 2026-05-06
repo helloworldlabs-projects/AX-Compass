@@ -58,6 +58,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             width={300}
             height={30}
             className="h-[30px] w-[300px] object-contain"
+            priority
           />
           <div className="txt-st2-bold text-black">에서 인증하는 공식 결과입니다.</div>
         </div>
