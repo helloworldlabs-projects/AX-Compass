@@ -8,6 +8,7 @@ import IntroStep from '@/app/assessment/components/steps/IntroStep';
 import ExamineeProfilesStep from '@/app/assessment/components/steps/ExamineeProfilesStep';
 import ExamItemsStep from '@/app/assessment/components/steps/ExamItemsStep';
 import ExpectationsStep from '@/app/assessment/components/steps/ExpectationsStep';
+import ComponentIntroStep from '@/app/assessment/components/steps/ComponentIntroStep';
 import { useExamItems } from '@/hooks/useExamQueries';
 import type {
   ExpectationFormDTO,
@@ -75,16 +76,20 @@ export default function SurveyContainer({
     [examItems],
   );
 
+  const itemComponents = useMemo(() => flatItems.map((item) => item.component), [flatItems]);
+
   const totalProfilePages = useMemo(
     () => Math.ceil((examineeProfiles?.questions.length ?? 0) / 3),
     [examineeProfiles],
   );
 
-  const { step, profilePage, examItemIndex, goNext, isLastStep } = useSurveyStep({
-    hasProfiles: !!examineeProfiles,
-    totalExamItems: examItems?.totalItems ?? 0,
-    totalProfilePages,
-  });
+  const { step, profilePage, examItemIndex, componentIntroTarget, goNext, isLastStep } =
+    useSurveyStep({
+      hasProfiles: !!examineeProfiles,
+      totalExamItems: examItems?.totalItems ?? 0,
+      totalProfilePages,
+      itemComponents,
+    });
 
   const { submit, showSpinner } = useSurveySubmit({
     examType,
@@ -117,8 +122,12 @@ export default function SurveyContainer({
       sectionLabel = '* 자기평가(Self-Estimate)';
     } else if (currentItem?.component === 'SITUATIONAL_JUDGMENT') {
       sectionLabel = '* 상황판단(Situational Judgment)';
-    } else {
+    } else if (currentItem?.component === 'BEHAVIOR_HABIT') {
       sectionLabel = '* 행동빈도(Behavior Habit)';
+    } else if (currentItem?.component === 'CURRENT_MATURITY') {
+      sectionLabel = '* 기업의 현재 AX 수준';
+    } else if (currentItem?.component === 'TARGET_MATURITY') {
+      sectionLabel = '* 기업의 목표 AX 수준';
     }
   } else {
     sectionLabel = `※ ${expectationForm.formTitle}`;
@@ -132,7 +141,9 @@ export default function SurveyContainer({
 
   // canProceed
   let canProceed = false;
-  if (step === 'INTRO') {
+  if (componentIntroTarget) {
+    canProceed = true;
+  } else if (step === 'INTRO') {
     canProceed = agreed;
   } else if (step === 'EXAMINEE_PROFILES') {
     canProceed = currentBatch.every((q) => hasAnswer(examineeAnswers[q.questionCode]));
@@ -257,7 +268,11 @@ export default function SurveyContainer({
           />
         )}
 
-        {step === 'EXAM_ITEMS' && (
+        {step === 'EXAM_ITEMS' && componentIntroTarget && (
+          <ComponentIntroStep component={componentIntroTarget} examType={examType} />
+        )}
+
+        {step === 'EXAM_ITEMS' && !componentIntroTarget && (
           <ExamItemsStep
             key={examItemIndex}
             item={flatItems[examItemIndex]}

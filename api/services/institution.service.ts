@@ -1,5 +1,7 @@
 import { apiFetch } from '../client';
 import type {
+  BulkRegisterMember,
+  BulkRegisterResponse,
   ExecutiveListDTO,
   ExecutiveListParams,
   InstitutionStats,
@@ -22,7 +24,7 @@ export const institutionService = {
 
   getMembers: async (params: MemberListParams): Promise<MemberListDTO> => {
     const query = new URLSearchParams();
-    if (params.name) query.set('name', params.name);
+    if (params.keyword) query.set('keyword', params.keyword);
     if (params.examCompleted !== undefined)
       query.set('examCompleted', String(params.examCompleted));
     if (params.page !== undefined) query.set('page', String(params.page));
@@ -43,7 +45,7 @@ export const institutionService = {
 
   getExecutives: async (params: ExecutiveListParams): Promise<ExecutiveListDTO> => {
     const query = new URLSearchParams();
-    if (params.name) query.set('name', params.name);
+    if (params.keyword) query.set('keyword', params.keyword);
     if (params.examCompleted !== undefined)
       query.set('examCompleted', String(params.examCompleted));
     if (params.page !== undefined) query.set('page', String(params.page));
@@ -59,6 +61,22 @@ export const institutionService = {
     return apiFetch<void>(`/executives/${executiveId}`, {
       tokenKey: 'axcompass:adminToken',
       method: 'DELETE',
+    });
+  },
+
+  bulkRegisterMembers: async (members: BulkRegisterMember[]): Promise<BulkRegisterResponse> => {
+    return apiFetch<BulkRegisterResponse>('/members/bulk', {
+      tokenKey: 'axcompass:adminToken',
+      method: 'POST',
+      body: JSON.stringify({ members }),
+    });
+  },
+
+  bulkRegisterExecutives: async (members: BulkRegisterMember[]): Promise<BulkRegisterResponse> => {
+    return apiFetch<BulkRegisterResponse>('/executives/bulk', {
+      tokenKey: 'axcompass:adminToken',
+      method: 'POST',
+      body: JSON.stringify({ executives: members }),
     });
   },
 };

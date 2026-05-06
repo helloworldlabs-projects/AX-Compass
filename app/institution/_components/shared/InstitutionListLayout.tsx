@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileDown } from 'lucide-react';
+import { FileDown, FileUp } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import {
@@ -26,10 +27,11 @@ interface InstitutionListLayoutProps {
   searchPlaceholder: string;
   registerPlaceholder: string;
   filterLabel: string;
-  onDownload: () => void;
+  onDownloadList: () => void;
+  onUploadRegisterTemplate: (file: File) => void;
   isDownloading?: boolean;
   onSearch: (value: string) => void;
-  onRegister: (name: string) => void;
+  onRegister: (name: string, department: string) => void;
   onRegisterErrorClear: () => void;
   registerError: string;
   onFilterChange: (checked: boolean) => void;
@@ -48,7 +50,8 @@ export default function InstitutionListLayout({
   searchPlaceholder,
   registerPlaceholder,
   filterLabel,
-  onDownload,
+  onDownloadList,
+  onUploadRegisterTemplate,
   isDownloading = false,
   onSearch,
   onRegister,
@@ -61,8 +64,10 @@ export default function InstitutionListLayout({
   children,
 }: InstitutionListLayoutProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [filterChecked, setFilterChecked] = useState(false);
   const [registerName, setRegisterName] = useState('');
+  const [registerDepartment, setRegisterDepartment] = useState('');
 
   function handleFilterChange(checked: boolean) {
     setFilterChecked(checked);
@@ -70,13 +75,15 @@ export default function InstitutionListLayout({
   }
 
   function handleRegisterSubmit() {
-    const trimmed = registerName.trim();
-    if (!trimmed) {
+    const trimmedName = registerName.trim();
+    const trimmedDepartment = registerDepartment.trim();
+    if (!trimmedName || !trimmedDepartment) {
       onRegisterErrorClear();
       return;
     }
-    onRegister(trimmed);
+    onRegister(trimmedName, trimmedDepartment);
     setRegisterName('');
+    setRegisterDepartment('');
   }
 
   function handleRegisterKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -129,21 +136,101 @@ export default function InstitutionListLayout({
           </button>
         </div>
 
+        {/* 등록 박스 */}
+        <div className="ml-auto flex max-w-[756px] shrink-0 flex-col gap-3.5">
+          <span className="txt-c1-bold text-gray-500">* {countLabel} 등록</span>
+          <div className="flex flex-col gap-6 rounded-[12px] border border-purple-800 p-4">
+            <div className="flex items-end gap-6">
+              <div className="flex flex-col gap-3.5">
+                <span className="txt-c1-bold text-purple-800">[이름]</span>
+                <Input
+                  type="text"
+                  placeholder={registerPlaceholder}
+                  value={registerName}
+                  onChange={(v) => {
+                    setRegisterName(v);
+                    if (registerError) onRegisterErrorClear();
+                  }}
+                  onKeyDown={handleRegisterKeyDown}
+                  aria-label={`${countLabel} 이름 입력`}
+                  className="w-[300px]"
+                />
+              </div>
+              <div className="flex flex-col gap-3.5">
+                <span className="txt-c1-bold text-purple-800">[소속]</span>
+                <Input
+                  type="text"
+                  placeholder="소속을 입력해 주세요."
+                  value={registerDepartment}
+                  onChange={(v) => {
+                    setRegisterDepartment(v);
+                  }}
+                  className="w-[300px]"
+                />
+              </div>
+              <Button
+                variant="navy"
+                size="default"
+                onClick={handleRegisterSubmit}
+                aria-label={`${countLabel} 추가`}
+                className="h-[54px]"
+                disabled={!registerName.trim()}
+              >
+                추가
+              </Button>
+            </div>
+            {registerError && <div className="txt-c1-bold text-red-500">{registerError}</div>}
+          </div>
+        </div>
+
         {/* 컨트롤 바 */}
         <div className="flex items-end justify-between">
           {/* 좌측: 다운로드 버튼 */}
-          <div className="shrink-0">
+          <div className="flex shrink-0 gap-4">
             <Button
               variant="navy"
               size="pill"
               className="txt-c1-bold"
-              onClick={onDownload}
+              onClick={onDownloadList}
               disabled={isDownloading}
               aria-label="전체 리스트 다운로드"
             >
               {isDownloading ? '다운로드 중...' : '전체 리스트 다운'}
               <FileDown className="size-6" aria-hidden />
             </Button>
+            <a
+              href="/template/axcompass_register_template.xlsx"
+              download="axcompass_register_template.xlsx"
+              aria-label="일괄 등록 양식 다운"
+              className={cn(buttonVariants({ variant: 'dark-blue', size: 'pill' }), 'txt-c1-bold')}
+            >
+              일괄 등록 양식 다운
+              <FileDown className="size-6" aria-hidden />
+            </a>
+            <Button
+              variant="dark-blue"
+              size="pill"
+              className="txt-c1-bold"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="일괄 등록 업로드"
+            >
+              <span>일괄 등록 업로드</span>
+              <FileUp className="size-6" aria-hidden />
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              className="hidden"
+              aria-hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  onUploadRegisterTemplate(file);
+                  e.target.value = '';
+                }
+              }}
+            />
           </div>
 
           <div className="flex items-end gap-[30px]">
@@ -166,44 +253,14 @@ export default function InstitutionListLayout({
                 className="w-[300px]"
               />
             </div>
-
-            {/* 등록 박스 */}
-            <div className="flex shrink-0 flex-col gap-3.5 rounded-[12px] border border-purple-800 p-4">
-              <span className="txt-c1-bold text-gray-500">* {countLabel} 등록</span>
-              <div className="flex items-start gap-6">
-                <div className="flex flex-col gap-1">
-                  <Input
-                    type="text"
-                    placeholder={registerPlaceholder}
-                    value={registerName}
-                    onChange={(v) => {
-                      setRegisterName(v);
-                      if (registerError) onRegisterErrorClear();
-                    }}
-                    onKeyDown={handleRegisterKeyDown}
-                    aria-label={`${countLabel} 이름 입력`}
-                    className="w-[300px]"
-                    error={registerError}
-                  />
-                </div>
-                <Button
-                  variant="navy"
-                  size="default"
-                  onClick={handleRegisterSubmit}
-                  aria-label={`${countLabel} 추가`}
-                  className="h-[54px]"
-                  disabled={!registerName.trim()}
-                >
-                  추가
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* 테이블 카드 */}
         <div className="mb-6 overflow-x-auto rounded-2xl bg-white shadow">
-          <table className="w-full min-w-max border-collapse text-left">{children}</table>
+          <table className="w-full min-w-max table-fixed border-collapse text-left">
+            {children}
+          </table>
         </div>
 
         {/* 페이지네이션 */}
