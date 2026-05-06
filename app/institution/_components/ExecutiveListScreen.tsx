@@ -31,7 +31,7 @@ export default function ExecutiveListScreen() {
   const { mutate: downloadExcel, isPending: isDownloading } = useDownloadExecutiveExcel();
 
   const params: ExecutiveListParams = {
-    name: debouncedSearch || undefined,
+    keyword: debouncedSearch || undefined,
     examCompleted: filterCompleted || undefined,
     page: currentPage,
     size: 10,
@@ -52,9 +52,9 @@ export default function ExecutiveListScreen() {
     setCurrentPage(0);
   }
 
-  function handleRegister(name: string) {
+  function handleRegister(name: string, department: string) {
     register(
-      { safarionCode: data?.institutionCode ?? '', name, role: 'EXECUTIVE' },
+      { safarionCode: data?.institutionCode ?? '', name, department, role: 'EXECUTIVE' },
       {
         onSuccess: () => setCurrentPage(0),
         onError: (error) => {
@@ -87,7 +87,7 @@ export default function ExecutiveListScreen() {
       totalCount={data?.totalExecutiveCount ?? 0}
       completedCount={data?.examCompletedCount ?? 0}
       countLabel="임원진"
-      searchPlaceholder="임원진명으로 검색"
+      searchPlaceholder="임원진명, 소속으로 검색"
       registerPlaceholder="임원진명을 입력해 주세요."
       filterLabel="검사 완료 임원진만 확인"
       onDownload={handleDownload}
@@ -106,35 +106,38 @@ export default function ExecutiveListScreen() {
           <th scope="col" className="w-[220px] shrink-0 py-[15px]">
             임원진명
           </th>
-          <th scope="col" className="w-[200px] shrink-0 py-[15px]">
+          <th scope="col" className="w-[220px] shrink-0 py-[15px]">
+            소속
+          </th>
+          <th scope="col" className="flex-1 shrink-0 py-[15px]">
             현재 수준
             <br />
             AX 성숙도
           </th>
-          <th scope="col" className="w-[200px] shrink-0 py-[15px]">
+          <th scope="col" className="flex-1 shrink-0 py-[15px]">
             현재 수준 점수
             <br />
             (CMS)
           </th>
-          <th scope="col" className="py-[15px]">
+          <th scope="col" className="flex-1 shrink-0 py-[15px]">
             목표 수준
             <br />
             AX 성숙도
           </th>
-          <th scope="col" className="w-[200px] shrink-0 py-[15px]">
+          <th scope="col" className="flex-1 shrink-0 py-[15px]">
             목표 수준 점수
             <br />
             (TMS)
           </th>
-          <th scope="col" className="w-[200px] shrink-0 py-[15px]">
+          <th scope="col" className="flex-1 shrink-0 py-[15px]">
             성숙도 차이
             <br />
             (Gap_MS)
           </th>
-          <th scope="col" className="w-[200px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             결과 조회 코드
           </th>
-          <th scope="col" className="w-[200px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             관련 기능
           </th>
         </tr>
@@ -166,6 +169,9 @@ export default function ExecutiveListScreen() {
             >
               <td className="txt-b-bold text-special-dark-blue-500 max-w-[220px] shrink-0 px-4 py-3">
                 {executive.executiveName}
+              </td>
+              <td className="txt-b-bold text-special-dark-blue-500 flex-1 shrink-0 px-4 py-3">
+                {executive.department ?? '-'}
               </td>
               <td className="txt-b-bold text-special-dark-blue-500 max-w-[200px] shrink-0 px-4 py-3">
                 {cell(executive.currentMaturityStage)}

@@ -22,7 +22,7 @@ export const institutionService = {
 
   getMembers: async (params: MemberListParams): Promise<MemberListDTO> => {
     const query = new URLSearchParams();
-    if (params.name) query.set('name', params.name);
+    if (params.keyword) query.set('keyword', params.keyword);
     if (params.examCompleted !== undefined)
       query.set('examCompleted', String(params.examCompleted));
     if (params.page !== undefined) query.set('page', String(params.page));
@@ -43,7 +43,7 @@ export const institutionService = {
 
   getExecutives: async (params: ExecutiveListParams): Promise<ExecutiveListDTO> => {
     const query = new URLSearchParams();
-    if (params.name) query.set('name', params.name);
+    if (params.keyword) query.set('keyword', params.keyword);
     if (params.examCompleted !== undefined)
       query.set('examCompleted', String(params.examCompleted));
     if (params.page !== undefined) query.set('page', String(params.page));

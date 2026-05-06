@@ -118,6 +118,7 @@ export type InstitutionStats = InstitutionStatsDTO;
 export interface MemberDTO {
   memberId: number;
   memberName: string;
+  department: string;
   resultCode: string | null;
   overallLevel: InstitutionLevel | null;
   profileType: ProfileTypeLabel | null;
@@ -147,7 +148,7 @@ export interface MemberListDTO {
 }
 
 export interface MemberListParams {
-  name?: string;
+  keyword?: string;
   examCompleted?: boolean;
   page?: number;
   size?: number;
@@ -158,6 +159,7 @@ export interface MemberListParams {
 export interface ExecutiveDTO {
   executiveId: number;
   executiveName: string;
+  department: string;
   resultCode: string | null;
   currentMaturityStage: MaturityStage | null;
   currentScore: number | null;
@@ -176,7 +178,7 @@ export interface ExecutiveListDTO {
 }
 
 export interface ExecutiveListParams {
-  name?: string;
+  keyword?: string;
   examCompleted?: boolean;
   page?: number;
   size?: number;

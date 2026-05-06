@@ -33,7 +33,7 @@ export default function MemberListScreen() {
   const [registerError, setRegisterError] = useState('');
 
   const params: MemberListParams = {
-    name: debouncedSearch || undefined,
+    keyword: debouncedSearch || undefined,
     examCompleted: filterCompleted || undefined,
     page: currentPage,
     size: 10,
@@ -55,9 +55,9 @@ export default function MemberListScreen() {
     setCurrentPage(0);
   }
 
-  function handleRegister(name: string) {
+  function handleRegister(name: string, department: string) {
     register(
-      { safarionCode: data?.institutionCode ?? '', name, role: 'MEMBER' },
+      { safarionCode: data?.institutionCode ?? '', name, department, role: 'MEMBER' },
       {
         onSuccess: () => setCurrentPage(0),
         onError: (error) => {
@@ -90,7 +90,7 @@ export default function MemberListScreen() {
       totalCount={data?.totalMemberCount ?? 0}
       completedCount={data?.examCompletedCount ?? 0}
       countLabel="구성원"
-      searchPlaceholder="구성원명으로 검색"
+      searchPlaceholder="구성원명, 소속으로 검색"
       registerPlaceholder="구성원명을 입력해 주세요."
       filterLabel="검사 완료 구성원만 확인"
       onDownload={handleDownload}
@@ -106,33 +106,36 @@ export default function MemberListScreen() {
     >
       <thead className="border-b border-gray-300">
         <tr className="bg-gray-0 txt-b-bold text-center text-gray-700">
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             구성원명
           </th>
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
+            소속
+          </th>
+          <th scope="col" className="shrink-0 py-[15px]">
             종합 역량 등급
           </th>
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             세부 역량 등급
             <br />
             (이해)
           </th>
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             세부 역량 등급
             <br />
             (활용)
           </th>
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             세부 역량 등급
             <br />
             (평가·개선)
           </th>
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             세부 역량 등급
             <br />
             (책임·거버넌스)
           </th>
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             프로필 유형
           </th>
           <th scope="col" className="w-[100px] shrink-0 py-[15px]">
@@ -150,7 +153,7 @@ export default function MemberListScreen() {
             <br />
             (BH)
           </th>
-          <th scope="col" className="w-[150px] shrink-0 py-[15px]">
+          <th scope="col" className="shrink-0 py-[15px]">
             결과 조회 코드
           </th>
           <th scope="col" className="w-[120px] shrink-0 py-[15px]">
@@ -183,35 +186,38 @@ export default function MemberListScreen() {
               key={member.memberName + (member.resultCode ?? '')}
               className="txt-b-regular border-b border-gray-100 text-center text-gray-500 last:border-b-0"
             >
-              <td className="txt-b-bold text-special-dark-blue-500 max-w-[150px] shrink-0 px-4 py-3">
+              <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
                 {member.memberName}
               </td>
-              <td className="txt-b-bold text-special-dark-blue-500 max-w-[150px] shrink-0 px-4 py-3">
+              <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
+                {member.department ?? '-'}
+              </td>
+              <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
                 {cell(member.overallLevel ? INSTITUTION_LEVEL_LABEL_MAP[member.overallLevel] : '-')}
               </td>
-              <td className="text-special-dark-blue-500 max-w-[150px] shrink-0 px-4 py-3">
+              <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
                 {cell(member.understandLevel)}
               </td>
-              <td className="text-special-dark-blue-500 max-w-[150px] shrink-0 px-4 py-3">
+              <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
                 {cell(member.useApplyLevel)}
               </td>
-              <td className="text-special-dark-blue-500 max-w-[150px] shrink-0 px-4 py-3">
+              <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
                 {cell(member.evaluateLevel)}
               </td>
-              <td className="text-special-dark-blue-500 max-w-[150px] shrink-0 px-4 py-3">
+              <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
                 {cell(member.responsibleLevel)}
               </td>
-              <td className="txt-b-bold text-special-dark-blue-500 max-w-[150px] shrink-0 px-4 py-3">
+              <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
                 {member.profileType ? (
                   <span className="txt-b-bold text-gray-800">{member.profileType}</span>
                 ) : (
                   <span className="txt-b-regular text-gray-500">-</span>
                 )}
               </td>
-              <td className="max-w-[100px] shrink-0 px-4 py-3">{cell(member.seScore)}</td>
-              <td className="max-w-[100px] shrink-0 px-4 py-3">{cell(member.sjScore)}</td>
-              <td className="max-w-[100px] shrink-0 px-4 py-3">{cell(member.bhScore)}</td>
-              <td className="max-w-[150px] shrink-0 px-4 py-3">{cell(member.resultCode)}</td>
+              <td className="w-[100px] shrink-0 px-4 py-3">{cell(member.seScore)}</td>
+              <td className="w-[100px] shrink-0 px-4 py-3">{cell(member.sjScore)}</td>
+              <td className="w-[100px] shrink-0 px-4 py-3">{cell(member.bhScore)}</td>
+              <td className="shrink-0 px-4 py-3">{cell(member.resultCode)}</td>
               <td className="w-[120px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
                 {member.resultCode === null ? (
                   <Button
