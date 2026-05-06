@@ -96,11 +96,10 @@ export default function ExecutiveListScreen() {
         setBulkUploadResult({ status: 'ALL_FAILED' });
         return;
       }
-      const res = await bulkRegister(valid.map((m) => ({ name: m.name, department: m.department })));
-      const nameToNo = new Map(valid.map((m) => [m.name, m.no]));
-      const apiSkippedNos = (res?.skippedItems ?? [])
-        .map((item) => nameToNo.get(item.name))
-        .filter((no): no is number => no !== undefined);
+      const res = await bulkRegister(
+        valid.map((m) => ({ no: m.no, name: m.name, department: m.department })),
+      );
+      const apiSkippedNos = res?.skippedNumbers ?? [];
       const allFailedNos = [...skippedNos, ...apiSkippedNos].sort((a, b) => a - b);
       const registeredCount = res?.registeredCount ?? valid.length;
       const skippedCount = res?.skippedCount ?? 0;
@@ -118,132 +117,129 @@ export default function ExecutiveListScreen() {
 
   return (
     <>
-    <InstitutionListLayout
-      institutionName={data?.institutionName ?? ''}
-      institutionCode={data?.institutionCode ?? ''}
-      totalCount={data?.totalExecutiveCount ?? 0}
-      completedCount={data?.examCompletedCount ?? 0}
-      countLabel="임원진"
-      searchPlaceholder="임원진명, 소속으로 검색"
-      registerPlaceholder="임원진명을 입력해 주세요."
-      filterLabel="검사 완료 임원진만 확인"
-      onDownloadList={handleDownloadList}
-      onUploadRegisterTemplate={handleUploadRegisterTemplate}
-      isDownloading={isDownloading}
-      onSearch={handleSearch}
-      onRegister={handleRegister}
-      onRegisterErrorClear={() => setRegisterError('')}
-      registerError={registerError}
-      onFilterChange={handleFilterChange}
-      currentPage={currentPage + 1}
-      totalPages={totalPages}
-      onPageChange={(page) => setCurrentPage(page - 1)}
-    >
-      <thead className="border-b border-gray-300">
-        <tr className="bg-gray-0 txt-b-bold text-center text-gray-700">
-          <th scope="col" className="w-[220px] shrink-0 py-[15px]">
-            임원진명
-          </th>
-          <th scope="col" className="w-[220px] shrink-0 py-[15px]">
-            소속
-          </th>
-          <th scope="col" className="flex-1 shrink-0 py-[15px]">
-            현재 수준
-            <br />
-            AX 성숙도
-          </th>
-          <th scope="col" className="flex-1 shrink-0 py-[15px]">
-            현재 수준 점수
-            <br />
-            (CMS)
-          </th>
-          <th scope="col" className="flex-1 shrink-0 py-[15px]">
-            목표 수준
-            <br />
-            AX 성숙도
-          </th>
-          <th scope="col" className="flex-1 shrink-0 py-[15px]">
-            목표 수준 점수
-            <br />
-            (TMS)
-          </th>
-          <th scope="col" className="flex-1 shrink-0 py-[15px]">
-            성숙도 차이
-            <br />
-            (Gap_MS)
-          </th>
-          <th scope="col" className="shrink-0 py-[15px]">
-            결과 조회 코드
-          </th>
-          <th scope="col" className="shrink-0 py-[15px]">
-            관련 기능
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {isLoading ? (
-          <tr>
-            <td colSpan={8} className="txt-b-bold py-10 text-center text-gray-500">
-              불러오는 중...
-            </td>
+      <InstitutionListLayout
+        institutionName={data?.institutionName ?? ''}
+        institutionCode={data?.institutionCode ?? ''}
+        totalCount={data?.totalExecutiveCount ?? 0}
+        completedCount={data?.examCompletedCount ?? 0}
+        countLabel="임원진"
+        searchPlaceholder="임원진명, 소속으로 검색"
+        registerPlaceholder="임원진명을 입력해 주세요."
+        filterLabel="검사 완료 임원진만 확인"
+        onDownloadList={handleDownloadList}
+        onUploadRegisterTemplate={handleUploadRegisterTemplate}
+        isDownloading={isDownloading}
+        onSearch={handleSearch}
+        onRegister={handleRegister}
+        onRegisterErrorClear={() => setRegisterError('')}
+        registerError={registerError}
+        onFilterChange={handleFilterChange}
+        currentPage={currentPage + 1}
+        totalPages={totalPages}
+        onPageChange={(page) => setCurrentPage(page - 1)}
+      >
+        <thead className="border-b border-gray-300">
+          <tr className="bg-gray-0 txt-b-bold text-center text-gray-700">
+            <th scope="col" className="w-[220px] shrink-0 py-[15px]">
+              임원진명
+            </th>
+            <th scope="col" className="w-[220px] shrink-0 py-[15px]">
+              소속
+            </th>
+            <th scope="col" className="flex-1 shrink-0 py-[15px]">
+              현재 수준
+              <br />
+              AX 성숙도
+            </th>
+            <th scope="col" className="flex-1 shrink-0 py-[15px]">
+              현재 수준 점수
+              <br />
+              (CMS)
+            </th>
+            <th scope="col" className="flex-1 shrink-0 py-[15px]">
+              목표 수준
+              <br />
+              AX 성숙도
+            </th>
+            <th scope="col" className="flex-1 shrink-0 py-[15px]">
+              목표 수준 점수
+              <br />
+              (TMS)
+            </th>
+            <th scope="col" className="flex-1 shrink-0 py-[15px]">
+              성숙도 차이
+              <br />
+              (Gap_MS)
+            </th>
+            <th scope="col" className="shrink-0 py-[15px]">
+              결과 조회 코드
+            </th>
+            <th scope="col" className="shrink-0 py-[15px]">
+              관련 기능
+            </th>
           </tr>
-        ) : isError ? (
-          <tr>
-            <td colSpan={8} className="txt-b-bold py-10 text-center text-red-500">
-              데이터를 불러오지 못했습니다.
-            </td>
-          </tr>
-        ) : executives.length === 0 ? (
-          <tr>
-            <td colSpan={8} className="txt-b-bold py-10 text-center text-gray-500">
-              임원진 정보가 없습니다.
-            </td>
-          </tr>
-        ) : (
-          executives.map((executive) => (
-            <tr
-              key={executive.executiveId}
-              className="txt-b-regular border-b border-gray-100 text-center text-gray-500 last:border-b-0"
-            >
-              <td className="txt-b-bold text-special-dark-blue-500 max-w-[220px] shrink-0 px-4 py-3">
-                {executive.executiveName}
-              </td>
-              <td className="txt-b-bold text-special-dark-blue-500 flex-1 shrink-0 px-4 py-3">
-                {executive.department ?? '-'}
-              </td>
-              <td className="txt-b-bold text-special-dark-blue-500 max-w-[200px] shrink-0 px-4 py-3">
-                {cell(executive.currentMaturityStage)}
-              </td>
-              <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.currentScore)}</td>
-              <td className="txt-b-bold text-special-dark-blue-500 max-w-[200px] shrink-0 px-4 py-3">
-                {cell(executive.targetMaturityStage)}
-              </td>
-              <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.targetScore)}</td>
-              <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.gapMs)}</td>
-              <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.resultCode)}</td>
-              <td className="w-[200px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
-                {executive.resultCode === null ? (
-                  <Button
-                    variant="pink"
-                    className="h-9 rounded-[12px]!"
-                    onClick={() => handleDelete(executive.executiveId)}
-                    aria-label={`${executive.executiveName} 삭제`}
-                  >
-                    삭제
-                  </Button>
-                ) : (
-                  <span className="txt-b-regular text-gray-400">-</span>
-                )}
+        </thead>
+        <tbody>
+          {isLoading ? (
+            <tr>
+              <td colSpan={8} className="txt-b-bold py-10 text-center text-gray-500">
+                불러오는 중...
               </td>
             </tr>
-          ))
-        )}
-      </tbody>
-    </InstitutionListLayout>
-    <BulkUploadResultDialog
-      result={bulkUploadResult}
-      onClose={() => setBulkUploadResult(null)}
-    />
+          ) : isError ? (
+            <tr>
+              <td colSpan={8} className="txt-b-bold py-10 text-center text-red-500">
+                데이터를 불러오지 못했습니다.
+              </td>
+            </tr>
+          ) : executives.length === 0 ? (
+            <tr>
+              <td colSpan={8} className="txt-b-bold py-10 text-center text-gray-500">
+                임원진 정보가 없습니다.
+              </td>
+            </tr>
+          ) : (
+            executives.map((executive) => (
+              <tr
+                key={executive.executiveId}
+                className="txt-b-regular border-b border-gray-100 text-center text-gray-500 last:border-b-0"
+              >
+                <td className="txt-b-bold text-special-dark-blue-500 max-w-[220px] shrink-0 px-4 py-3">
+                  {executive.executiveName}
+                </td>
+                <td className="txt-b-bold text-special-dark-blue-500 flex-1 shrink-0 px-4 py-3">
+                  {executive.department ?? '-'}
+                </td>
+                <td className="txt-b-bold text-special-dark-blue-500 max-w-[200px] shrink-0 px-4 py-3">
+                  {cell(executive.currentMaturityStage)}
+                </td>
+                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.currentScore)}</td>
+                <td className="txt-b-bold text-special-dark-blue-500 max-w-[200px] shrink-0 px-4 py-3">
+                  {cell(executive.targetMaturityStage)}
+                </td>
+                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.targetScore)}</td>
+                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.gapMs)}</td>
+                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.resultCode)}</td>
+                <td className="w-[200px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
+                  {executive.resultCode === null ? (
+                    <Button
+                      variant="pink"
+                      className="h-9 rounded-[12px]!"
+                      onClick={() => handleDelete(executive.executiveId)}
+                      aria-label={`${executive.executiveName} 삭제`}
+                    >
+                      삭제
+                    </Button>
+                  ) : (
+                    <span className="txt-b-regular text-gray-400">-</span>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </InstitutionListLayout>
+      <BulkUploadResultDialog result={bulkUploadResult} onClose={() => setBulkUploadResult(null)} />
     </>
   );
 }

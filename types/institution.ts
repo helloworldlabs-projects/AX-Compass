@@ -187,19 +187,15 @@ export interface ExecutiveListParams {
 // ─── Bulk Register ────────────────────────────────────────────────────────────
 
 export interface BulkRegisterMember {
+  no: number;
   name: string;
   department: string;
-}
-
-export interface BulkRegisterSkippedItem {
-  name: string;
-  reason: string;
 }
 
 export interface BulkRegisterResponse {
   registeredCount: number;
   skippedCount: number;
-  skippedItems: BulkRegisterSkippedItem[];
+  skippedNumbers: number[];
 }
 
 export type BulkUploadResult =
