@@ -64,6 +64,7 @@ export const useDownloadExecutiveExcel = () =>
 
       const rows = data.executives.map((e) => ({
         임원진명: e.executiveName,
+        소속: e.department ?? '-',
         '현재 수준 AX 성숙도': e.currentMaturityStage ?? '-',
         '현재 수준 점수(CMS)': e.currentScore ?? '-',
         '목표 수준 AX 성숙도': e.targetMaturityStage ?? '-',
@@ -74,6 +75,7 @@ export const useDownloadExecutiveExcel = () =>
 
       const ws = utils.json_to_sheet(rows);
       ws['!cols'] = [
+        { wch: 14 },
         { wch: 14 },
         { wch: 20 },
         { wch: 18 },
@@ -96,6 +98,7 @@ export const useDownloadMemberExcel = () =>
 
       const rows = data.members.map((m) => ({
         구성원명: m.memberName,
+        소속: m.department ?? '-',
         '종합 역량 등급': m.overallLevel ? INSTITUTION_LEVEL_LABEL_MAP[m.overallLevel] : '-',
         '세부 역량 등급(이해)': m.understandLevel ?? '-',
         '세부 역량 등급(활용)': m.useApplyLevel ?? '-',
@@ -111,6 +114,7 @@ export const useDownloadMemberExcel = () =>
       const ws = utils.json_to_sheet(rows);
       ws['!cols'] = [
         { wch: 14 }, // 구성원명
+        { wch: 14 }, // 소속
         { wch: 14 }, // 종합 역량 등급
         { wch: 14 }, // 세부 역량 등급(이해)
         { wch: 14 }, // 세부 역량 등급(활용)
