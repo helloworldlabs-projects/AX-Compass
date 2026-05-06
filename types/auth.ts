@@ -6,6 +6,7 @@ export type UserRole = 'MEMBER' | 'EXECUTIVE';
 export interface RegisterRequestDTO {
   safarionCode: string;
   name: string;
+  department: string;
   role: Role;
 }
 

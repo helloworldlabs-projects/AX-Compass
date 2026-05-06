@@ -4,7 +4,12 @@ import { Level } from '@/constants/levelConfig';
 
 export type QuestionType = 'SINGLE_CHOICE' | 'MULTI_CHOICE' | 'TEXT';
 export type ExamType = 'STANDARD' | 'PRECISION' | 'EXECUTIVE';
-export type ItemComponent = 'SELF_ESTIMATE' | 'SITUATIONAL_JUDGMENT' | 'BEHAVIOR_HABIT';
+export type ItemComponent =
+  | 'SELF_ESTIMATE'
+  | 'SITUATIONAL_JUDGMENT'
+  | 'BEHAVIOR_HABIT'
+  | 'CURRENT_MATURITY'
+  | 'TARGET_MATURITY';
 export type ItemType = 'LIKERT' | 'SJT' | 'LIKERT_FREQ';
 export type ProfileType =
   | 'BALANCED'
@@ -13,6 +18,8 @@ export type ProfileType =
   | 'ANALYST'
   | 'CAUTIOUS'
   | 'LEARNER';
+
+export type ProfileTypeLabel = '균형형' | '과신형' | '실행형' | '판단형' | '조심형' | '이해형';
 
 // ─── Shared option ────────────────────────────────────────────────────────────
 
@@ -210,7 +217,7 @@ export interface ExamResultDTO {
   resultCode: string;
   examType: ExamType;
   userName: string;
-  overallLevel: string;
+  overallLevel: Level;
   computedAt: string;
   competencies: ExamResultCompetencyDTO[];
   scoreStats: ExamResultScoreStatsDTO;

@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
+import { InstitutionPageSkeleton } from './_components/InstitutionPageSkeleton';
 
 const PC_MIN_WIDTH = 1024;
 
@@ -38,13 +39,7 @@ export default function InstitutionLayout({ children }: { children: React.ReactN
     if (token === null) router.replace('/');
   }, [token, router]);
 
-  if (token === undefined) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-white">로딩 중...</div>
-      </div>
-    );
-  }
+  if (token === undefined) return <InstitutionPageSkeleton />;
 
   if (!token) return null;
 

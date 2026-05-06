@@ -1,12 +1,17 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Section from '@/components/layout/Section';
 import { GradeStatGuideModal } from '@/components/modals/GradeStatGuideModal';
-import { CompetencyLevelChart } from '@/components/institution/CompetencyLevelChart';
 import { BadgeCheck, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { InstitutionCompetencyStat, InstitutionLevel } from '@/types/institution';
 import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
+
+const CompetencyLevelChart = dynamic(
+  () => import('@/components/institution/CompetencyLevelChart').then((m) => ({ default: m.CompetencyLevelChart })),
+  { ssr: false },
+);
 
 interface GradeStatSectionProps {
   competencyStats: InstitutionCompetencyStat[];

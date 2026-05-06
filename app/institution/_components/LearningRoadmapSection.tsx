@@ -1,13 +1,18 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Section from '@/components/layout/Section';
 import { LearningRoadmapGuideModal } from '@/components/modals/LearningRoadmapGuideModal';
 import { Button } from '@/components/ui/button';
 import { CurriculumItem } from '@/components/ui/CurriculumItem';
-import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { HelpCircle, Map } from 'lucide-react';
 import { useState } from 'react';
 import type { InstitutionRoadmaps } from '@/types/institution';
+
+const CurriculumTreeChart = dynamic(
+  () => import('@/components/shared/CurriculumTreeChart').then((m) => ({ default: m.CurriculumTreeChart })),
+  { ssr: false },
+);
 
 interface LearningRoadmapSectionProps {
   institutionRoadmap: InstitutionRoadmaps;

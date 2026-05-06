@@ -13,15 +13,26 @@ import { PROFILE_TYPE_LABEL } from '@/constants/profileTypeConfig';
 import { ProfileResultCard } from '@/components/ui/ProfileResultCard';
 import { CurriculumItem } from '@/components/ui/CurriculumItem';
 import { InquiryModal } from '@/components/modals/InquiryModal';
-import { RadarChart } from '@/components/ui/RadarChart';
+import dynamic from 'next/dynamic';
 import { ResultCodeCard } from '@/app/result/components/ResultCodeCard';
 import { ScoreStatGuideModal } from '@/app/result/components/modal/ScoreStatGuideModal';
 import { ProfileTypeGuideModal } from '@/app/result/components/modal/ProfileTypeGuideModal';
 import { LearningRoadmapGuideModal } from '@/app/result/components/modal/LearningRoadmapGuideModal';
-import { CurriculumTreeChart } from '@/components/shared/CurriculumTreeChart';
 import { useState } from 'react';
 import { COMPETENCY_COLOR_MAP } from '@/constants/competencyConfig';
 import { roundScore } from '@/lib/utils';
+
+const RadarChart = dynamic(() =>
+  import('@/components/ui/RadarChart').then((m) => ({ default: m.RadarChart })),
+);
+
+const CurriculumTreeChart = dynamic(
+  () =>
+    import('@/components/shared/CurriculumTreeChart').then((m) => ({
+      default: m.CurriculumTreeChart,
+    })),
+  { ssr: false },
+);
 
 interface ResultContainerProps {
   resultType: 'general' | 'member';
@@ -47,6 +58,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
             width={300}
             height={30}
             className="h-[30px] w-[300px] object-contain"
+            priority
           />
           <div className="txt-st2-bold text-black">에서 인증하는 공식 결과입니다.</div>
         </div>

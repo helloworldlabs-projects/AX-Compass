@@ -85,7 +85,7 @@ const MATURITY_DATA: Record<MaturityLevel, MaturityData> = {
     ),
     grades: [
       { label: '이해', grade: '중급', color: 'red' },
-      { label: '활용', grade: '중급', color: 'blue' },
+      { label: '활용', grade: '중급~고급', color: 'blue' },
       { label: '평가·개선', grade: '중급', color: 'purple' },
       { label: '책임·거버넌스', grade: '중급', color: 'gray' },
     ],

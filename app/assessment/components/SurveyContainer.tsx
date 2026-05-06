@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Container from '@/components/layout/Container';
 import { Button } from '@/components/ui/button';
@@ -8,23 +8,22 @@ import IntroStep from '@/app/assessment/components/steps/IntroStep';
 import ExamineeProfilesStep from '@/app/assessment/components/steps/ExamineeProfilesStep';
 import ExamItemsStep from '@/app/assessment/components/steps/ExamItemsStep';
 import ExpectationsStep from '@/app/assessment/components/steps/ExpectationsStep';
-import { useExamItems, useSubmitExam, useSubmitExecutiveExam } from '@/hooks/useExamQueries';
+import ComponentIntroStep from '@/app/assessment/components/steps/ComponentIntroStep';
+import { useExamItems } from '@/hooks/useExamQueries';
 import type {
   ExpectationFormDTO,
   ExamineeProfilesDTO,
-  ExamSubmitRequest,
-  ExecutiveSubmitRequest,
   ItemComponent,
   ItemType,
   ExamItemDTO,
   ExamType,
 } from '@/types/exam';
-import { ApiError } from '@/types/common';
+import { ApiError, getApiErrorDetail } from '@/types/common';
 import { CompassIcon } from '@/components/icons/CompassIcon';
 import Image from 'next/image';
-import SurveyLoadingSkeleton from './SurveyLoadingSkeleton';
-
-type Step = 'INTRO' | 'EXAMINEE_PROFILES' | 'EXAM_ITEMS' | 'EXPECTATION_FORM';
+import { toast } from 'sonner';
+import { useSurveyStep } from '@/app/assessment/hooks/useSurveyStep';
+import { useSurveySubmit } from '@/app/assessment/hooks/useSurveySubmit';
 
 interface SurveyContainerProps {
   examType: ExamType;
@@ -47,17 +46,7 @@ export default function SurveyContainer({
 }: SurveyContainerProps) {
   const router = useRouter();
   const tokenKey = examType !== 'STANDARD' ? ('axcompass:accessToken' as const) : undefined;
-  const { mutate: submitExam, isPending: isSubmittingStandard } = useSubmitExam(
-    examType !== 'EXECUTIVE' ? tokenKey : undefined,
-  );
-  const { mutate: submitExecutiveExam, isPending: isSubmittingExecutive } =
-    useSubmitExecutiveExam(tokenKey);
-  const isSubmitting = isSubmittingStandard || isSubmittingExecutive;
-  const {
-    data: examItems,
-    isLoading: isLoadingItems,
-    error: examItemsError,
-  } = useExamItems(examType, tokenKey);
+  const { data: examItems, error: examItemsError } = useExamItems(examType, tokenKey);
 
   useEffect(() => {
     if (!examItemsError) return;
@@ -65,29 +54,53 @@ export default function SurveyContainer({
       examItemsError instanceof ApiError &&
       (examItemsError.status === 401 || examItemsError.status === 403)
     ) {
+      toast.error(getApiErrorDetail(examItemsError));
       router.replace('/assessment');
     }
   }, [examItemsError, router]);
 
-  const [showSpinner, setShowSpinner] = useState(false);
-  const spinnerStartRef = useRef<number>(0);
-
-  const [step, setStep] = useState<Step>('INTRO');
   const [agreed, setAgreed] = useState(false);
-  const [profilePage, setProfilePage] = useState(0);
-  const [examItemIndex, setExamItemIndex] = useState(0);
   const [examineeAnswers, setExamineeAnswers] = useState<Record<string, string | string[]>>({});
   const [examAnswers, setExamAnswers] = useState<Record<string, number | string>>({});
   const [expectationAnswers, setExpectationAnswers] = useState<Record<string, string>>({});
 
-  const flatItems: FlatItem[] =
-    examItems?.sections.flatMap((section) =>
-      section.items.map((item) => ({
-        ...item,
-        component: section.component,
-        itemType: section.itemType,
-      })),
-    ) ?? [];
+  const flatItems = useMemo<FlatItem[]>(
+    () =>
+      examItems?.sections.flatMap((section) =>
+        section.items.map((item) => ({
+          ...item,
+          component: section.component,
+          itemType: section.itemType,
+        })),
+      ) ?? [],
+    [examItems],
+  );
+
+  const itemComponents = useMemo(() => flatItems.map((item) => item.component), [flatItems]);
+
+  const totalProfilePages = useMemo(
+    () => Math.ceil((examineeProfiles?.questions.length ?? 0) / 3),
+    [examineeProfiles],
+  );
+
+  const { step, profilePage, examItemIndex, componentIntroTarget, goNext, isLastStep } =
+    useSurveyStep({
+      hasProfiles: !!examineeProfiles,
+      totalExamItems: examItems?.totalItems ?? 0,
+      totalProfilePages,
+      itemComponents,
+    });
+
+  const { submit, showSpinner } = useSurveySubmit({
+    examType,
+    tokenKey,
+    flatItems,
+    examineeProfiles,
+    examineeAnswers,
+    examAnswers,
+    expectationAnswers,
+    router,
+  });
 
   // Progress percent
   let progressPercent = 0;
@@ -109,20 +122,28 @@ export default function SurveyContainer({
       sectionLabel = '* 자기평가(Self-Estimate)';
     } else if (currentItem?.component === 'SITUATIONAL_JUDGMENT') {
       sectionLabel = '* 상황판단(Situational Judgment)';
-    } else {
+    } else if (currentItem?.component === 'BEHAVIOR_HABIT') {
       sectionLabel = '* 행동빈도(Behavior Habit)';
+    } else if (currentItem?.component === 'CURRENT_MATURITY') {
+      sectionLabel = '* 기업의 현재 AX 수준';
+    } else if (currentItem?.component === 'TARGET_MATURITY') {
+      sectionLabel = '* 기업의 목표 AX 수준';
     }
   } else {
     sectionLabel = `※ ${expectationForm.formTitle}`;
   }
 
   // Current profile batch (3 questions per page)
-  const currentBatch =
-    examineeProfiles?.questions.slice(profilePage * 3, profilePage * 3 + 3) ?? [];
+  const currentBatch = useMemo(
+    () => examineeProfiles?.questions.slice(profilePage * 3, profilePage * 3 + 3) ?? [],
+    [examineeProfiles, profilePage],
+  );
 
   // canProceed
   let canProceed = false;
-  if (step === 'INTRO') {
+  if (componentIntroTarget) {
+    canProceed = true;
+  } else if (step === 'INTRO') {
     canProceed = agreed;
   } else if (step === 'EXAMINEE_PROFILES') {
     canProceed = currentBatch.every((q) => hasAnswer(examineeAnswers[q.questionCode]));
@@ -152,97 +173,10 @@ export default function SurveyContainer({
 
   function handleNext() {
     if (!examItems) return;
-    window.scrollTo({ top: 0 });
-    if (step === 'INTRO') {
-      if (examineeProfiles) {
-        setStep('EXAMINEE_PROFILES');
-        setProfilePage(0);
-      } else {
-        setStep('EXAM_ITEMS');
-        setExamItemIndex(0);
-      }
-    } else if (step === 'EXAMINEE_PROFILES') {
-      if (profilePage < 1) {
-        setProfilePage((p) => p + 1);
-      } else {
-        setStep('EXAM_ITEMS');
-        setExamItemIndex(0);
-      }
-    } else if (step === 'EXAM_ITEMS') {
-      if (examItemIndex < examItems.totalItems - 1) {
-        setExamItemIndex((i) => i + 1);
-      } else {
-        setStep('EXPECTATION_FORM');
-      }
-    } else if (examType === 'EXECUTIVE') {
-      const executiveBody: ExecutiveSubmitRequest = {
-        responses: flatItems.map((item) => ({
-          itemId: item.itemId,
-          likertValue: examAnswers[item.itemId] as number,
-        })),
-        expectation: {
-          targetAiTask: expectationAnswers['TARGET_AI_TASK'],
-          learningExpectation: expectationAnswers['LEARNING_EXPECTATION'] ?? '',
-        },
-      };
-      spinnerStartRef.current = Date.now();
-      setShowSpinner(true);
-      submitExecutiveExam(executiveBody, {
-        onSuccess: (data) => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          // TODO: /result/executive/:resultCode 라우트 존재 확인 후 제거
-          setTimeout(() => router.push(`/result/executive/${data.resultCode}`), remaining);
-        },
-        onError: () => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          setTimeout(() => setShowSpinner(false), remaining);
-        },
-      });
+    if (isLastStep) {
+      submit();
     } else {
-      const body: ExamSubmitRequest = {
-        examType,
-        profile: examineeProfiles
-          ? {
-              ageGroup: examineeAnswers['ageGroup'] as string,
-              jobFunction: examineeAnswers['jobFunction'] as string,
-              industry: examineeAnswers['industry'] as string,
-              experienceLevel: examineeAnswers['experienceLevel'] as string,
-              aiUsageFrequency: examineeAnswers['aiUsageFrequency'] as string,
-              aiUsagePurposes: examineeAnswers['aiUsagePurposes'] as string[],
-            }
-          : undefined,
-        responses: flatItems.map((item) => {
-          const answer = examAnswers[item.itemId];
-          const isLikert = ['LIKERT', 'LIKERT_FREQ'].includes(item.itemType.toUpperCase());
-          return {
-            itemId: item.itemId,
-            likertValue: isLikert ? (answer as number) : null,
-            optionCode: !isLikert ? (answer as string) : null,
-          };
-        }),
-        expectation: {
-          targetAiTask: expectationAnswers['TARGET_AI_TASK'],
-          learningExpectation: expectationAnswers['LEARNING_EXPECTATION'] || undefined,
-        },
-      };
-      spinnerStartRef.current = Date.now();
-      setShowSpinner(true);
-      submitExam(body, {
-        onSuccess: (data) => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          setTimeout(
-            () =>
-              router.push(
-                `/result/${examType === 'STANDARD' ? 'general' : 'member'}/${data.resultCode}`,
-              ),
-            remaining,
-          );
-        },
-        onError: () => {
-          const remaining = Math.max(0, 3000 - (Date.now() - spinnerStartRef.current));
-          setTimeout(() => setShowSpinner(false), remaining);
-        },
-      });
+      goNext();
     }
   }
 
@@ -334,7 +268,11 @@ export default function SurveyContainer({
           />
         )}
 
-        {step === 'EXAM_ITEMS' && (
+        {step === 'EXAM_ITEMS' && componentIntroTarget && (
+          <ComponentIntroStep component={componentIntroTarget} examType={examType} />
+        )}
+
+        {step === 'EXAM_ITEMS' && !componentIntroTarget && (
           <ExamItemsStep
             key={examItemIndex}
             item={flatItems[examItemIndex]}
@@ -366,75 +304,6 @@ export default function SurveyContainer({
           </div>
         </div>
       </div>
-
-      {/* ===== DEBUG PANEL START — DELETE BEFORE RELEASE ===== */}
-      {(process.env.NEXT_PUBLIC_APP_ENV === 'local' ||
-        process.env.NEXT_PUBLIC_APP_ENV === 'dev') && (
-        <div className="fixed right-4 bottom-4 z-50 flex max-h-[80vh] w-80 flex-col overflow-y-auto rounded-lg bg-gray-900/90 p-3 font-mono text-xs text-white shadow-xl">
-          <p className="mb-2 border-b border-gray-600 pb-1 text-yellow-400">DEBUG — answer state</p>
-
-          <div className="mb-1">
-            <span className="text-gray-400">step: </span>
-            <span className="text-green-400">{step}</span>
-          </div>
-          <div className="mb-2">
-            <span className="text-gray-400">examItemIndex: </span>
-            <span className="text-green-400">{examItemIndex}</span>
-          </div>
-
-          <details className="mb-1">
-            <summary className="cursor-pointer text-blue-300 select-none hover:text-blue-200">
-              검사자 정보 ({Object.keys(examineeAnswers).length})
-            </summary>
-            <ul className="mt-1 space-y-0.5 pl-2">
-              {Object.entries(examineeAnswers).map(([key, val]) => (
-                <li key={key} className="break-all">
-                  <span className="text-gray-400">{key}: </span>
-                  <span className="text-white">
-                    {Array.isArray(val) ? `[${val.join(', ')}]` : val}
-                  </span>
-                </li>
-              ))}
-              {Object.keys(examineeAnswers).length === 0 && (
-                <li className="text-gray-500">(없음)</li>
-              )}
-            </ul>
-          </details>
-
-          <details className="mb-1">
-            <summary className="cursor-pointer text-blue-300 select-none hover:text-blue-200">
-              문항 응답 ({Object.keys(examAnswers).length})
-            </summary>
-            <ul className="mt-1 space-y-0.5 pl-2">
-              {Object.entries(examAnswers).map(([key, val]) => (
-                <li key={key} className="break-all">
-                  <span className="text-gray-400">{key}: </span>
-                  <span className="text-white">{String(val)}</span>
-                </li>
-              ))}
-              {Object.keys(examAnswers).length === 0 && <li className="text-gray-500">(없음)</li>}
-            </ul>
-          </details>
-
-          <details>
-            <summary className="cursor-pointer text-blue-300 select-none hover:text-blue-200">
-              기대효과 ({Object.keys(expectationAnswers).length})
-            </summary>
-            <ul className="mt-1 space-y-0.5 pl-2">
-              {Object.entries(expectationAnswers).map(([key, val]) => (
-                <li key={key} className="break-all">
-                  <span className="text-gray-400">{key}: </span>
-                  <span className="text-white">{val}</span>
-                </li>
-              ))}
-              {Object.keys(expectationAnswers).length === 0 && (
-                <li className="text-gray-500">(없음)</li>
-              )}
-            </ul>
-          </details>
-        </div>
-      )}
-      {/* ===== DEBUG PANEL END ===== */}
     </Container>
   );
 }

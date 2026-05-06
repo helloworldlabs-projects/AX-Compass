@@ -1,13 +1,17 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Section from '@/components/layout/Section';
 import { ScoreStatGuideModal } from '@/components/modals/ScoreStatGuideModal';
-import { RadarChart } from '@/components/ui/RadarChart';
 import { COMPETENCY_COLOR_MAP, COMPETENCY_NAME_MAP } from '@/constants/competencyConfig';
 import { BadgeCheck, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { InstitutionCompetencyStat, InstitutionScoreStats } from '@/types/institution';
 import { roundScore } from '@/lib/utils';
+
+const RadarChart = dynamic(
+  () => import('@/components/ui/RadarChart').then((m) => ({ default: m.RadarChart })),
+);
 
 interface ScoreStatSectionProps {
   scoreStats: InstitutionScoreStats;

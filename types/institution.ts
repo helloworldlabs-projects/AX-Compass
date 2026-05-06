@@ -4,10 +4,10 @@
 
 import { Level } from '@/constants/levelConfig';
 import type {
-  ExecutiveCompetencyCode,
   ExecutiveResultCompetencyScoreDTO,
   MaturityStage,
   ProfileType,
+  ProfileTypeLabel,
 } from '@/types/exam';
 
 export type InstitutionLevel = 'BEGINNER' | 'ELEMENTARY' | 'INTERMEDIATE' | 'ADVANCED';
@@ -118,9 +118,10 @@ export type InstitutionStats = InstitutionStatsDTO;
 export interface MemberDTO {
   memberId: number;
   memberName: string;
+  department: string;
   resultCode: string | null;
   overallLevel: InstitutionLevel | null;
-  profileType: string | null;
+  profileType: ProfileTypeLabel | null;
   understandLevel: InstitutionLevel | null;
   useApplyLevel: InstitutionLevel | null;
   evaluateLevel: InstitutionLevel | null;
@@ -147,7 +148,7 @@ export interface MemberListDTO {
 }
 
 export interface MemberListParams {
-  name?: string;
+  keyword?: string;
   examCompleted?: boolean;
   page?: number;
   size?: number;
@@ -158,10 +159,11 @@ export interface MemberListParams {
 export interface ExecutiveDTO {
   executiveId: number;
   executiveName: string;
+  department: string;
   resultCode: string | null;
-  currentMaturityStage: string | null;
+  currentMaturityStage: MaturityStage | null;
   currentScore: number | null;
-  targetMaturityStage: string | null;
+  targetMaturityStage: MaturityStage | null;
   targetScore: number | null;
   gapMs: number | null;
 }
@@ -176,8 +178,29 @@ export interface ExecutiveListDTO {
 }
 
 export interface ExecutiveListParams {
-  name?: string;
+  keyword?: string;
   examCompleted?: boolean;
   page?: number;
   size?: number;
 }
+
+// ─── Bulk Register ────────────────────────────────────────────────────────────
+
+export interface BulkRegisterMember {
+  no: number;
+  name: string;
+  department: string;
+}
+
+export interface BulkRegisterResponse {
+  registeredCount: number;
+  skippedCount: number;
+  skippedNumbers: number[];
+}
+
+export type BulkUploadResult =
+  | { status: 'SUCCESS' }
+  | { status: 'PARTIAL'; failedNos: number[] }
+  | { status: 'ALL_FAILED' }
+  | { status: 'INVALID_FORMAT' }
+  | { status: 'SYSTEM_ERROR' };

@@ -11,15 +11,24 @@ import { GradeStatSection } from './_components/GradeStatSection';
 import { ScoreStatSection } from './_components/ScoreStatSection';
 import { ProfileStatSection } from './_components/ProfileStatSection';
 import { LearningRoadmapSection } from './_components/LearningRoadmapSection';
+import { InstitutionPageSkeleton } from './_components/InstitutionPageSkeleton';
 
 export default function InstitutionPage() {
   const { data: stats, isLoading, isError } = useInstitutionStats();
 
-  if (isLoading) return <div>로딩 중...</div>;
+  if (isLoading) return <InstitutionPageSkeleton />;
   if (isError || !stats) return <div>데이터를 불러올 수 없습니다.</div>;
 
   return (
     <Container>
+      <Link
+        href="https://helloworldlabs-1.gitbook.io/helloworldlabs-manual/IEjzBMwL1CRDQtU4u05j/ax-compass"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="txt-b-bold bg-special-pink-600 border-special-pink-0 absolute top-10 right-10 flex h-10 items-center justify-center rounded-[20px] border-2 px-6 text-white shadow"
+      >
+        기관 관리 매뉴얼 Link
+      </Link>
       <InstitutionHeaderSection stats={stats} />
       <InstitutionNoticeBanners
         executiveExamCount={stats.executiveExamCount}

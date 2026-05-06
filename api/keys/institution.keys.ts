@@ -1,10 +1,12 @@
+import type { ExecutiveListParams, MemberListParams } from '@/types/institution';
+
 export const institutionKeys = {
   all: ['institution'] as const,
   stats: () => [...institutionKeys.all, 'stats'] as const,
   membersAll: () => [...institutionKeys.all, 'members'] as const,
-  members: (params: Record<string, unknown>) =>
+  members: (params: MemberListParams) =>
     [...institutionKeys.all, 'members', params] as const,
   executivesAll: () => [...institutionKeys.all, 'executives'] as const,
-  executives: (params: Record<string, unknown>) =>
+  executives: (params: ExecutiveListParams) =>
     [...institutionKeys.all, 'executives', params] as const,
 };

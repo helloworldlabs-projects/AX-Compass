@@ -1,4 +1,10 @@
-import { ExecutiveRadarChart } from '@/components/ui/ExecutiveRadarChart';
+'use client';
+
+import dynamic from 'next/dynamic';
+
+const ExecutiveRadarChart = dynamic(
+  () => import('@/components/ui/ExecutiveRadarChart').then(m => ({ default: m.ExecutiveRadarChart })),
+);
 
 interface CompetencyScorePanelProps {
   title: string;
