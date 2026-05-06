@@ -9,10 +9,13 @@ import {
   useDownloadExecutiveExcel,
   useInstitutionExecutives,
   useRegisterMember,
+  parseRegisterTemplate,
+  useBulkRegisterExecutives,
 } from '@/hooks/useInstitutionQueries';
 import { getApiErrorDetail } from '@/types/common';
-import type { ExecutiveListParams } from '@/types/institution';
+import type { BulkUploadResult, ExecutiveListParams } from '@/types/institution';
 import InstitutionListLayout from './shared/InstitutionListLayout';
+import BulkUploadResultDialog from './shared/BulkUploadResultDialog';
 import { toast } from 'sonner';
 
 function cell(value: string | number | null) {
@@ -29,6 +32,8 @@ export default function ExecutiveListScreen() {
   const { mutate: register } = useRegisterMember();
   const { mutate: deleteExecutive } = useDeleteExecutive();
   const { mutate: downloadExcel, isPending: isDownloading } = useDownloadExecutiveExcel();
+  const { mutateAsync: bulkRegister } = useBulkRegisterExecutives();
+  const [bulkUploadResult, setBulkUploadResult] = useState<BulkUploadResult | null>(null);
 
   const params: ExecutiveListParams = {
     keyword: debouncedSearch || undefined,
@@ -74,13 +79,45 @@ export default function ExecutiveListScreen() {
     });
   }
 
-  function handleDownload() {
+  function handleDownloadList() {
     downloadExcel(data?.institutionCode ?? 'S0000000', {
       onError: () => toast.error('다운로드에 실패했습니다.'),
     });
   }
 
+  async function handleUploadRegisterTemplate(file: File) {
+    try {
+      const { valid, skippedNos, error } = await parseRegisterTemplate(file);
+      if (error === 'INVALID_FORMAT') {
+        setBulkUploadResult({ status: 'INVALID_FORMAT' });
+        return;
+      }
+      if (valid.length === 0) {
+        setBulkUploadResult({ status: 'ALL_FAILED' });
+        return;
+      }
+      const res = await bulkRegister(valid.map((m) => ({ name: m.name, department: m.department })));
+      const nameToNo = new Map(valid.map((m) => [m.name, m.no]));
+      const apiSkippedNos = (res?.skippedItems ?? [])
+        .map((item) => nameToNo.get(item.name))
+        .filter((no): no is number => no !== undefined);
+      const allFailedNos = [...skippedNos, ...apiSkippedNos].sort((a, b) => a - b);
+      const registeredCount = res?.registeredCount ?? valid.length;
+      const skippedCount = res?.skippedCount ?? 0;
+      if (registeredCount === 0) {
+        setBulkUploadResult({ status: 'ALL_FAILED' });
+      } else if (skippedCount === 0 && skippedNos.length === 0) {
+        setBulkUploadResult({ status: 'SUCCESS' });
+      } else {
+        setBulkUploadResult({ status: 'PARTIAL', failedNos: allFailedNos });
+      }
+    } catch {
+      setBulkUploadResult({ status: 'SYSTEM_ERROR' });
+    }
+  }
+
   return (
+    <>
     <InstitutionListLayout
       institutionName={data?.institutionName ?? ''}
       institutionCode={data?.institutionCode ?? ''}
@@ -90,7 +127,8 @@ export default function ExecutiveListScreen() {
       searchPlaceholder="임원진명, 소속으로 검색"
       registerPlaceholder="임원진명을 입력해 주세요."
       filterLabel="검사 완료 임원진만 확인"
-      onDownload={handleDownload}
+      onDownloadList={handleDownloadList}
+      onUploadRegisterTemplate={handleUploadRegisterTemplate}
       isDownloading={isDownloading}
       onSearch={handleSearch}
       onRegister={handleRegister}
@@ -202,5 +240,10 @@ export default function ExecutiveListScreen() {
         )}
       </tbody>
     </InstitutionListLayout>
+    <BulkUploadResultDialog
+      result={bulkUploadResult}
+      onClose={() => setBulkUploadResult(null)}
+    />
+    </>
   );
 }

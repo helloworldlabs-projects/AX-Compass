@@ -183,3 +183,28 @@ export interface ExecutiveListParams {
   page?: number;
   size?: number;
 }
+
+// ─── Bulk Register ────────────────────────────────────────────────────────────
+
+export interface BulkRegisterMember {
+  name: string;
+  department: string;
+}
+
+export interface BulkRegisterSkippedItem {
+  name: string;
+  reason: string;
+}
+
+export interface BulkRegisterResponse {
+  registeredCount: number;
+  skippedCount: number;
+  skippedItems: BulkRegisterSkippedItem[];
+}
+
+export type BulkUploadResult =
+  | { status: 'SUCCESS' }
+  | { status: 'PARTIAL'; failedNos: number[] }
+  | { status: 'ALL_FAILED' }
+  | { status: 'INVALID_FORMAT' }
+  | { status: 'SYSTEM_ERROR' };

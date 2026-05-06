@@ -3,7 +3,11 @@ import { institutionService } from '@/api/services/institution.service';
 import { authService } from '@/api/services/auth.service';
 import { institutionKeys } from '@/api/keys/institution.keys';
 import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
-import type { ExecutiveListParams, MemberListParams } from '@/types/institution';
+import type {
+  BulkRegisterMember,
+  ExecutiveListParams,
+  MemberListParams,
+} from '@/types/institution';
 import type { RegisterRequestDTO } from '@/types/auth';
 
 export const useInstitutionStats = () =>
@@ -89,6 +93,75 @@ export const useDownloadExecutiveExcel = () =>
       writeFile(wb, `AX_COMPASS_EXECUTIVE_${institutionCode}.xlsx`);
     },
   });
+
+export async function parseRegisterTemplate(file: File): Promise<{
+  valid: Array<{ no: number; name: string; department: string }>;
+  skippedNos: number[];
+  error: 'INVALID_FORMAT' | null;
+}> {
+  const { read, utils } = await import('xlsx');
+  const buffer = await file.arrayBuffer();
+  const wb = read(buffer);
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  if (!ws) return { valid: [], skippedNos: [], error: 'INVALID_FORMAT' };
+
+  const rows = utils.sheet_to_json<unknown[]>(ws, { header: 1 });
+
+  const headerRow = rows[1] as unknown[] | undefined;
+  if (!headerRow || headerRow[1] !== '[필수] 이름' || headerRow[2] !== '[필수] 소속') {
+    return { valid: [], skippedNos: [], error: 'INVALID_FORMAT' };
+  }
+
+  // 마지막으로 이름 또는 소속을 입력한 행까지만 처리 범위로 한정
+  let lastDataIdx = -1;
+  for (let i = 2; i < rows.length; i++) {
+    const row = rows[i] as unknown[];
+    const name = row[1] !== undefined ? String(row[1]).trim() : '';
+    const department = row[2] !== undefined ? String(row[2]).trim() : '';
+    if (name || department) lastDataIdx = i;
+  }
+
+  const valid: Array<{ no: number; name: string; department: string }> = [];
+  const skippedNos: number[] = [];
+
+  for (let i = 2; i <= lastDataIdx; i++) {
+    const row = rows[i] as unknown[];
+    if (row[0] === undefined || row[0] === null || String(row[0]).trim() === '') continue;
+
+    const no = Number(row[0]);
+    const name = row[1] !== undefined ? String(row[1]).trim() : '';
+    const department = row[2] !== undefined ? String(row[2]).trim() : '';
+
+    if (!name || !department) {
+      skippedNos.push(no);
+      continue;
+    }
+    valid.push({ no, name, department });
+  }
+
+  return { valid, skippedNos, error: null };
+}
+
+export const useBulkRegisterMembers = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (members: BulkRegisterMember[]) => institutionService.bulkRegisterMembers(members),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: institutionKeys.all });
+    },
+  });
+};
+
+export const useBulkRegisterExecutives = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (members: BulkRegisterMember[]) =>
+      institutionService.bulkRegisterExecutives(members),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: institutionKeys.all });
+    },
+  });
+};
 
 export const useDownloadMemberExcel = () =>
   useMutation({

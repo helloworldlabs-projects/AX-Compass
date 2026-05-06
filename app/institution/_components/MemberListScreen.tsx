@@ -8,11 +8,14 @@ import {
   useRegisterMember,
   useDeleteMember,
   useDownloadMemberExcel,
+  parseRegisterTemplate,
+  useBulkRegisterMembers,
 } from '@/hooks/useInstitutionQueries';
 import { useDebounce } from '@/hooks/useDebounce';
 import InstitutionListLayout from './shared/InstitutionListLayout';
+import BulkUploadResultDialog from './shared/BulkUploadResultDialog';
 import { getApiErrorDetail } from '@/types/common';
-import type { MemberListParams } from '@/types/institution';
+import type { BulkUploadResult, MemberListParams } from '@/types/institution';
 import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
 import { toast } from 'sonner';
 
@@ -30,7 +33,9 @@ export default function MemberListScreen() {
   const { mutate: register } = useRegisterMember();
   const { mutate: deleteMember, isPending: isDeletePending } = useDeleteMember();
   const { mutate: downloadExcel, isPending: isDownloading } = useDownloadMemberExcel();
+  const { mutateAsync: bulkRegister } = useBulkRegisterMembers();
   const [registerError, setRegisterError] = useState('');
+  const [bulkUploadResult, setBulkUploadResult] = useState<BulkUploadResult | null>(null);
 
   const params: MemberListParams = {
     keyword: debouncedSearch || undefined,
@@ -83,7 +88,39 @@ export default function MemberListScreen() {
     });
   }
 
+  async function handleUploadRegisterTemplate(file: File) {
+    try {
+      const { valid, skippedNos, error } = await parseRegisterTemplate(file);
+      if (error === 'INVALID_FORMAT') {
+        setBulkUploadResult({ status: 'INVALID_FORMAT' });
+        return;
+      }
+      if (valid.length === 0) {
+        setBulkUploadResult({ status: 'ALL_FAILED' });
+        return;
+      }
+      const res = await bulkRegister(valid.map((m) => ({ name: m.name, department: m.department })));
+      const nameToNo = new Map(valid.map((m) => [m.name, m.no]));
+      const apiSkippedNos = (res?.skippedItems ?? [])
+        .map((item) => nameToNo.get(item.name))
+        .filter((no): no is number => no !== undefined);
+      const allFailedNos = [...skippedNos, ...apiSkippedNos].sort((a, b) => a - b);
+      const registeredCount = res?.registeredCount ?? valid.length;
+      const skippedCount = res?.skippedCount ?? 0;
+      if (registeredCount === 0) {
+        setBulkUploadResult({ status: 'ALL_FAILED' });
+      } else if (skippedCount === 0 && skippedNos.length === 0) {
+        setBulkUploadResult({ status: 'SUCCESS' });
+      } else {
+        setBulkUploadResult({ status: 'PARTIAL', failedNos: allFailedNos });
+      }
+    } catch {
+      setBulkUploadResult({ status: 'SYSTEM_ERROR' });
+    }
+  }
+
   return (
+    <>
     <InstitutionListLayout
       institutionName={data?.institutionName ?? '-'}
       institutionCode={data?.institutionCode ?? '-'}
@@ -93,7 +130,8 @@ export default function MemberListScreen() {
       searchPlaceholder="구성원명, 소속으로 검색"
       registerPlaceholder="구성원명을 입력해 주세요."
       filterLabel="검사 완료 구성원만 확인"
-      onDownload={handleDownload}
+      onDownloadList={handleDownload}
+      onUploadRegisterTemplate={handleUploadRegisterTemplate}
       isDownloading={isDownloading}
       onSearch={handleSearch}
       registerError={registerError}
@@ -238,5 +276,10 @@ export default function MemberListScreen() {
         )}
       </tbody>
     </InstitutionListLayout>
+    <BulkUploadResultDialog
+      result={bulkUploadResult}
+      onClose={() => setBulkUploadResult(null)}
+    />
+    </>
   );
 }

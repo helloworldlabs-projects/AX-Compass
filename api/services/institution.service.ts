@@ -1,5 +1,7 @@
 import { apiFetch } from '../client';
 import type {
+  BulkRegisterMember,
+  BulkRegisterResponse,
   ExecutiveListDTO,
   ExecutiveListParams,
   InstitutionStats,
@@ -59,6 +61,22 @@ export const institutionService = {
     return apiFetch<void>(`/executives/${executiveId}`, {
       tokenKey: 'axcompass:adminToken',
       method: 'DELETE',
+    });
+  },
+
+  bulkRegisterMembers: async (members: BulkRegisterMember[]): Promise<BulkRegisterResponse> => {
+    return apiFetch<BulkRegisterResponse>('/members/bulk', {
+      tokenKey: 'axcompass:adminToken',
+      method: 'POST',
+      body: JSON.stringify({ members }),
+    });
+  },
+
+  bulkRegisterExecutives: async (members: BulkRegisterMember[]): Promise<BulkRegisterResponse> => {
+    return apiFetch<BulkRegisterResponse>('/executives/bulk', {
+      tokenKey: 'axcompass:adminToken',
+      method: 'POST',
+      body: JSON.stringify({ executives: members }),
     });
   },
 };

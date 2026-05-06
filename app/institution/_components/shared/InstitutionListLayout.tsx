@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileDown } from 'lucide-react';
+import { FileDown, FileUp } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import {
@@ -26,7 +27,8 @@ interface InstitutionListLayoutProps {
   searchPlaceholder: string;
   registerPlaceholder: string;
   filterLabel: string;
-  onDownload: () => void;
+  onDownloadList: () => void;
+  onUploadRegisterTemplate: (file: File) => void;
   isDownloading?: boolean;
   onSearch: (value: string) => void;
   onRegister: (name: string, department: string) => void;
@@ -48,7 +50,8 @@ export default function InstitutionListLayout({
   searchPlaceholder,
   registerPlaceholder,
   filterLabel,
-  onDownload,
+  onDownloadList,
+  onUploadRegisterTemplate,
   isDownloading = false,
   onSearch,
   onRegister,
@@ -61,6 +64,7 @@ export default function InstitutionListLayout({
   children,
 }: InstitutionListLayoutProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [filterChecked, setFilterChecked] = useState(false);
   const [registerName, setRegisterName] = useState('');
   const [registerDepartment, setRegisterDepartment] = useState('');
@@ -182,18 +186,51 @@ export default function InstitutionListLayout({
         {/* 컨트롤 바 */}
         <div className="flex items-end justify-between">
           {/* 좌측: 다운로드 버튼 */}
-          <div className="shrink-0">
+          <div className="flex shrink-0 gap-4">
             <Button
               variant="navy"
               size="pill"
               className="txt-c1-bold"
-              onClick={onDownload}
+              onClick={onDownloadList}
               disabled={isDownloading}
               aria-label="전체 리스트 다운로드"
             >
               {isDownloading ? '다운로드 중...' : '전체 리스트 다운'}
               <FileDown className="size-6" aria-hidden />
             </Button>
+            <a
+              href="/template/axcompass_register_template.xlsx"
+              download="axcompass_register_template.xlsx"
+              aria-label="일괄 등록 양식 다운"
+              className={cn(buttonVariants({ variant: 'dark-blue', size: 'pill' }), 'txt-c1-bold')}
+            >
+              일괄 등록 양식 다운
+              <FileDown className="size-6" aria-hidden />
+            </a>
+            <Button
+              variant="dark-blue"
+              size="pill"
+              className="txt-c1-bold"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="일괄 등록 업로드"
+            >
+              <span>일괄 등록 업로드</span>
+              <FileUp className="size-6" aria-hidden />
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              className="hidden"
+              aria-hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  onUploadRegisterTemplate(file);
+                  e.target.value = '';
+                }
+              }}
+            />
           </div>
 
           <div className="flex items-end gap-[30px]">
@@ -221,7 +258,9 @@ export default function InstitutionListLayout({
 
         {/* 테이블 카드 */}
         <div className="mb-6 overflow-x-auto rounded-2xl bg-white shadow">
-          <table className="w-full min-w-max table-fixed border-collapse text-left">{children}</table>
+          <table className="w-full min-w-max table-fixed border-collapse text-left">
+            {children}
+          </table>
         </div>
 
         {/* 페이지네이션 */}
