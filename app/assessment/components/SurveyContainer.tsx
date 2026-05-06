@@ -117,8 +117,12 @@ export default function SurveyContainer({
       sectionLabel = '* 자기평가(Self-Estimate)';
     } else if (currentItem?.component === 'SITUATIONAL_JUDGMENT') {
       sectionLabel = '* 상황판단(Situational Judgment)';
-    } else {
+    } else if (currentItem?.component === 'BEHAVIOR_HABIT') {
       sectionLabel = '* 행동빈도(Behavior Habit)';
+    } else if (currentItem?.component === 'CURRENT_MATURITY') {
+      sectionLabel = '* 기업의 현재 AX 수준';
+    } else if (currentItem?.component === 'TARGET_MATURITY') {
+      sectionLabel = '* 기업의 목표 AX 수준';
     }
   } else {
     sectionLabel = `※ ${expectationForm.formTitle}`;
