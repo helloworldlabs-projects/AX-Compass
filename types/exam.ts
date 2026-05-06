@@ -14,6 +14,8 @@ export type ProfileType =
   | 'CAUTIOUS'
   | 'LEARNER';
 
+export type ProfileTypeLabel = '균형형' | '과신형' | '실행형' | '판단형' | '조심형' | '이해형';
+
 // ─── Shared option ────────────────────────────────────────────────────────────
 
 export interface QuestionOptionDTO {
@@ -210,7 +212,7 @@ export interface ExamResultDTO {
   resultCode: string;
   examType: ExamType;
   userName: string;
-  overallLevel: string;
+  overallLevel: Level;
   computedAt: string;
   competencies: ExamResultCompetencyDTO[];
   scoreStats: ExamResultScoreStatsDTO;

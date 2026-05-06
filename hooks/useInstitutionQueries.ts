@@ -14,7 +14,7 @@ export const useInstitutionStats = () =>
 
 export const useInstitutionMembers = (params: MemberListParams) =>
   useQuery({
-    queryKey: institutionKeys.members(params as Record<string, unknown>),
+    queryKey: institutionKeys.members(params),
     queryFn: () => institutionService.getMembers(params),
   });
 
@@ -42,7 +42,7 @@ export const useDeleteMember = () => {
 
 export const useInstitutionExecutives = (params: ExecutiveListParams) =>
   useQuery({
-    queryKey: institutionKeys.executives(params as Record<string, unknown>),
+    queryKey: institutionKeys.executives(params),
     queryFn: () => institutionService.getExecutives(params),
   });
 

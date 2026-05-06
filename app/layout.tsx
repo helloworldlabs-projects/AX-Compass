@@ -91,9 +91,9 @@ export default function RootLayout({
           <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px] print:bg-transparent print:px-0">
             {children}
           </main>
-          <Floating />
-          <Footer />
         </Providers>
+        <Floating />
+        <Footer />
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
           strategy="afterInteractive"

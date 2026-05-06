@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronUp, Printer, Send, SquarePen } from 'lucide-react';
+import { ChevronUp, Send, SquarePen } from 'lucide-react';
 import { InquiryModal } from '../modals/InquiryModal';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -46,21 +46,21 @@ function ExamStartButton() {
   );
 }
 
-function PrintAndDownloadButton() {
-  return (
-    <button
-      className="group flex cursor-pointer flex-col items-center gap-1"
-      onClick={() => window.print()}
-    >
-      <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[120px] w-[50px] items-center justify-center rounded-[30px] shadow transition-colors duration-200 lg:w-[60px]">
-        <Printer className="size-8 text-white lg:size-9" />
-      </div>
-      <p className="txt-c1-bold bg-special-pink-200 rounded-[15px] px-1 text-purple-900 shadow lg:px-1.5">
-        복사·저장
-      </p>
-    </button>
-  );
-}
+// function PrintAndDownloadButton() {
+//   return (
+//     <button
+//       className="group flex cursor-pointer flex-col items-center gap-1"
+//       onClick={() => window.print()}
+//     >
+//       <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[120px] w-[50px] items-center justify-center rounded-[30px] shadow transition-colors duration-200 lg:w-[60px]">
+//         <Printer className="size-8 text-white lg:size-9" />
+//       </div>
+//       <p className="txt-c1-bold bg-special-pink-200 rounded-[15px] px-1 text-purple-900 shadow lg:px-1.5">
+//         복사·저장
+//       </p>
+//     </button>
+//   );
+// }
 
 const EXACT_PAGES = ['/', '/assessment', '/about', '/institution'];
 

@@ -1,14 +1,18 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Section from '@/components/layout/Section';
 import { ProfileTypeStatGuideModal } from '@/components/modals/ProfileTypeStatGuideModal';
-import { ProfileRadarChart } from '@/components/institution/ProfileRadarChart';
 import { ProfileResultCard } from '@/components/ui/ProfileResultCard';
 import { Button } from '@/components/ui/button';
 import { PROFILE_TYPE_LABEL } from '@/constants/profileTypeConfig';
 import { ContactRound, HelpCircle, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import type { InstitutionProfileStats } from '@/types/institution';
+
+const ProfileRadarChart = dynamic(
+  () => import('@/components/institution/ProfileRadarChart').then((m) => ({ default: m.ProfileRadarChart })),
+);
 
 interface ProfileStatSectionProps {
   profileStats: InstitutionProfileStats;

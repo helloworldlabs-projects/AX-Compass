@@ -1,5 +1,4 @@
 import Container from '@/components/layout/Container';
-import Image from 'next/image';
 
 function SkeletonLine({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded-full bg-gray-200 ${className ?? ''}`} />;

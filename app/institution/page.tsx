@@ -11,11 +11,12 @@ import { GradeStatSection } from './_components/GradeStatSection';
 import { ScoreStatSection } from './_components/ScoreStatSection';
 import { ProfileStatSection } from './_components/ProfileStatSection';
 import { LearningRoadmapSection } from './_components/LearningRoadmapSection';
+import { InstitutionPageSkeleton } from './_components/InstitutionPageSkeleton';
 
 export default function InstitutionPage() {
   const { data: stats, isLoading, isError } = useInstitutionStats();
 
-  if (isLoading) return <div>로딩 중...</div>;
+  if (isLoading) return <InstitutionPageSkeleton />;
   if (isError || !stats) return <div>데이터를 불러올 수 없습니다.</div>;
 
   return (
