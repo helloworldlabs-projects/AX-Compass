@@ -21,7 +21,10 @@ import { MATURITY_STAGE_LABEL, getCompetencyScore } from '@/constants/maturityCo
 import { roundScore } from '@/lib/utils';
 
 const CurriculumTreeChart = dynamic(
-  () => import('@/components/shared/CurriculumTreeChart').then((m) => ({ default: m.CurriculumTreeChart })),
+  () =>
+    import('@/components/shared/CurriculumTreeChart').then((m) => ({
+      default: m.CurriculumTreeChart,
+    })),
   { ssr: false },
 );
 
@@ -100,7 +103,9 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
         <ResultCodeCard resultCode={result.resultCode} />
         <div className="rounded-card flex w-full max-w-[700px] flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:px-[50px]">
           <MaturityLevelCard type={result.currentMaturityStage} />
-          <MaturityLevelCard type={result.targetMaturityStage} />
+          {currentStageLabel !== targetStageLabel && (
+            <MaturityLevelCard type={result.targetMaturityStage} />
+          )}
         </div>
         <GapMsChart
           currentScore={result.currentMaturityScore}
