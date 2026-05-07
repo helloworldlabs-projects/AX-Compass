@@ -15,8 +15,11 @@ function mapInstitutionStats(dto: InstitutionStatsDTO): InstitutionStats {
 }
 
 export const institutionService = {
-  getStats: async (): Promise<InstitutionStats> => {
-    const dto = await apiFetch<InstitutionStatsDTO>('/institutions/stats', {
+  getStats: async (departments?: string[]): Promise<InstitutionStats> => {
+    const query = new URLSearchParams();
+    departments?.forEach((d) => query.append('departments', d));
+    const qs = query.toString();
+    const dto = await apiFetch<InstitutionStatsDTO>(`/institutions/stats${qs ? `?${qs}` : ''}`, {
       tokenKey: 'axcompass:adminToken',
     });
     return mapInstitutionStats(dto);

@@ -23,7 +23,7 @@ export function InstitutionHeaderSection({ stats }: InstitutionHeaderSectionProp
               임원진
             </span>
             <div className="txt-t1 text-black">
-              {stats.executiveExamCount} / {stats.executiveCount} 명
+              {stats.totalCounts.executiveExamCount} / {stats.totalCounts.executiveCount} 명
             </div>
           </div>
           <Button
@@ -41,7 +41,7 @@ export function InstitutionHeaderSection({ stats }: InstitutionHeaderSectionProp
               구성원
             </span>
             <div className="txt-t1 text-black">
-              {stats.memberExamCount} / {stats.memberCount} 명
+              {stats.totalCounts.memberExamCount} / {stats.totalCounts.memberCount} 명
             </div>
           </div>
           <Button

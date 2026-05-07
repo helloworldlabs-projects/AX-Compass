@@ -10,10 +10,10 @@ import type {
 } from '@/types/institution';
 import type { RegisterRequestDTO } from '@/types/auth';
 
-export const useInstitutionStats = () =>
+export const useInstitutionStats = (departments?: string[]) =>
   useQuery({
-    queryKey: institutionKeys.stats(),
-    queryFn: () => institutionService.getStats(),
+    queryKey: institutionKeys.stats(departments),
+    queryFn: () => institutionService.getStats(departments),
   });
 
 export const useInstitutionMembers = (params: MemberListParams) =>

@@ -92,20 +92,37 @@ export interface ExecutiveMaturityStats {
   targetCompetencyScores: ExecutiveResultCompetencyScoreDTO[];
 }
 
+// ─── Department Stats ─────────────────────────────────────────────────────────
+
+export interface DepartmentStat {
+  department: string;
+  memberCount: number;
+  executiveCount: number;
+}
+
 // ─── Top-level DTO ────────────────────────────────────────────────────────────
 
 export interface InstitutionStatsDTO {
   safarionCode: string;
   institutionName: string;
-  memberCount: number;
-  memberExamCount: number;
-  executiveCount: number;
-  executiveExamCount: number;
+  totalCounts: {
+    memberCount: number;
+    memberExamCount: number;
+    executiveCount: number;
+    executiveExamCount: number;
+  };
+  filteredCounts: {
+    memberCount: number;
+    memberExamCount: number;
+    executiveCount: number;
+    executiveExamCount: number;
+  };
   competencyStats: InstitutionCompetencyStat[];
   scoreStats: InstitutionScoreStats;
   profileStats: InstitutionProfileStats;
   institutionRoadmap: InstitutionRoadmaps;
   executiveMaturityStats: ExecutiveMaturityStats;
+  departments: DepartmentStat[];
 }
 
 // ─── Domain Model ─────────────────────────────────────────────────────────────
