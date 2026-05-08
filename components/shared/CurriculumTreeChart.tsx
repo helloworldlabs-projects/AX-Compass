@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { toPng } from 'html-to-image';
 import type { Level } from '@/constants/levelConfig';
 import { Search, X } from 'lucide-react';
 
@@ -447,7 +448,6 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
     const timer = setTimeout(async () => {
       if (!containerRef.current) return;
       try {
-        const { toPng } = await import('html-to-image');
         const url = await toPng(containerRef.current, { pixelRatio: 2 });
         setImageUrl(url);
       } catch {
@@ -477,6 +477,7 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
 
   return (
     <>
+      {!imageUrl && <span data-chart-capturing aria-hidden="true" style={{ display: 'none' }} />}
       {!imageUrl && (
         <>
           {/* DOM에 유지해 캡처는 되지만 사용자에게 보이지 않음 */}

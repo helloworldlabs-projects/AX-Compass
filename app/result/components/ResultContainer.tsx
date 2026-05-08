@@ -31,7 +31,10 @@ const CurriculumTreeChart = dynamic(
     import('@/components/shared/CurriculumTreeChart').then((m) => ({
       default: m.CurriculumTreeChart,
     })),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => <span data-chart-capturing aria-hidden="true" style={{ display: 'none' }} />,
+  },
 );
 
 interface ResultContainerProps {
