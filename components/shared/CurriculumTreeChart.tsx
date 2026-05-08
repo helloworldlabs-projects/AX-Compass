@@ -504,6 +504,7 @@ export function CurriculumTreeChart({ activeNodes, activeEdges }: CurriculumTree
           <div
             className="bg-special-orange-0 flex w-full items-center justify-center"
             style={{ aspectRatio: '1600 / 1000' }}
+            data-print-hidden
           >
             <div className="flex flex-col items-center gap-3 text-gray-400">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-gray-400" />

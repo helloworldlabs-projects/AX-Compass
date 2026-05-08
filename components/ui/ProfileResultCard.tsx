@@ -143,6 +143,7 @@ function ResultHero({ imageUrl }: { imageUrl: string }) {
         height={400}
         className="h-full w-full object-contain"
         alt=""
+        priority
       />
     </div>
   );

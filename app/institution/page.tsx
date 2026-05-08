@@ -55,6 +55,7 @@ export default function InstitutionPage() {
   return (
     <Container>
       <Link
+        data-print-hidden
         href="https://helloworldlabs-1.gitbook.io/helloworldlabs-manual/IEjzBMwL1CRDQtU4u05j/ax-compass"
         target="_blank"
         rel="noopener noreferrer"
@@ -64,7 +65,10 @@ export default function InstitutionPage() {
       </Link>
       <InstitutionHeaderSection stats={stats} />
       {fullStats && fullStats.departments.length > 1 && (
-        <div className="bg-special-dark-blue-0 flex w-full max-w-[700px] flex-col gap-6 rounded-[20px] border border-gray-100 p-6">
+        <div
+          data-print-hidden
+          className="bg-special-dark-blue-0 flex w-full max-w-[700px] flex-col gap-6 rounded-[20px] border border-gray-100 p-6"
+        >
           <div className="txt-b-bold flex gap-1">
             <div>※ </div>
             <div>

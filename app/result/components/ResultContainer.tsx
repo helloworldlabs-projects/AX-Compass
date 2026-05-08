@@ -367,7 +367,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                   </div>
                 </div>
               </div>
-              <div className="print-no-break w-full max-w-[1000px]">
+              <div className="w-full max-w-[1000px]">
                 <CurriculumTreeChart
                   roadmapType="overall"
                   activeNodes={step.curriculumTree.nodes}

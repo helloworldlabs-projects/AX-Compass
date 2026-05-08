@@ -67,6 +67,7 @@ export function InstitutionNoticeBanners({
             <Image
               src="/images/logo/img_logo_helloworldlabs.png"
               alt=""
+              priority
               width={300}
               height={30}
               className="h-[30px] w-[300px] object-contain"
