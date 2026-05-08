@@ -16,7 +16,7 @@ export function InstitutionNoticeBanners({
   memberExamCount,
 }: InstitutionNoticeBannersProps) {
   return (
-    <Section className="max-w-[1000px] shrink-0">
+    <Section data-print-hidden className="max-w-[1000px] shrink-0">
       {executiveExamCount < 1 && (
         <div
           data-print-hidden
@@ -58,7 +58,10 @@ export function InstitutionNoticeBanners({
         </div>
       )}
       {(executiveExamCount >= 1 || memberExamCount >= 3) && (
-        <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+        <div
+          data-print-hidden
+          className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+        >
           <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
             <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
             <span className="txt-c1-bold text-white">공식 인증</span>
