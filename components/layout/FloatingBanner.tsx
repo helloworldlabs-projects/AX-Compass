@@ -87,7 +87,9 @@ export default function FloatingBanner() {
   const mobileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (window.innerWidth >= 1024) setIsOpen(true);
+    if (window.innerWidth < 1024) return;
+    const id = setTimeout(() => setIsOpen(true), 0);
+    return () => clearTimeout(id);
   }, []);
 
   useEffect(() => {
@@ -106,7 +108,7 @@ export default function FloatingBanner() {
 
   return (
     <>
-      <div ref={desktopRef} className="hidden pr-5 shadow lg:flex">
+      <div ref={desktopRef} className="hidden pr-5 lg:flex">
         {isOpen ? (
           <div className="relative flex h-[500px] w-[360px] flex-col gap-3 overflow-hidden rounded-[20px] border-2 border-white bg-linear-to-b from-[#513699] to-purple-900 p-4 shadow">
             <div className="relative z-10 flex justify-between">
