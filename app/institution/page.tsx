@@ -63,57 +63,56 @@ export default function InstitutionPage() {
         기관 관리 매뉴얼 Link
       </Link>
       <InstitutionHeaderSection stats={stats} />
-      <div className="bg-special-dark-blue-0 flex w-full max-w-[700px] flex-col gap-6 rounded-[20px] border border-gray-100 p-6">
-        <div className="txt-b-bold flex gap-1">
-          <div>※ </div>
-          <div>
-            결과를 확인할 소속 기관을 선택해 주세요.
-            <br />
-            선택 후 [확인] 버튼을 누르면 해당 소속 기관의 결과를 확인할 수 있습니다.
+      {fullStats && fullStats.departments.length > 1 && (
+        <div className="bg-special-dark-blue-0 flex w-full max-w-[700px] flex-col gap-6 rounded-[20px] border border-gray-100 p-6">
+          <div className="txt-b-bold flex gap-1">
+            <div>※ </div>
+            <div>
+              결과를 확인할 소속 기관을 선택해 주세요.
+              <br />
+              선택 후 [확인] 버튼을 누르면 해당 소속 기관의 결과를 확인할 수 있습니다.
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-5 rounded-[20px] bg-white p-6">
-          <Checkbox
-            label={`전체 (${totalCount})`}
-            id="all-institution-checkbox"
-            className="size-6"
-            checked={isAllSelected}
-            onCheckedChange={toggleAll}
-            disabled={deptOptions.length === 0}
-          />
-          <div className="flex flex-wrap gap-4">
-            {deptOptions.map((dept) => (
-              <Checkbox
-                key={dept.department}
-                label={`${dept.department} (${dept.memberCount + dept.executiveCount})`}
-                id={`dept-${dept.department}-checkbox`}
-                className="size-6"
-                checked={effectiveSelectedIds.includes(dept.department)}
-                onCheckedChange={() => toggleDept(dept.department)}
-              />
-            ))}
+          <div className="flex flex-col gap-5 rounded-[20px] bg-white p-6">
+            <Checkbox
+              label={`전체 (${totalCount})`}
+              id="all-institution-checkbox"
+              className="size-6"
+              checked={isAllSelected}
+              onCheckedChange={toggleAll}
+              disabled={deptOptions.length === 0}
+            />
+            <div className="flex flex-wrap gap-4">
+              {deptOptions.map((dept) => (
+                <Checkbox
+                  key={dept.department}
+                  label={`${dept.department} (${dept.memberCount + dept.executiveCount})`}
+                  id={`dept-${dept.department}-checkbox`}
+                  className="size-6"
+                  checked={effectiveSelectedIds.includes(dept.department)}
+                  onCheckedChange={() => toggleDept(dept.department)}
+                />
+              ))}
+            </div>
           </div>
+          <Button
+            variant="dark-blue"
+            className="mx-auto w-fit rounded-[12px]"
+            onClick={handleConfirm}
+            disabled={selectedIds !== null && selectedIds.length === 0}
+          >
+            확인
+          </Button>
         </div>
-        <Button
-          variant="dark-blue"
-          className="mx-auto w-fit rounded-[12px]"
-          onClick={handleConfirm}
-          disabled={selectedIds !== null && selectedIds.length === 0}
-        >
-          확인
-        </Button>
-      </div>
+      )}
       <InstitutionNoticeBanners
         executiveExamCount={stats.filteredCounts.executiveExamCount}
         memberExamCount={stats.filteredCounts.memberExamCount}
-        isFiltered={!!confirmedDepts}
       />
 
-      {stats.filteredCounts.executiveExamCount >= (confirmedDepts ? 1 : 2) && (
-        <MaturitySection stats={stats} />
-      )}
+      {stats.filteredCounts.executiveExamCount >= 1 && <MaturitySection stats={stats} />}
 
-      {stats.filteredCounts.memberExamCount >= (confirmedDepts ? 3 : 5) && (
+      {stats.filteredCounts.memberExamCount >= 3 && (
         <>
           {stats.competencyStats.length > 0 && (
             <GradeStatSection competencyStats={stats.competencyStats} />
