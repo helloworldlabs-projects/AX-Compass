@@ -10,8 +10,12 @@ import { useState } from 'react';
 import type { InstitutionRoadmaps } from '@/types/institution';
 
 const CurriculumTreeChart = dynamic(
-  () => import('@/components/shared/CurriculumTreeChart').then((m) => ({ default: m.CurriculumTreeChart })),
-  { ssr: false },
+  () =>
+    import('@/components/shared/CurriculumTreeChart').then((m) => ({ default: m.CurriculumTreeChart })),
+  {
+    ssr: false,
+    loading: () => <span data-chart-capturing aria-hidden="true" style={{ display: 'none' }} />,
+  },
 );
 
 interface LearningRoadmapSectionProps {

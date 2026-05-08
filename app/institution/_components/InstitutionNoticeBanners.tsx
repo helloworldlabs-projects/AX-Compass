@@ -14,14 +14,10 @@ interface InstitutionNoticeBannersProps {
 export function InstitutionNoticeBanners({
   executiveExamCount,
   memberExamCount,
-  isFiltered = false,
 }: InstitutionNoticeBannersProps) {
-  const executiveMinCount = isFiltered ? 1 : 2;
-  const memberMinCount = isFiltered ? 3 : 5;
-
   return (
-    <Section className="max-w-[1000px] shrink-0">
-      {executiveExamCount < executiveMinCount && (
+    <Section data-print-hidden className="max-w-[1000px] shrink-0">
+      {executiveExamCount < 1 && (
         <div
           data-print-hidden
           className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
@@ -33,17 +29,15 @@ export function InstitutionNoticeBanners({
           <div className="txt-st2-bold text-center text-black">
             임원진 검사 응답 수가 부족하여 기관 AX 성숙도 통계를 제공할 수 없습니다.
             <br />
-            <span className="text-special-pink-600">
-              임원진 검사 {executiveMinCount}명 이상 참여 시
-            </span>{' '}
-            확인할 수 있습니다.
+            <span className="text-special-pink-600">임원진 검사 1명 이상 참여 시</span> 확인할 수
+            있습니다.
           </div>
           <span className="txt-c2-regular text-end">
             [임원진] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
           </span>
         </div>
       )}
-      {memberExamCount < memberMinCount && (
+      {memberExamCount < 3 && (
         <div
           data-print-hidden
           className="bg-special-pink-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
@@ -55,18 +49,19 @@ export function InstitutionNoticeBanners({
           <div className="txt-st2-bold text-center text-black">
             구성원 검사 응답 수가 부족하여 기관 AX 역량 통계를 제공할 수 없습니다.
             <br />
-            <span className="text-special-pink-600">
-              구성원 검사 {memberMinCount}명 이상 참여 시
-            </span>{' '}
-            확인할 수 있습니다.
+            <span className="text-special-pink-600">구성원 검사 3명 이상 참여 시</span> 확인할 수
+            있습니다.
           </div>
           <span className="txt-c2-regular text-end">
             [구성원] 상세 보기에서 검사자를 등록 후 검사를 진행해주세요.
           </span>
         </div>
       )}
-      {(executiveExamCount >= executiveMinCount || memberExamCount >= memberMinCount) && (
-        <div className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+      {(executiveExamCount >= 1 || memberExamCount >= 3) && (
+        <div
+          data-print-hidden
+          className="bg-gray-0 flex w-full flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+        >
           <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
             <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
             <span className="txt-c1-bold text-white">공식 인증</span>
@@ -75,6 +70,7 @@ export function InstitutionNoticeBanners({
             <Image
               src="/images/logo/img_logo_helloworldlabs.png"
               alt=""
+              priority
               width={300}
               height={30}
               className="h-[30px] w-[300px] object-contain"

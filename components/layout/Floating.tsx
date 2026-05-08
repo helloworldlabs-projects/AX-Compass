@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronUp, Send, SquarePen } from 'lucide-react';
+import { ChevronUp, Printer, Send, SquarePen } from 'lucide-react';
 import { InquiryModal } from '../modals/InquiryModal';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -46,21 +46,52 @@ function ExamStartButton() {
   );
 }
 
-// function PrintAndDownloadButton() {
-//   return (
-//     <button
-//       className="group flex cursor-pointer flex-col items-center gap-1"
-//       onClick={() => window.print()}
-//     >
-//       <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[120px] w-[50px] items-center justify-center rounded-[30px] shadow transition-colors duration-200 lg:w-[60px]">
-//         <Printer className="size-8 text-white lg:size-9" />
-//       </div>
-//       <p className="txt-c1-bold bg-special-pink-200 rounded-[15px] px-1 text-purple-900 shadow lg:px-1.5">
-//         복사·저장
-//       </p>
-//     </button>
-//   );
-// }
+function PrintAndDownloadButton() {
+  const [preparing, setPreparing] = useState(false);
+
+  const handlePrint = async () => {
+    if (document.querySelectorAll('[data-chart-capturing]').length === 0) {
+      window.print();
+      return;
+    }
+    setPreparing(true);
+    const deadline = Date.now() + 5_000;
+    await new Promise<void>((resolve) => {
+      const check = () => {
+        if (
+          document.querySelectorAll('[data-chart-capturing]').length === 0 ||
+          Date.now() >= deadline
+        ) {
+          resolve();
+        } else {
+          setTimeout(check, 100);
+        }
+      };
+      setTimeout(check, 100);
+    });
+    setPreparing(false);
+    window.print();
+  };
+
+  return (
+    <button
+      className="group flex cursor-pointer flex-col items-center gap-1"
+      onClick={handlePrint}
+      disabled={preparing}
+    >
+      <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[120px] w-[50px] items-center justify-center rounded-[30px] shadow transition-colors duration-200 lg:w-[60px]">
+        {preparing ? (
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+        ) : (
+          <Printer className="size-8 text-white lg:size-9" />
+        )}
+      </div>
+      <p className="txt-c1-bold bg-special-pink-200 rounded-[15px] px-1 text-purple-900 shadow lg:px-1.5">
+        {preparing ? '준비 중...' : '복사·저장'}
+      </p>
+    </button>
+  );
+}
 
 const EXACT_PAGES = ['/', '/assessment', '/about', '/institution'];
 
@@ -85,7 +116,7 @@ export function Floating() {
         )}
         {showScrollAndInquiry && <InquiryButton handleClick={() => setOpen(true)} />}
         {showExamStart && <ExamStartButton />}
-        {/* {showPrintAndDownload && <PrintAndDownloadButton />} */}
+        {showPrintAndDownload && <PrintAndDownloadButton />}
       </div>
       <InquiryModal open={open} onClose={() => setOpen(false)} />
     </>
