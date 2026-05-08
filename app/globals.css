@@ -446,7 +446,7 @@ body {
 
 @media print {
   @page {
-    margin: 15mm;
+    margin: 5mm;
   }
 
   * {
@@ -476,13 +476,13 @@ body {
     padding-left: 8px !important;
     padding-right: 8px !important;
     overflow: hidden !important;
-    break-inside: avoid;
+    break-inside: auto !important;
   }
 
   /* Prevent recharts from being sliced at page boundaries */
   .recharts-wrapper,
   .recharts-responsive-container {
-    break-inside: avoid;
+    break-inside: auto !important;
   }
 
   /* Prevent arbitrary content blocks from being cut */
@@ -493,7 +493,7 @@ body {
 
   /* CurriculumTreeChart: 이미지로 렌더링되므로 페이지 경계에서 잘리지 않음 */
   .curriculum-tree-container {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
   }
 }

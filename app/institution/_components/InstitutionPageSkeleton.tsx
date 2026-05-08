@@ -119,6 +119,7 @@ function LearningRoadmapSectionSkeleton() {
 export function InstitutionPageSkeleton() {
   return (
     <Container>
+      <span data-chart-capturing aria-hidden="true" style={{ display: 'none' }} />
       <HeaderSectionSkeleton />
       <BannersSectionSkeleton />
       <MaturitySectionSkeleton />

@@ -31,7 +31,10 @@ const CurriculumTreeChart = dynamic(
     import('@/components/shared/CurriculumTreeChart').then((m) => ({
       default: m.CurriculumTreeChart,
     })),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => <span data-chart-capturing aria-hidden="true" style={{ display: 'none' }} />,
+  },
 );
 
 interface ResultContainerProps {
@@ -46,7 +49,10 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
   const [roadmapGuideOpen, setRoadmapGuideOpen] = useState(false);
   return (
     <Container>
-      <div className="bg-gray-0 flex w-full max-w-[1000px] flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+      <div
+        data-print-hidden
+        className="bg-gray-0 flex w-full max-w-[1000px] flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+      >
         <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
           <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
           <span className="txt-c1-bold text-white">공식 인증</span>
@@ -367,7 +373,7 @@ export default function ResultContainer({ resultType, result }: ResultContainerP
                   </div>
                 </div>
               </div>
-              <div className="print-no-break w-full max-w-[1000px]">
+              <div className="w-full max-w-[1000px]">
                 <CurriculumTreeChart
                   roadmapType="overall"
                   activeNodes={step.curriculumTree.nodes}

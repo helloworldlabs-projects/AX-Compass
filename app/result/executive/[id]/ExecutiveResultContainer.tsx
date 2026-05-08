@@ -21,7 +21,10 @@ import { MATURITY_STAGE_LABEL, getCompetencyScore } from '@/constants/maturityCo
 import { roundScore } from '@/lib/utils';
 
 const CurriculumTreeChart = dynamic(
-  () => import('@/components/shared/CurriculumTreeChart').then((m) => ({ default: m.CurriculumTreeChart })),
+  () =>
+    import('@/components/shared/CurriculumTreeChart').then((m) => ({
+      default: m.CurriculumTreeChart,
+    })),
   { ssr: false },
 );
 
@@ -49,7 +52,10 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
 
   return (
     <Container>
-      <div className="bg-gray-0 flex w-full max-w-[1000px] flex-col gap-3 rounded-[20px] border border-gray-100 p-3">
+      <div
+        data-print-hidden
+        className="bg-gray-0 flex w-full max-w-[1000px] flex-col gap-3 rounded-[20px] border border-gray-100 p-3"
+      >
         <div className="bg-special-dark-blue-700 border-special-dark-blue-300 flex w-fit items-center gap-2 rounded-[12px] border-2 px-3 py-2">
           <CompassIcon className="size-4.5 text-white" fillOpacity="1" />
           <span className="txt-c1-bold text-white">공식 인증</span>
@@ -100,7 +106,9 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
         <ResultCodeCard resultCode={result.resultCode} />
         <div className="rounded-card flex w-full max-w-[700px] flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:px-[50px]">
           <MaturityLevelCard type={result.currentMaturityStage} />
-          <MaturityLevelCard type={result.targetMaturityStage} />
+          {currentStageLabel !== targetStageLabel && (
+            <MaturityLevelCard type={result.targetMaturityStage} />
+          )}
         </div>
         <GapMsChart
           currentScore={result.currentMaturityScore}

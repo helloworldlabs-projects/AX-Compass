@@ -28,7 +28,7 @@ export function GapMsChart({
               className="flex w-full items-center justify-center rounded-t-[12px] border-3 border-b-0 border-purple-300 bg-purple-700 lg:rounded-t-[20px]"
               style={{ height: `${current}%` }}
             >
-              <span className="txt-st2-bold text-white">{currentStageLabel}</span>
+              {/* <span className="txt-st2-bold text-white">{currentStageLabel}</span> */}
             </div>
           </div>
           <div className="w-[50px] lg:w-[120px]">
@@ -51,7 +51,7 @@ export function GapMsChart({
               className="bg-special-pink-600 border-special-pink-200 flex w-full items-center justify-center rounded-t-[12px] border-3 border-b-0 lg:rounded-t-[20px]"
               style={{ height: `${target}%` }}
             >
-              <span className="txt-st2-bold text-white">{targetStageLabel}</span>
+              {/* <span className="txt-st2-bold text-white">{targetStageLabel}</span> */}
             </div>
           </div>
         </div>
@@ -77,13 +77,12 @@ export function GapMsChart({
         <div>
           현재 성숙도(Current Maturity Stage)와 목표 성숙도(Target Maturity Stage)의 차이입니다.
           <br />
-          <span className="txt-b-bold text-green-600">[양수(+)]</span> 현재 성숙도가 목표
-          성숙도보다 높아, 현재 수준 대비 보수적인 목표를 두거나 향후 추진 방향을 낮게 설정하는
-          경향이 있습니다.
-          <br />
-          <span className="txt-b-bold text-red-500">[음수(−)]</span> 현재 성숙도가 목표
-          성숙도보다 낮아, 현재 수준을 넘어 더 높은 단계로의 성장과 고도화를 기대하는 경향이
+          <span className="txt-b-bold text-green-600">[양수(+)]</span> 현재 성숙도가 목표 성숙도보다
+          높아, 현재 수준 대비 보수적인 목표를 두거나 향후 추진 방향을 낮게 설정하는 경향이
           있습니다.
+          <br />
+          <span className="txt-b-bold text-red-500">[음수(−)]</span> 현재 성숙도가 목표 성숙도보다
+          낮아, 현재 수준을 넘어 더 높은 단계로의 성장과 고도화를 기대하는 경향이 있습니다.
         </div>
       </div>
     </div>

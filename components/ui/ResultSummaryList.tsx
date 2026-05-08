@@ -9,7 +9,7 @@ export function ResultSummaryList({ items, className }: ResultSummaryListProps) 
   return (
     <div
       className={cn(
-        'flex flex-col gap-2.5 rounded-[20px] border border-gray-500 bg-white px-2.5 py-[30px] shadow lg:px-[50px]',
+        'flex max-w-[700px] flex-col gap-2.5 rounded-[20px] border border-gray-500 bg-white px-2.5 py-[30px] shadow lg:px-[50px]',
         className,
       )}
     >
