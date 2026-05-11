@@ -45,7 +45,7 @@ export default function ExecutiveListScreen() {
   const { data, isLoading, isError } = useInstitutionExecutives(params);
 
   const executives = data?.executives ?? [];
-  const totalPages = data?.pageInfo.totalPages ?? 1;
+  const totalPages = data?.pagination.totalPages ?? 1;
 
   function handleSearch(value: string) {
     setSearchValue(value);
@@ -204,23 +204,31 @@ export default function ExecutiveListScreen() {
                 key={executive.executiveId}
                 className="txt-b-regular border-b border-gray-100 text-center text-gray-500 last:border-b-0"
               >
-                <td className="txt-b-bold text-special-dark-blue-500 max-w-[220px] shrink-0 px-4 py-3">
+                <td className="txt-b-bold text-special-dark-blue-500 h-[72px] max-w-[220px] shrink-0 px-4 py-3">
                   {executive.executiveName}
                 </td>
-                <td className="txt-b-bold text-special-dark-blue-500 flex-1 shrink-0 px-4 py-3">
+                <td className="txt-b-bold text-special-dark-blue-500 h-[72px] flex-1 shrink-0 px-4 py-3">
                   {executive.department ?? '-'}
                 </td>
-                <td className="txt-b-bold text-special-dark-blue-500 max-w-[200px] shrink-0 px-4 py-3">
+                <td className="txt-b-bold text-special-dark-blue-500 h-[72px] max-w-[200px] shrink-0 px-4 py-3">
                   {cell(executive.currentMaturityStage)}
                 </td>
-                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.currentScore)}</td>
+                <td className="h-[72px] max-w-[200px] shrink-0 px-4 py-3">
+                  {cell(executive.currentScore)}
+                </td>
                 <td className="txt-b-bold text-special-dark-blue-500 max-w-[200px] shrink-0 px-4 py-3">
                   {cell(executive.targetMaturityStage)}
                 </td>
-                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.targetScore)}</td>
-                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.gapMs)}</td>
-                <td className="max-w-[200px] shrink-0 px-4 py-3">{cell(executive.resultCode)}</td>
-                <td className="w-[200px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
+                <td className="h-[72px] max-w-[200px] shrink-0 px-4 py-3">
+                  {cell(executive.targetScore)}
+                </td>
+                <td className="h-[72px] max-w-[200px] shrink-0 px-4 py-3">
+                  {cell(executive.gapMs)}
+                </td>
+                <td className="h-[72px] max-w-[200px] shrink-0 px-4 py-3">
+                  {cell(executive.resultCode)}
+                </td>
+                <td className="h-[72px] w-[200px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
                   {executive.resultCode === null ? (
                     <Button
                       variant="pink"

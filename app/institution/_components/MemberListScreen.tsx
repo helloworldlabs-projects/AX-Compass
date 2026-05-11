@@ -47,8 +47,8 @@ export default function MemberListScreen() {
   const { data, isLoading, isError } = useInstitutionMembers(params);
 
   const members = data?.members ?? [];
-  const pageInfo = data?.pageInfo;
-  const totalPages = pageInfo?.totalPages ?? 1;
+  const pagination = data?.pagination;
+  const totalPages = pagination?.totalPages ?? 1;
 
   function handleSearch(value: string) {
     setSearchValue(value);
@@ -223,41 +223,41 @@ export default function MemberListScreen() {
                 key={member.memberName + (member.resultCode ?? '')}
                 className="txt-b-regular border-b border-gray-100 text-center text-gray-500 last:border-b-0"
               >
-                <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="txt-b-bold text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {member.memberName}
                 </td>
-                <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="txt-b-bold text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {member.department ?? '-'}
                 </td>
-                <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="txt-b-bold text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {cell(
                     member.overallLevel ? INSTITUTION_LEVEL_LABEL_MAP[member.overallLevel] : '-',
                   )}
                 </td>
-                <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {cell(member.understandLevel)}
                 </td>
-                <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {cell(member.useApplyLevel)}
                 </td>
-                <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {cell(member.evaluateLevel)}
                 </td>
-                <td className="text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {cell(member.responsibleLevel)}
                 </td>
-                <td className="txt-b-bold text-special-dark-blue-500 shrink-0 px-4 py-3">
+                <td className="txt-b-bold text-special-dark-blue-500 h-[72px] shrink-0 px-4 py-3">
                   {member.profileType ? (
                     <span className="txt-b-bold text-gray-800">{member.profileType}</span>
                   ) : (
                     <span className="txt-b-regular text-gray-500">-</span>
                   )}
                 </td>
-                <td className="w-[100px] shrink-0 px-4 py-3">{cell(member.seScore)}</td>
-                <td className="w-[100px] shrink-0 px-4 py-3">{cell(member.sjScore)}</td>
-                <td className="w-[100px] shrink-0 px-4 py-3">{cell(member.bhScore)}</td>
-                <td className="shrink-0 px-4 py-3">{cell(member.resultCode)}</td>
-                <td className="w-[120px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
+                <td className="h-[72px] w-[100px] shrink-0 px-4 py-3">{cell(member.seScore)}</td>
+                <td className="h-[72px] w-[100px] shrink-0 px-4 py-3">{cell(member.sjScore)}</td>
+                <td className="h-[72px] w-[100px] shrink-0 px-4 py-3">{cell(member.bhScore)}</td>
+                <td className="h-[72px] shrink-0 px-4 py-3">{cell(member.resultCode)}</td>
+                <td className="h-[72px] w-[120px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
                   {member.resultCode === null ? (
                     <Button
                       variant="pink"

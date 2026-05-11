@@ -3,6 +3,12 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+// 페이지네이션이 data 외부 최상위에 분리된 응답 구조
+export interface PaginatedApiResponse<T, P> {
+  data: T;
+  pagination: P;
+}
+
 // RFC 9457 Problem Details — 공통 에러 구조
 export interface ApiErrorDTO {
   type: string;
