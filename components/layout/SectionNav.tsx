@@ -93,9 +93,10 @@ export default function SectionNav({ type = 'general', groups }: SectionNavProps
 
   return (
     <div
+      data-print-hidden
       ref={navRef}
       style={{ top: headerHeight }}
-      className={`fixed left-0 right-0 z-40 mx-auto flex w-full max-w-fit min-w-[360px] items-center justify-between gap-3 overflow-hidden rounded-b-[12px] bg-white shadow transition-opacity duration-200 ${
+      className={`fixed right-0 left-0 z-40 mx-auto flex w-full max-w-fit min-w-[360px] items-center justify-between gap-3 overflow-hidden rounded-b-[12px] bg-white shadow transition-opacity duration-200 ${
         isVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
