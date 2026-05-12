@@ -57,13 +57,17 @@ export default function ExamItemsStep({
             <span>
               전혀
               <br />
-              {item.component === 'SELF_ESTIMATE' ? '아니다' : '하지 않음'}
+              {item.component === 'SELF_ESTIMATE' || item.component === 'CURRENT_MATURITY'
+                ? '아니다'
+                : '하지 않음'}
             </span>
             <span>보통</span>
             <span>
               매우
               <br />
-              {item.component === 'SELF_ESTIMATE' ? '그렇다' : '자주 함'}
+              {item.component === 'SELF_ESTIMATE' || item.component === 'CURRENT_MATURITY'
+                ? '그렇다'
+                : '자주 함'}
             </span>
           </div>
         </div>
