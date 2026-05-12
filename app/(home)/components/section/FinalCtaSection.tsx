@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export function FinalCtaSection() {
   return (
-    <Section>
+    <Section id="assessment-start">
       <SectionHeader
         title={
           <>

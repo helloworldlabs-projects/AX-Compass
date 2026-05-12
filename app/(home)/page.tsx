@@ -10,19 +10,35 @@ import {
   OrganizationBenefitSection,
   FinalCtaSection,
 } from './components/section';
+import SectionNav from '@/components/layout/SectionNav';
+
+const NAV_GROUPS = [
+  {
+    items: [
+      { label: 'AX 검사 필요성', targetId: 'assessment-need' },
+      { label: 'AX 성장 로직', targetId: 'growth-process' },
+      { label: 'AX 검사 시스템', targetId: 'assessment-system' },
+      { label: '검사 전·후 비교', targetId: 'progress-comparison' },
+      { label: '검사 시작', targetId: 'assessment-start' },
+    ],
+  },
+];
 
 export default function Home() {
   return (
-    <Container>
-      <CompassIcon className="absolute top-[100px] left-1/2 h-[300px] w-[272px] -translate-x-1/2 lg:h-[600px] lg:w-[543px]" />
-      <HeroSection />
-      <AssessmentNeedSection />
-      <GrowthProcessSection />
-      <ConsultingCtaSection />
-      <AssessmentSystemSection />
-      <ProgressComparisonSection />
-      <OrganizationBenefitSection />
-      <FinalCtaSection />
-    </Container>
+    <>
+      <SectionNav groups={NAV_GROUPS} />
+      <Container>
+        <CompassIcon className="absolute top-[100px] left-1/2 h-[300px] w-[272px] -translate-x-1/2 lg:h-[600px] lg:w-[543px]" />
+        <HeroSection />
+        <AssessmentNeedSection />
+        <GrowthProcessSection />
+        <ConsultingCtaSection />
+        <AssessmentSystemSection />
+        <ProgressComparisonSection />
+        <OrganizationBenefitSection />
+        <FinalCtaSection />
+      </Container>
+    </>
   );
 }

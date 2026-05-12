@@ -69,7 +69,7 @@ const competencies: CompetencyItem[] = [
 
 export function CompetencySection() {
   return (
-    <Section>
+    <Section id="ax-competency" className="scroll-mt-[110px] lg:scroll-mt-[120px]">
       <div className="flex w-full flex-col gap-[30px]">
         <div className="txt-t2">역량 설계</div>
         <div className="rounded-card flex flex-col gap-6 bg-white p-5 shadow lg:p-[30px]">

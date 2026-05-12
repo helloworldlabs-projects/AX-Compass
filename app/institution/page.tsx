@@ -14,9 +14,26 @@ import { ProfileStatSection } from './_components/ProfileStatSection';
 import { LearningRoadmapSection } from './_components/LearningRoadmapSection';
 import { InstitutionPageSkeleton } from './_components/InstitutionPageSkeleton';
 import { Checkbox } from '@/components/ui/checkbox';
+import SectionNav from '@/components/layout/SectionNav';
+import type { SectionNavGroup } from '@/components/layout/SectionNav';
+
+const MATURITY_ITEMS = [
+  { label: 'AX 성숙도 등급', targetId: 'maturity-grade' },
+  { label: '성숙도 점수 통계', targetId: 'maturity-score' },
+  { label: '영역별 성숙도 통계', targetId: 'maturity-domain-stats' },
+];
+
+const COMPETENCY_ITEMS = [
+  { label: 'AX 역량 등급', targetId: 'competency-grade' },
+  { label: '역량 점수 통계', targetId: 'competency-score' },
+  { label: '영역별 역량 통계', targetId: 'competency-domain-stats' },
+  { label: '프로필 유형 통계', targetId: 'profile-type-stats' },
+  { label: '추천 학습 로드맵', targetId: 'learning-roadmap' },
+];
 
 export default function InstitutionPage() {
   const [confirmedDepts, setConfirmedDepts] = useState<string[] | undefined>(undefined);
+  const [activeGroupIndex, setActiveGroupIndex] = useState(0);
 
   // 체크박스 목록은 항상 unfiltered 쿼리에서 파생 (confirmedDepts와 무관)
   const { data: fullStats } = useInstitutionStats(undefined);
@@ -52,96 +69,145 @@ export default function InstitutionPage() {
   if (isLoading) return <InstitutionPageSkeleton />;
   if (isError || !stats) return <div>데이터를 불러올 수 없습니다.</div>;
 
+  const hasMaturity = stats.filteredCounts.executiveExamCount >= 1;
+  const hasCompetency = stats.filteredCounts.memberExamCount >= 3;
+  const hasBoth = hasMaturity && hasCompetency;
+
+  const navGroups: SectionNavGroup[] = [
+    ...(hasMaturity
+      ? [
+          {
+            groupLabel: 'AX 성숙도 검사 통계',
+            items: MATURITY_ITEMS,
+            expandButton: hasBoth && activeGroupIndex !== 0,
+            onExpand: () => {
+              setActiveGroupIndex(0);
+              setTimeout(
+                () =>
+                  document.getElementById('maturity-grade')?.scrollIntoView({ behavior: 'smooth' }),
+                0,
+              );
+            },
+          },
+        ]
+      : []),
+    ...(hasCompetency
+      ? [
+          {
+            groupLabel: 'AX 역량 검사 통계',
+            items: COMPETENCY_ITEMS,
+            expandButton: hasBoth && activeGroupIndex !== 1,
+            onExpand: () => {
+              setActiveGroupIndex(1);
+              setTimeout(
+                () =>
+                  document
+                    .getElementById('competency-grade')
+                    ?.scrollIntoView({ behavior: 'smooth' }),
+                0,
+              );
+            },
+          },
+        ]
+      : []),
+  ];
+
   return (
-    <Container>
-      <Link
-        data-print-hidden
-        href="https://helloworldlabs-1.gitbook.io/helloworldlabs-manual/IEjzBMwL1CRDQtU4u05j/ax-compass"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="txt-b-bold bg-special-pink-600 border-special-pink-0 absolute top-10 right-10 flex h-10 items-center justify-center rounded-[20px] border-2 px-6 text-white shadow"
-      >
-        기관 관리 매뉴얼 Link
-      </Link>
-      <InstitutionHeaderSection stats={stats} />
-      {fullStats && fullStats.departments.length > 1 && (
+    <>
+      {navGroups.length > 0 && <SectionNav type="institution" groups={navGroups} />}
+      <Container>
+        <Link
+          data-print-hidden
+          href="https://helloworldlabs-1.gitbook.io/helloworldlabs-manual/IEjzBMwL1CRDQtU4u05j/ax-compass"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="txt-b-bold bg-special-pink-600 border-special-pink-0 absolute top-10 right-10 flex h-10 items-center justify-center rounded-[20px] border-2 px-6 text-white shadow"
+        >
+          기관 관리 매뉴얼 Link
+        </Link>
+        <InstitutionHeaderSection stats={stats} />
+        {fullStats && fullStats.departments.length > 1 && (
+          <div
+            data-print-hidden
+            className="bg-special-dark-blue-0 flex w-full max-w-[700px] flex-col gap-6 rounded-[20px] border border-gray-100 p-6"
+          >
+            <div className="txt-b-bold flex gap-1">
+              <div>※ </div>
+              <div>
+                결과를 확인할 소속 기관을 선택해 주세요.
+                <br />
+                선택 후 [확인] 버튼을 누르면 해당 소속 기관의 결과를 확인할 수 있습니다.
+              </div>
+            </div>
+            <div className="flex flex-col gap-5 rounded-[20px] bg-white p-6">
+              <Checkbox
+                label={`전체 (${totalCount})`}
+                id="all-institution-checkbox"
+                className="size-6"
+                checked={isAllSelected}
+                onCheckedChange={toggleAll}
+                disabled={deptOptions.length === 0}
+              />
+              <div className="flex flex-wrap gap-4">
+                {deptOptions.map((dept) => (
+                  <Checkbox
+                    key={dept.department}
+                    label={`${dept.department} (${dept.memberCount + dept.executiveCount})`}
+                    id={`dept-${dept.department}-checkbox`}
+                    className="size-6"
+                    checked={effectiveSelectedIds.includes(dept.department)}
+                    onCheckedChange={() => toggleDept(dept.department)}
+                  />
+                ))}
+              </div>
+            </div>
+            <Button
+              variant="dark-blue"
+              className="mx-auto w-fit rounded-[12px]"
+              onClick={handleConfirm}
+              disabled={selectedIds !== null && selectedIds.length === 0}
+            >
+              확인
+            </Button>
+          </div>
+        )}
+        <InstitutionNoticeBanners
+          executiveExamCount={stats.filteredCounts.executiveExamCount}
+          memberExamCount={stats.filteredCounts.memberExamCount}
+        />
+
+        {stats.filteredCounts.executiveExamCount >= 1 && <MaturitySection stats={stats} />}
+
+        {stats.filteredCounts.memberExamCount >= 3 && (
+          <>
+            {stats.competencyStats.length > 0 && (
+              <GradeStatSection competencyStats={stats.competencyStats} />
+            )}
+            {stats.competencyStats.length > 0 && (
+              <ScoreStatSection
+                scoreStats={stats.scoreStats}
+                competencyStats={stats.competencyStats}
+              />
+            )}
+            {stats.profileStats.top3ProfileTypes.length > 0 && (
+              <ProfileStatSection profileStats={stats.profileStats} />
+            )}
+            {(stats.institutionRoadmap.overallRoadmap !== null ||
+              stats.institutionRoadmap.beginnerElementaryRoadmap !== null ||
+              stats.institutionRoadmap.intermediateAdvancedRoadmap !== null) && (
+              <LearningRoadmapSection institutionRoadmap={stats.institutionRoadmap} />
+            )}
+          </>
+        )}
+
         <div
           data-print-hidden
-          className="bg-special-dark-blue-0 flex w-full max-w-[700px] flex-col gap-6 rounded-[20px] border border-gray-100 p-6"
-        >
-          <div className="txt-b-bold flex gap-1">
-            <div>※ </div>
-            <div>
-              결과를 확인할 소속 기관을 선택해 주세요.
-              <br />
-              선택 후 [확인] 버튼을 누르면 해당 소속 기관의 결과를 확인할 수 있습니다.
-            </div>
-          </div>
-          <div className="flex flex-col gap-5 rounded-[20px] bg-white p-6">
-            <Checkbox
-              label={`전체 (${totalCount})`}
-              id="all-institution-checkbox"
-              className="size-6"
-              checked={isAllSelected}
-              onCheckedChange={toggleAll}
-              disabled={deptOptions.length === 0}
-            />
-            <div className="flex flex-wrap gap-4">
-              {deptOptions.map((dept) => (
-                <Checkbox
-                  key={dept.department}
-                  label={`${dept.department} (${dept.memberCount + dept.executiveCount})`}
-                  id={`dept-${dept.department}-checkbox`}
-                  className="size-6"
-                  checked={effectiveSelectedIds.includes(dept.department)}
-                  onCheckedChange={() => toggleDept(dept.department)}
-                />
-              ))}
-            </div>
-          </div>
-          <Button
-            variant="dark-blue"
-            className="mx-auto w-fit rounded-[12px]"
-            onClick={handleConfirm}
-            disabled={selectedIds !== null && selectedIds.length === 0}
-          >
-            확인
-          </Button>
-        </div>
-      )}
-      <InstitutionNoticeBanners
-        executiveExamCount={stats.filteredCounts.executiveExamCount}
-        memberExamCount={stats.filteredCounts.memberExamCount}
-      />
-
-      {stats.filteredCounts.executiveExamCount >= 1 && <MaturitySection stats={stats} />}
-
-      {stats.filteredCounts.memberExamCount >= 3 && (
-        <>
-          {stats.competencyStats.length > 0 && (
-            <GradeStatSection competencyStats={stats.competencyStats} />
-          )}
-          {stats.competencyStats.length > 0 && (
-            <ScoreStatSection
-              scoreStats={stats.scoreStats}
-              competencyStats={stats.competencyStats}
-            />
-          )}
-          {stats.profileStats.top3ProfileTypes.length > 0 && (
-            <ProfileStatSection profileStats={stats.profileStats} />
-          )}
-          {(stats.institutionRoadmap.overallRoadmap !== null ||
-            stats.institutionRoadmap.beginnerElementaryRoadmap !== null ||
-            stats.institutionRoadmap.intermediateAdvancedRoadmap !== null) && (
-            <LearningRoadmapSection institutionRoadmap={stats.institutionRoadmap} />
-          )}
-        </>
-      )}
-
-      <div data-print-hidden className="h-[3px] w-full max-w-[1000px] rounded-full bg-purple-700" />
-      <Button data-print-hidden render={<Link href="/" />} variant="gray">
-        메인으로
-      </Button>
-    </Container>
+          className="h-[3px] w-full max-w-[1000px] rounded-full bg-purple-700"
+        />
+        <Button data-print-hidden render={<Link href="/" />} variant="gray">
+          메인으로
+        </Button>
+      </Container>
+    </>
   );
 }

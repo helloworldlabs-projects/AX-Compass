@@ -30,7 +30,7 @@ export function GradeStatSection({ competencyStats }: GradeStatSectionProps) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
-    <Section className="max-w-[1000px] shrink-0">
+    <Section id="competency-grade" className="scroll-mt-[110px] max-w-[1000px] shrink-0 lg:scroll-mt-[120px]">
       <GradeStatGuideModal open={openModal} onClose={() => setOpenModal(false)} />
       <div className="flex w-[700px] items-center justify-between">
         <div className="flex items-center gap-4">

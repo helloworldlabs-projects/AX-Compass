@@ -31,7 +31,7 @@ const cards: { icon: LucideIcon; title: string; description: string }[] = [
 
 export function OrganizationBenefitSection() {
   return (
-    <Section>
+    <Section id="organization-benefit">
       <SectionHeader
         title={
           <>

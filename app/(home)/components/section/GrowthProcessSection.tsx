@@ -83,7 +83,7 @@ const stages: Stage[] = [
 
 export function GrowthProcessSection() {
   return (
-    <Section>
+    <Section id="growth-process">
       <SectionHeader
         title={
           <>

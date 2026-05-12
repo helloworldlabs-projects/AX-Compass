@@ -36,7 +36,7 @@ export function LearningRoadmapSection({ institutionRoadmap }: LearningRoadmapSe
         : institutionRoadmap.intermediateAdvancedRoadmap;
 
   return (
-    <Section className="max-w-[1000px] shrink-0">
+    <Section id="learning-roadmap" className="scroll-mt-[110px] lg:scroll-mt-[120px] max-w-[1000px] shrink-0">
       <LearningRoadmapGuideModal open={openModal} onClose={() => setOpenModal(false)} />
       <div className="flex w-[700px] items-center justify-between">
         <div className="flex items-center gap-4">
