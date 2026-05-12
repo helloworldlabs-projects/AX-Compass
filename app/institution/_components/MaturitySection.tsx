@@ -22,7 +22,10 @@ export function MaturitySection({ stats }: MaturitySectionProps) {
 
   return (
     <>
-      <Section id="maturity-grade" className="scroll-mt-[110px] lg:scroll-mt-[120px] max-w-[1000px] shrink-0">
+      <Section
+        id="maturity-grade"
+        className="max-w-[1000px] shrink-0 scroll-mt-[110px] lg:scroll-mt-[120px]"
+      >
         <div className="mx-auto w-full max-w-[700px] flex-col items-start">
           <div className="txt-t1">{stats.institutionName}</div>
           <span className="txt-st2-regular">기관 AX 진단 결과 입니다.</span>
@@ -114,7 +117,7 @@ export function MaturitySection({ stats }: MaturitySectionProps) {
             variant="blue"
           />
         </div>
-        <div id="summary" className="w-full scroll-mt-[110px] lg:scroll-mt-[120px]">
+        <div id="summary" className="scroll-mt-[110px] lg:scroll-mt-[120px]">
           <ResultSummaryList items={stats.executiveMaturityStats.resultSummary} />
         </div>
       </Section>

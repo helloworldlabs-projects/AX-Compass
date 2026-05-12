@@ -162,7 +162,7 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
               variant="blue"
             />
           </div>
-          <div id="summary" className="w-full">
+          <div id="summary">
             <ResultSummaryList items={result.resultSummary} className="max-w-[700px]" />
           </div>
         </Section>
