@@ -1,4 +1,4 @@
-import { apiFetch } from '../client';
+import { apiFetch, apiFetchPaginated } from '../client';
 import type {
   BulkRegisterMember,
   BulkRegisterResponse,
@@ -8,6 +8,7 @@ import type {
   InstitutionStatsDTO,
   MemberListDTO,
   MemberListParams,
+  MemberPageInfo,
 } from '@/types/institution';
 
 function mapInstitutionStats(dto: InstitutionStatsDTO): InstitutionStats {
@@ -34,9 +35,11 @@ export const institutionService = {
     if (params.size !== undefined) query.set('size', String(params.size));
 
     const qs = query.toString();
-    return apiFetch<MemberListDTO>(`/members${qs ? `?${qs}` : ''}`, {
-      tokenKey: 'axcompass:adminToken',
-    });
+    const { data, pagination } = await apiFetchPaginated<Omit<MemberListDTO, 'pagination'>, MemberPageInfo>(
+      `/members${qs ? `?${qs}` : ''}`,
+      { tokenKey: 'axcompass:adminToken' },
+    );
+    return { ...data, pagination };
   },
 
   deleteMember: async (memberId: number): Promise<void> => {
@@ -55,9 +58,11 @@ export const institutionService = {
     if (params.size !== undefined) query.set('size', String(params.size));
 
     const qs = query.toString();
-    return apiFetch<ExecutiveListDTO>(`/executives${qs ? `?${qs}` : ''}`, {
-      tokenKey: 'axcompass:adminToken',
-    });
+    const { data, pagination } = await apiFetchPaginated<Omit<ExecutiveListDTO, 'pagination'>, MemberPageInfo>(
+      `/executives${qs ? `?${qs}` : ''}`,
+      { tokenKey: 'axcompass:adminToken' },
+    );
+    return { ...data, pagination };
   },
 
   deleteExecutive: async (executiveId: number): Promise<void> => {

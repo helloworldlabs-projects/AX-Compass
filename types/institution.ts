@@ -149,10 +149,11 @@ export interface MemberDTO {
 }
 
 export interface MemberPageInfo {
-  currentPage: number;
-  pageSize: number;
   totalPages: number;
-  totalElements: number;
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  hasNext: boolean;
 }
 
 export interface MemberListDTO {
@@ -160,7 +161,7 @@ export interface MemberListDTO {
   institutionName: string;
   totalMemberCount: number;
   examCompletedCount: number;
-  pageInfo: MemberPageInfo;
+  pagination: MemberPageInfo;
   members: MemberDTO[];
 }
 
@@ -190,7 +191,7 @@ export interface ExecutiveListDTO {
   institutionName: string;
   totalExecutiveCount: number;
   examCompletedCount: number;
-  pageInfo: MemberPageInfo;
+  pagination: MemberPageInfo;
   executives: ExecutiveDTO[];
 }
 
