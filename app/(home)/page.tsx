@@ -19,7 +19,6 @@ const NAV_GROUPS = [
       { label: 'AX 성장 로직', targetId: 'growth-process' },
       { label: 'AX 검사 시스템', targetId: 'assessment-system' },
       { label: '검사 전·후 비교', targetId: 'progress-comparison' },
-      { label: '검사 시작', targetId: 'assessment-start' },
     ],
   },
 ];
