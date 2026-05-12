@@ -72,6 +72,11 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-touch-icon.png',
   },
+  verification: {
+    other: {
+      'naver-site-verification': 'c3ad9017769ab19c1791bb6fb6f1a291fb3983b3',
+    },
+  },
 };
 
 export default function RootLayout({
