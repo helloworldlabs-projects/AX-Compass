@@ -10,7 +10,7 @@ export type ItemComponent =
   | 'BEHAVIOR_HABIT'
   | 'CURRENT_MATURITY'
   | 'TARGET_MATURITY';
-export type ItemType = 'LIKERT' | 'SJT' | 'LIKERT_FREQ';
+export type ItemType = 'LIKERT' | 'SJT' | 'LIKERT_FREQ' | 'SINGLE_CHOICE';
 export type ProfileType =
   | 'BALANCED'
   | 'OVERCONFIDENT'
@@ -132,7 +132,7 @@ export interface ExamSubmitResponse {
 // ─── Executive Submission ─────────────────────────────────────────────────────
 
 export interface ExecutiveSubmitRequest {
-  responses: Array<{ itemId: number; likertValue: number }>;
+  responses: Array<{ itemId: number; likertValue: number | null; optionCode: string | null }>;
   expectation: {
     targetAiTask: string;
     learningExpectation: string;

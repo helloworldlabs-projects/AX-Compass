@@ -25,7 +25,7 @@ export default function ExamItemsStep({
 
   const itemType = item.itemType?.toUpperCase();
   const isLikert = itemType === 'LIKERT' || itemType === 'LIKERT_FREQ';
-  const isSjt = itemType === 'SJT';
+  const isSjt = itemType === 'SJT' || itemType === 'SINGLE_CHOICE';
 
   return (
     <div
