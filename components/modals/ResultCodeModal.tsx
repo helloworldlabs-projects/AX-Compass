@@ -29,7 +29,7 @@ function ResultCodeModal({ open, onClose, onConfirm }: ResultCodeModalProps) {
     <Modal open={open} onClose={handleClose}>
       <ModalTitle>결과 조회 코드 입력</ModalTitle>
 
-      <form onSubmit={handleConfirm}>
+      <form onSubmit={handleConfirm} className="flex flex-col gap-4">
         <ModalBody>
           <div className="flex flex-col gap-2">
             <FieldLabel required>결과 조회 코드</FieldLabel>

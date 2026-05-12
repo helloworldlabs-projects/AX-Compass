@@ -35,7 +35,7 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
     <Modal open={open} onClose={handleClose}>
       <ModalTitle>기관 관리자 로그인</ModalTitle>
 
-      <form onSubmit={handleConfirm}>
+      <form onSubmit={handleConfirm} className="flex flex-col gap-4">
         <ModalBody>
           <div className="flex flex-col gap-2">
             <FieldLabel required>기관 코드</FieldLabel>
