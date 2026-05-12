@@ -82,11 +82,7 @@ export default function InstitutionPage() {
             expandButton: hasBoth && activeGroupIndex !== 0,
             onExpand: () => {
               setActiveGroupIndex(0);
-              setTimeout(
-                () =>
-                  document.getElementById('maturity-grade')?.scrollIntoView({ behavior: 'smooth' }),
-                0,
-              );
+              setTimeout(() => document.getElementById('maturity-grade')?.scrollIntoView(), 0);
             },
           },
         ]
@@ -99,13 +95,7 @@ export default function InstitutionPage() {
             expandButton: hasBoth && activeGroupIndex !== 1,
             onExpand: () => {
               setActiveGroupIndex(1);
-              setTimeout(
-                () =>
-                  document
-                    .getElementById('competency-grade')
-                    ?.scrollIntoView({ behavior: 'smooth' }),
-                0,
-              );
+              setTimeout(() => document.getElementById('competency-grade')?.scrollIntoView(), 0);
             },
           },
         ]
