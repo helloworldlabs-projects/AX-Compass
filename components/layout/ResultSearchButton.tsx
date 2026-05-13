@@ -27,10 +27,9 @@ export default function ResultSearchButton() {
         const result = await examService.getExamResult(code);
         router.push(`/result/${EXAM_TYPE_PATH[result.examType]}/${code}`);
       }
+      setOpen(false);
     } catch {
       toast.error('결과를 찾을 수 없습니다. 코드를 다시 확인해주세요.');
-    } finally {
-      setOpen(false);
     }
   }
 

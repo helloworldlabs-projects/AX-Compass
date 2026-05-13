@@ -20,30 +20,32 @@ function ResultCodeModal({ open, onClose, onConfirm }: ResultCodeModalProps) {
     onClose();
   }
 
-  function handleConfirm() {
+  function handleConfirm(e: React.FormEvent) {
+    e.preventDefault();
     onConfirm(code);
-    handleClose();
   }
 
   return (
     <Modal open={open} onClose={handleClose}>
       <ModalTitle>결과 조회 코드 입력</ModalTitle>
 
-      <ModalBody>
-        <div className="flex flex-col gap-2">
-          <FieldLabel required>결과 조회 코드</FieldLabel>
-          <Input placeholder="결과 조회 코드를 입력해 주세요" value={code} onChange={setCode} />
-        </div>
-      </ModalBody>
+      <form onSubmit={handleConfirm} className="flex flex-col gap-4">
+        <ModalBody>
+          <div className="flex flex-col gap-2">
+            <FieldLabel required>결과 조회 코드</FieldLabel>
+            <Input placeholder="결과 조회 코드를 입력해 주세요" value={code} onChange={setCode} />
+          </div>
+        </ModalBody>
 
-      <ModalFooter>
-        <Button variant="gray" onClick={handleClose}>
-          닫기
-        </Button>
-        <Button variant="purple" onClick={handleConfirm}>
-          확인
-        </Button>
-      </ModalFooter>
+        <ModalFooter>
+          <Button type="button" variant="gray" onClick={handleClose}>
+            닫기
+          </Button>
+          <Button type="submit" variant="purple">
+            확인
+          </Button>
+        </ModalFooter>
+      </form>
     </Modal>
   );
 }

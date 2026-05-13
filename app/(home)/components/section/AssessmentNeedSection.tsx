@@ -24,7 +24,7 @@ const cards: { icon: LucideIcon; title: string; description: string }[] = [
 ];
 export function AssessmentNeedSection() {
   return (
-    <Section>
+    <Section id="assessment-need">
       <SectionHeader
         title={
           <>

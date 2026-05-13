@@ -32,7 +32,8 @@ function InstitutionStartModal({
     onClose();
   }
 
-  function handleConfirm() {
+  function handleConfirm(e: React.FormEvent) {
+    e.preventDefault();
     onConfirm(code, name);
   }
 
@@ -40,26 +41,28 @@ function InstitutionStartModal({
     <Modal open={open} onClose={handleClose}>
       <ModalTitle>기관 검사 시작하기</ModalTitle>
 
-      <ModalBody>
-        <div className="flex flex-col gap-2">
-          <FieldLabel required>기관 코드</FieldLabel>
-          <Input placeholder="기관 코드를 입력해 주세요" value={code} onChange={setCode} />
-        </div>
+      <form onSubmit={handleConfirm} className="flex flex-col gap-4">
+        <ModalBody>
+          <div className="flex flex-col gap-2">
+            <FieldLabel required>기관 코드</FieldLabel>
+            <Input placeholder="기관 코드를 입력해 주세요" value={code} onChange={setCode} />
+          </div>
 
-        <div className="flex flex-col gap-2">
-          <FieldLabel required>이름</FieldLabel>
-          <Input placeholder="이름을 입력해 주세요" value={name} onChange={setName} />
-        </div>
-      </ModalBody>
+          <div className="flex flex-col gap-2">
+            <FieldLabel required>이름</FieldLabel>
+            <Input placeholder="이름을 입력해 주세요" value={name} onChange={setName} />
+          </div>
+        </ModalBody>
 
-      <ModalFooter>
-        <Button variant="gray" onClick={handleClose}>
-          닫기
-        </Button>
-        <Button variant="purple" onClick={handleConfirm} disabled={isLoading}>
-          {isLoading ? '확인 중...' : '확인'}
-        </Button>
-      </ModalFooter>
+        <ModalFooter>
+          <Button type="button" variant="gray" onClick={handleClose}>
+            닫기
+          </Button>
+          <Button type="submit" variant="purple" disabled={isLoading}>
+            {isLoading ? '확인 중...' : '확인'}
+          </Button>
+        </ModalFooter>
+      </form>
     </Modal>
   );
 }

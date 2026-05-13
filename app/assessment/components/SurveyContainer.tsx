@@ -257,7 +257,7 @@ export default function SurveyContainer({
         </div>
 
         {/* Step rendering */}
-        {step === 'INTRO' && <IntroStep agreed={agreed} setAgreed={setAgreed} />}
+        {step === 'INTRO' && <IntroStep examType={examType} agreed={agreed} setAgreed={setAgreed} />}
 
         {step === 'EXAMINEE_PROFILES' && (
           <ExamineeProfilesStep

@@ -105,7 +105,7 @@ const INTRO_LABEL: Record<
       warning: [
         '가장 높은 수준을 선택하기보다, 조직의 방향과 현실적인 실행 여건을 함께 고려해 응답해 주세요.',
       ],
-      imageSrc: '/images/assessment/img_intro_executive_01.png',
+      imageSrc: '/images/assessment/img_intro_executive_02.png',
     },
   },
 };

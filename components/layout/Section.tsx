@@ -1,9 +1,7 @@
+import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
-interface SectionProps {
-  children: React.ReactNode;
-  className?: string;
-}
+type SectionProps = HTMLAttributes<HTMLDivElement>;
 
 export default function Section({ children, className, ...props }: SectionProps) {
   return (

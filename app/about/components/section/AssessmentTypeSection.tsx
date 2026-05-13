@@ -46,7 +46,7 @@ const assessmentTypes: AssessmentType[] = [
 
 export function AssessmentTypeSection() {
   return (
-    <Section>
+    <Section id="ax-assessment-type" className="scroll-mt-[110px] lg:scroll-mt-[120px]">
       <div className="flex w-full flex-col gap-[30px]">
         <div className="txt-t2">검사 유형 안내</div>
         <div className="flex flex-wrap gap-6">

@@ -52,7 +52,12 @@ export function useSurveySubmit({
       const executiveBody: ExecutiveSubmitRequest = {
         responses: flatItems.map((item) => ({
           itemId: item.itemId,
-          likertValue: examAnswers[item.itemId] as number,
+          likertValue:
+            item.itemType === 'LIKERT' || item.itemType === 'LIKERT_FREQ'
+              ? (examAnswers[item.itemId] as number)
+              : null,
+          optionCode:
+            item.itemType === 'SINGLE_CHOICE' ? (examAnswers[item.itemId] as string) : null,
         })),
         expectation: {
           targetAiTask: expectationAnswers['TARGET_AI_TASK'],

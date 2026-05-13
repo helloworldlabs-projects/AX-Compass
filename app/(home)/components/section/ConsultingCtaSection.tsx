@@ -13,7 +13,7 @@ export function ConsultingCtaSection() {
   return (
     <>
       <InquiryModal open={isInquiryModalOpen} onClose={() => setIsInquiryModalOpen(false)} />
-      <Section>
+      <Section id="consulting-cta">
         <div className="rounded-card w-full max-w-[728px] overflow-hidden shadow lg:max-w-[1000px]">
           <div className="relative flex h-[350px] items-center justify-center">
             <Image
