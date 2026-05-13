@@ -47,7 +47,7 @@ const questionTypes: QuestionTypeItem[] = [
 
 export function QuestionTypeSection() {
   return (
-    <Section>
+    <Section id="ax-question-type" className="scroll-mt-[110px] lg:scroll-mt-[120px]">
       <div className="flex w-full flex-col gap-[30px]">
         <div className="txt-t2">문항 유형 구성</div>
         <div className="rounded-card flex flex-col gap-6 bg-white p-5 shadow lg:p-[30px]">

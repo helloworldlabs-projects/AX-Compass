@@ -22,7 +22,10 @@ export function MaturitySection({ stats }: MaturitySectionProps) {
 
   return (
     <>
-      <Section className="max-w-[1000px] shrink-0">
+      <Section
+        id="maturity-grade"
+        className="max-w-[1000px] shrink-0 scroll-mt-[110px] lg:scroll-mt-[120px]"
+      >
         <div className="mx-auto w-full max-w-[700px] flex-col items-start">
           <div className="txt-t1">{stats.institutionName}</div>
           <span className="txt-st2-regular">기관 AX 진단 결과 입니다.</span>
@@ -47,21 +50,30 @@ export function MaturitySection({ stats }: MaturitySectionProps) {
             </div>
           </div>
         </div>
-        <div className="boder-gray-500 mx-auto flex w-full max-w-[700px] flex-col gap-[30px] rounded-[20px] border bg-white p-[50px] shadow">
+        <div className="boder-gray-500 mx-auto flex w-full max-w-[700px] scroll-mt-[110px] flex-col gap-[30px] rounded-[20px] border bg-white p-[50px] shadow lg:scroll-mt-[120px]">
           <MaturityLevelCard type={stats.executiveMaturityStats.avgCurrentMaturityStage} />
           {stats.executiveMaturityStats.avgTargetMaturityStage !==
             stats.executiveMaturityStats.avgCurrentMaturityStage && (
             <MaturityLevelCard type={stats.executiveMaturityStats.avgTargetMaturityStage} />
           )}
         </div>
-        <GapMsChart
-          currentScore={stats.executiveMaturityStats.avgCurrentMaturityScore}
-          currentStageLabel={MATURITY_STAGE_LABEL[stats.executiveMaturityStats.avgCurrentMaturityStage]}
-          targetScore={stats.executiveMaturityStats.avgTargetMaturityScore}
-          targetStageLabel={MATURITY_STAGE_LABEL[stats.executiveMaturityStats.avgTargetMaturityStage]}
-          gap={gap}
-        />
-        <div className="flex flex-wrap items-center justify-center gap-y-[50px]">
+        <div id="maturity-score" className="w-full scroll-mt-[110px] lg:scroll-mt-[120px]">
+          <GapMsChart
+            currentScore={stats.executiveMaturityStats.avgCurrentMaturityScore}
+            currentStageLabel={
+              MATURITY_STAGE_LABEL[stats.executiveMaturityStats.avgCurrentMaturityStage]
+            }
+            targetScore={stats.executiveMaturityStats.avgTargetMaturityScore}
+            targetStageLabel={
+              MATURITY_STAGE_LABEL[stats.executiveMaturityStats.avgTargetMaturityStage]
+            }
+            gap={gap}
+          />
+        </div>
+        <div
+          id="maturity-domain-stats"
+          className="flex scroll-mt-[110px] flex-wrap items-center justify-center gap-y-[50px] lg:scroll-mt-[120px]"
+        >
           <CompetencyScorePanel
             title="현재 영역별 성숙도"
             strategy={getCompetencyScore(
@@ -105,7 +117,9 @@ export function MaturitySection({ stats }: MaturitySectionProps) {
             variant="blue"
           />
         </div>
-        <ResultSummaryList items={stats.executiveMaturityStats.resultSummary} />
+        <div id="summary" className="scroll-mt-[110px] lg:scroll-mt-[120px]">
+          <ResultSummaryList items={stats.executiveMaturityStats.resultSummary} />
+        </div>
       </Section>
     </>
   );

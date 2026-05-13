@@ -4,7 +4,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 
 export function ProgressComparisonSection() {
   return (
-    <Section>
+    <Section id="progress-comparison">
       <SectionHeader
         title={
           <>

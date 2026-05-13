@@ -22,7 +22,7 @@ export function ScoreStatSection({ scoreStats, competencyStats }: ScoreStatSecti
   const [openModal, setOpenModal] = useState(false);
 
   return (
-    <Section className="max-w-[1000px] shrink-0">
+    <Section id="competency-score" className="scroll-mt-[110px] lg:scroll-mt-[120px] max-w-[1000px] shrink-0">
       <ScoreStatGuideModal open={openModal} onClose={() => setOpenModal(false)} />
       <div className="flex w-[700px] items-center justify-between">
         <div className="flex items-center gap-4">
@@ -142,7 +142,7 @@ export function ScoreStatSection({ scoreStats, competencyStats }: ScoreStatSecti
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-y-[50px]">
+      <div id="competency-domain-stats" className="scroll-mt-[110px] lg:scroll-mt-[120px] flex flex-wrap items-center justify-center gap-y-[50px]">
         {competencyStats.map((competency) => {
           const color = COMPETENCY_COLOR_MAP[competency.competencyCode];
           return (

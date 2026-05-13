@@ -40,7 +40,7 @@ const items: SystemItem[] = [
 
 export function AssessmentSystemSection() {
   return (
-    <Section>
+    <Section id="assessment-system">
       <SectionHeader
         title={
           <>
