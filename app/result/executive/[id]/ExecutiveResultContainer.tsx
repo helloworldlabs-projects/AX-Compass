@@ -97,7 +97,7 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
             <span>발급 기관: (주)헬로월드랩스</span>
           </div>
         </div>
-        <Section className="w-full max-w-[1000px]">
+        <Section id="maturity-grade" className="w-full max-w-[1000px]">
           <div className="w-full max-w-[700px]">
             <div>
               <span className="txt-t1 mr-1.5">{result.institutionName}</span>
@@ -121,10 +121,7 @@ export default function ExecutiveResultContainer({ result }: { result: Executive
             </div>
           </div>
           <ResultCodeCard resultCode={result.resultCode} />
-          <div
-            id="maturity-grade"
-            className="rounded-card flex w-full max-w-[700px] scroll-mt-[110px] flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:scroll-mt-[120px] lg:px-[50px]"
-          >
+          <div className="rounded-card flex w-full max-w-[700px] scroll-mt-[110px] flex-col gap-[30px] border border-gray-500 bg-white px-4 py-[50px] lg:scroll-mt-[120px] lg:px-[50px]">
             <MaturityLevelCard type={result.currentMaturityStage} />
             {currentStageLabel !== targetStageLabel && (
               <MaturityLevelCard type={result.targetMaturityStage} />
