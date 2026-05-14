@@ -104,7 +104,13 @@ export default function InstitutionPage() {
 
   return (
     <>
-      {navGroups.length > 0 && <SectionNav type="institution" groups={navGroups} />}
+      {navGroups.length > 0 && (
+        <SectionNav
+          type="institution"
+          groups={navGroups}
+          onActiveGroupChange={hasBoth ? setActiveGroupIndex : undefined}
+        />
+      )}
       <Container>
         <Link
           data-print-hidden
