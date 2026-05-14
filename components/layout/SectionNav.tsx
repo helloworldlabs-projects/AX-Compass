@@ -19,16 +19,20 @@ export interface SectionNavGroup {
 interface SectionNavProps {
   type?: 'general' | 'result' | 'institution';
   groups: SectionNavGroup[];
+  onActiveGroupChange?: (groupIndex: number) => void;
 }
 
 const ACTIVE_OFFSET = 130;
 
-export default function SectionNav({ type = 'general', groups }: SectionNavProps) {
+export default function SectionNav({ type = 'general', groups, onActiveGroupChange }: SectionNavProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(54);
   const navRef = useRef<HTMLDivElement>(null);
   const suppressUntilRef = useRef(0);
+  const activeGroupRef = useRef(-1);
+  const onActiveGroupChangeRef = useRef(onActiveGroupChange);
+  onActiveGroupChangeRef.current = onActiveGroupChange;
 
   useEffect(() => {
     const header = document.querySelector('header');
@@ -63,6 +67,12 @@ export default function SectionNav({ type = 'general', groups }: SectionNavProps
         }
       }
       setActiveId(current);
+
+      const newGroupIndex = groups.findIndex((g) => g.items.some((i) => i.targetId === current));
+      if (newGroupIndex !== -1 && newGroupIndex !== activeGroupRef.current) {
+        activeGroupRef.current = newGroupIndex;
+        onActiveGroupChangeRef.current?.(newGroupIndex);
+      }
     };
 
     window.addEventListener('scroll', updateActive, { passive: true });
