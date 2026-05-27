@@ -6,3 +6,4 @@ export * from './AssessmentSystemSection';
 export * from './ProgressComparisonSection';
 export * from './OrganizationBenefitSection';
 export * from './FinalCtaSection';
+export * from './ReportHeroSection';
