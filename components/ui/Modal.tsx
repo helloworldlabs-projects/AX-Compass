@@ -10,6 +10,7 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   className?: string;
+  dismissible?: boolean;
 }
 
 interface ModalTitleProps {
@@ -39,13 +40,14 @@ interface FieldLabelProps {
   children: React.ReactNode;
 }
 
-function Modal({ open, onClose, children, className }: ModalProps) {
+function Modal({ open, onClose, children, className, dismissible = false }: ModalProps) {
   return (
     <Dialog.Root
       open={open}
       onOpenChange={(isOpen) => {
         if (!isOpen) onClose();
       }}
+      disablePointerDismissal={!dismissible}
     >
       <Dialog.Portal>
         <Dialog.Backdrop className="data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-60 bg-black/50 duration-150" />
