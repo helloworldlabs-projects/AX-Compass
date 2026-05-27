@@ -64,64 +64,60 @@ export function ReportHeroSection() {
             <Image src="/images/main/img_report.png" alt="" fill className="object-cover" />
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-4 lg:min-w-[624px] lg:gap-6">
-          <div className="flex flex-wrap items-center justify-center gap-4 lg:gap-6">
-            <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex w-full max-w-[340px] min-w-[340px] items-center justify-center gap-4 border p-3 lg:max-w-[300px] lg:min-w-[300px] lg:p-4">
-              <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
-                <SquarePen className="size-6 text-white lg:size-8" />
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="txt-b-bold text-special-dark-blue-200">Step 1</div>
-                <div className="txt-st2-bold text-white">무료 역량 진단</div>
-                <div className="txt-c1-regular text-white">
-                  체계적인 AX 역량 검사를 통해
-                  <br />
-                  기관과 구성원의 수준을 진단합니다.
-                </div>
-              </div>
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 2xl:grid-cols-4">
+          <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex items-center justify-center gap-4 border p-3 lg:p-4">
+            <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
+              <SquarePen className="size-6 text-white lg:size-8" />
             </div>
-            <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex w-full max-w-[340px] min-w-[340px] items-center justify-center gap-4 border p-3 lg:max-w-[300px] lg:min-w-[300px] lg:p-4">
-              <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
-                <Map className="size-6 text-white lg:size-8" />
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="txt-b-bold text-special-dark-blue-200">Step 2</div>
-                <div className="txt-st2-bold text-white">기관·구성원 통계 제공</div>
-                <div className="txt-c1-regular text-white">
-                  기관 단위 분석 통계 자료로
-                  <br />
-                  전략 수립과 의사결정을 지원합니다.
-                </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="txt-b-bold text-special-dark-blue-200">Step 1</div>
+              <div className="txt-st2-bold break-keep text-white">무료 역량 진단</div>
+              <div className="txt-c1-regular break-keep text-white">
+                체계적인 AX 역량 검사를 통해
+                <br />
+                기관과 구성원의 수준을 진단합니다.
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 lg:gap-6">
-            <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex w-full max-w-[340px] min-w-[340px] items-center justify-center gap-4 border p-3 lg:max-w-[300px] lg:min-w-[300px] lg:p-4">
-              <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
-                <ChartColumnIncreasing className="size-6 text-white lg:size-8" />
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="txt-b-bold text-special-dark-blue-200">Step 3</div>
-                <div className="txt-st2-bold text-white">맞춤형 컨설팅·교육 연계</div>
-                <div className="txt-c1-regular text-white">
-                  결과를 바탕으로 최적의 컨설팅과
-                  <br />
-                  교육 프로그램을 제공합니다.
-                </div>
+          <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex items-center justify-center gap-4 border p-3 lg:p-4">
+            <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
+              <Map className="size-6 text-white lg:size-8" />
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="txt-b-bold text-special-dark-blue-200">Step 2</div>
+              <div className="txt-st2-bold break-keep text-white">기관·구성원 통계 제공</div>
+              <div className="txt-c1-regular break-keep text-white">
+                기관 단위 분석 통계 자료로
+                <br />
+                전략 수립과 의사결정을 지원합니다.
               </div>
             </div>
-            <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex w-full max-w-[340px] min-w-[340px] items-center justify-center gap-4 border p-3 lg:max-w-[300px] lg:min-w-[300px] lg:p-4">
-              <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
-                <BookOpen className="size-6 text-white lg:size-8" />
+          </div>
+          <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex items-center justify-center gap-4 border p-3 lg:p-4">
+            <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
+              <ChartColumnIncreasing className="size-6 text-white lg:size-8" />
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="txt-b-bold text-special-dark-blue-200">Step 3</div>
+              <div className="txt-st2-bold break-keep text-white">맞춤형 컨설팅·교육 연계</div>
+              <div className="txt-c1-regular break-keep text-white">
+                결과를 바탕으로 최적의 컨설팅과
+                <br />
+                교육 프로그램을 제공합니다.
               </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="txt-b-bold text-special-dark-blue-200">Step 4</div>
-                <div className="txt-st2-bold text-white">기관 결과 분석 보고서</div>
-                <div className="txt-c1-regular text-white">
-                  사전·사후 비교 및 결과 분석을 담은
-                  <br />
-                  상세 결과 보고서를 제공합니다.
-                </div>
+            </div>
+          </div>
+          <div className="border-special-dark-blue-0 bg-special-dark-blue-500/70 rounded-card flex items-center justify-center gap-4 border p-3 lg:p-4">
+            <div className="from-special-dark-blue-700 flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-b to-[#617997] lg:h-[60px] lg:w-[60px]">
+              <BookOpen className="size-6 text-white lg:size-8" />
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="txt-b-bold text-special-dark-blue-200">Step 4</div>
+              <div className="txt-st2-bold break-keep text-white">기관 결과 분석 보고서</div>
+              <div className="txt-c1-regular break-keep text-white">
+                사전·사후 비교 및 결과 분석을 담은
+                <br />
+                상세 결과 보고서를 제공합니다.
               </div>
             </div>
           </div>
