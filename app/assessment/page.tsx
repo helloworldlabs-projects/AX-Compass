@@ -100,19 +100,19 @@ export default function AssessmentPage() {
 
               <div className="flex flex-wrap justify-center gap-2 lg:gap-3">
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
-                  <UserRound className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <UserRound className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">회원가입 없이</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
-                  <Gift className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <Gift className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">무료 검사</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
-                  <CircleCheck className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <CircleCheck className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">즉시 결과 확인</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
-                  <Clock className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <Clock className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">약 15분</span>
                 </div>
               </div>
@@ -181,26 +181,26 @@ export default function AssessmentPage() {
 
               <div className="flex flex-wrap justify-center gap-2 lg:gap-3">
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
-                  <Lock className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <Lock className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">인증코드 필요</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
                   <ChartColumnIncreasing
-                    className="size-4 text-purple-700 lg:size-6"
+                    className="size-4 text-purple-700 lg:size-4"
                     strokeWidth={3}
                   />
                   <span className="txt-c2-regular text-black">기관 통계</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
-                  <SquarePen className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <SquarePen className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">결과 보고서</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
-                  <CircleCheck className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <CircleCheck className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">즉시 결과 확인</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
-                  <Clock className="size-4 text-purple-700 lg:size-6" strokeWidth={3} />
+                  <Clock className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c2-regular text-black">약 30분 (임원진 5분)</span>
                 </div>
               </div>
