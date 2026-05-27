@@ -11,7 +11,6 @@ export function ReportHeroSection() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   return (
     <>
-      {/* <div className="relative overflow-hidden rounded-t-[20px] px-[10px] py-[75px] lg:rounded-t-[50px] lg:px-[100px]"> */}
       <div className="relative overflow-hidden rounded-t-[20px] px-[10px] py-[50px] lg:rounded-t-[50px] lg:px-[100px]">
         <Image
           src="/images/main/img_bg_report.png"
@@ -20,9 +19,7 @@ export function ReportHeroSection() {
           className="absolute inset-0 object-cover"
         />
         <div className="relative flex flex-col gap-y-[40px]">
-          {/* <div className="flex w-full flex-wrap items-center justify-center  gap-y-[40px]"> */}
           <div className="flex w-full flex-wrap items-center justify-between gap-y-[40px]">
-            {/* <div className="flex w-[340px] shrink-0 flex-col gap-6 lg:w-[500px] lg:min-w-[500px]"> */}
             <div className="mx-auto flex w-[340px] shrink-0 flex-col gap-6 lg:w-[500px] lg:min-w-[500px]">
               <div className="text-shadow txt-h2 items-center text-white">
                 <span className="mr-1 bg-linear-to-b from-purple-200 to-[#533799] bg-clip-text text-transparent">
@@ -73,7 +70,6 @@ export function ReportHeroSection() {
                 </div>
               </div>
             </div>
-            {/* <div className="relative aspect-760/600 w-full max-w-[500px] min-w-[340px] flex-1 lg:max-w-[760px] lg:min-w-[500px]"> */}
             <div className="relative mx-auto aspect-760/600 w-full max-w-[500px] min-w-[340px] flex-1 lg:max-w-[760px] lg:min-w-[500px]">
               <Image src="/images/main/img_report.png" alt="" fill className="object-cover" />
             </div>

@@ -17,7 +17,6 @@ import {
   CircleCheck,
   Clock,
   Info,
-  UsersRound,
   Lock,
   ChartColumnIncreasing,
   SquarePen,
@@ -73,7 +72,7 @@ export default function AssessmentPage() {
                 <div className="txt-st-bold text-black">
                   <span className="text-purple-700">개인 </span> AX 역량 검사
                 </div>
-                <div className="txt-b-regular break-keep text-black">
+                <div className="txt-b-regular flex h-[84px] flex-col justify-center break-keep text-black">
                   회원가입 없이 바로 시작할 수 있는 무료 진단입니다.
                   <br />
                   AI 이해, 활용, 평가·개선, 책임 있는 사용 역량을 기반으로 현재 AX 역량 수준과
@@ -138,7 +137,7 @@ export default function AssessmentPage() {
                 <div className="txt-st-bold text-black">
                   <span className="text-purple-700">기관 </span> AX 진단 참여
                 </div>
-                <div className="txt-b-regular break-keep text-black">
+                <div className="txt-b-regular flex h-[84px] flex-col justify-center break-keep text-black">
                   기관에서 발급받은 인증코드를 입력한 뒤, 임원진 또는 구성원 유형에 맞는 검사를
                   진행합니다.
                   <br />
