@@ -110,7 +110,8 @@ export default function FloatingBanner() {
     <>
       <div ref={desktopRef} className="hidden pr-5 lg:flex">
         {isOpen ? (
-          <div className="relative flex h-[500px] w-[360px] flex-col gap-3 overflow-hidden rounded-[20px] border-2 border-white bg-linear-to-b from-[#513699] to-purple-900 p-4 shadow">
+          <div className="relative flex h-[500px] w-[360px] flex-col gap-3 overflow-hidden rounded-[20px] border-2 border-white p-4 shadow">
+            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover" />
             <div className="relative z-10 flex justify-between">
               <div className="flex flex-col gap-1">
                 <div className="relative h-[20px] w-[90px]">
@@ -134,10 +135,11 @@ export default function FloatingBanner() {
         ) : (
           <button
             onClick={() => setIsOpen(true)}
-            className="flex h-[500px] w-[60px] flex-col items-center gap-6 rounded-[20px] border-2 border-white bg-linear-to-b from-[#513699] to-purple-900 px-2.5 py-4 shadow"
+            className="relative flex h-[500px] w-[60px] flex-col items-center gap-6 overflow-hidden rounded-[20px] border-2 border-white px-2.5 py-4 shadow"
           >
-            <PanelRightOpen className="size-7 text-white" />
-            <div className="border-special-dark-blue-700 txt-st2-bold flex h-[416px] w-[40px] flex-col items-center justify-center rounded-[12px] border bg-black/20 text-white">
+            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover object-right-top" />
+            <PanelRightOpen className="relative z-10 size-7 text-white" />
+            <div className="border-special-dark-blue-700 txt-st2-bold relative z-10 flex h-[416px] w-[40px] flex-col items-center justify-center rounded-[12px] border bg-black/20 text-white">
               <span>최</span>
               <span>대</span>
               <span className="text-[#FF2366]">9</span>
@@ -158,7 +160,8 @@ export default function FloatingBanner() {
 
       <div ref={mobileRef} className="flex w-full lg:hidden">
         {isOpen ? (
-          <div className="relative flex w-full flex-col gap-3 overflow-hidden rounded-[20px] border-2 border-white bg-linear-to-b from-[#513699] to-purple-900 p-4 shadow">
+          <div className="relative flex w-full flex-col gap-3 overflow-hidden rounded-[20px] border-2 border-white p-4 shadow">
+            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover" />
             <div className="relative z-10 flex justify-between">
               <div className="flex flex-col gap-1">
                 <div className="relative h-[16px] w-[70px]">
@@ -182,12 +185,13 @@ export default function FloatingBanner() {
         ) : (
           <button
             onClick={() => setIsOpen(true)}
-            className="flex w-full items-center justify-between gap-3 rounded-[20px] border-2 border-white bg-linear-to-l from-[#513699] to-purple-900 px-2.5 py-4 shadow"
+            className="relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-[20px] border-2 border-white px-2.5 py-4 shadow"
           >
-            <span className="border-special-dark-blue-700 txt-st2-bold flex h-[40px] w-full items-center justify-center gap-1.5 rounded-[12px] border bg-black/20 text-white">
+            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover object-right-top" />
+            <span className="border-special-dark-blue-700 txt-st2-bold relative z-10 flex h-[40px] w-full items-center justify-center gap-1.5 rounded-[12px] border bg-black/20 text-white">
               최대 <span className="text-special-pink-600">95% 환급</span> AX 교육 확인
             </span>
-            <PanelTopCloseIcon className="size-7 text-white" />
+            <PanelTopCloseIcon className="relative z-10 size-7 text-white" />
           </button>
         )}
       </div>
