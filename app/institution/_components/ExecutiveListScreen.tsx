@@ -18,6 +18,7 @@ import InstitutionListLayout from './shared/InstitutionListLayout';
 import BulkUploadResultDialog from './shared/BulkUploadResultDialog';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
 
 function cell(value: string | number | null) {
   return value !== null && value !== undefined ? String(value) : '-';
@@ -28,10 +29,10 @@ export default function ExecutiveListScreen() {
   const [filterCompleted, setFilterCompleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [registerError, setRegisterError] = useState('');
-
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const debouncedSearch = useDebounce(searchValue);
   const { mutate: register } = useRegisterMember();
-  const { mutate: deleteExecutive } = useDeleteExecutive();
+  const { mutate: deleteExecutive, isPending: isDeletePending } = useDeleteExecutive();
   const { mutate: downloadExcel, isPending: isDownloading } = useDownloadExecutiveExcel();
   const { mutateAsync: bulkRegister } = useBulkRegisterExecutives();
   const [bulkUploadResult, setBulkUploadResult] = useState<BulkUploadResult | null>(null);
@@ -71,11 +72,17 @@ export default function ExecutiveListScreen() {
     );
   }
 
-  function handleDelete(executiveId: number) {
-    deleteExecutive(executiveId, {
+  function handleDelete() {
+    if (deleteTargetId === null) return;
+    deleteExecutive(deleteTargetId, {
+      onSuccess: () => {
+        setDeleteTargetId(null);
+        toast.success('삭제되었습니다.');
+      },
       onError: (error) => {
         const detail = getApiErrorDetail(error);
         toast.error(detail ?? '삭제에 실패했습니다.');
+        setDeleteTargetId(null);
       },
     });
   }
@@ -240,7 +247,7 @@ export default function ExecutiveListScreen() {
                   <Button
                     variant="pink"
                     className="h-9 rounded-[12px]!"
-                    onClick={() => handleDelete(executive.executiveId)}
+                    onClick={() => setDeleteTargetId(executive.executiveId)}
                     aria-label={`${executive.executiveName} 삭제`}
                   >
                     삭제
@@ -252,6 +259,16 @@ export default function ExecutiveListScreen() {
         </tbody>
       </InstitutionListLayout>
       <BulkUploadResultDialog result={bulkUploadResult} onClose={() => setBulkUploadResult(null)} />
+      <ConfirmModal
+        open={deleteTargetId !== null}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleDelete}
+        title="임원진을 삭제하시겠어요?"
+        description="삭제 후 복구가 불가능합니다."
+        confirmLabel="삭제"
+        confirmVariant="pink"
+        isLoading={isDeletePending}
+      />
     </>
   );
 }

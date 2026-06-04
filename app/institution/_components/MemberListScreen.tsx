@@ -19,6 +19,7 @@ import type { BulkUploadResult, MemberListParams } from '@/types/institution';
 import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
 
 function cell(value: string | number | null | undefined) {
   return value !== null && value !== undefined ? String(value) : '-';
@@ -28,6 +29,7 @@ export default function MemberListScreen() {
   const [searchValue, setSearchValue] = useState('');
   const [filterCompleted, setFilterCompleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(0); // API는 0-indexed
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const debouncedSearch = useDebounce(searchValue);
 
@@ -74,11 +76,17 @@ export default function MemberListScreen() {
     );
   }
 
-  function handleDelete(memberId: number) {
-    deleteMember(memberId, {
+  function handleDelete() {
+    if (deleteTargetId === null) return;
+    deleteMember(deleteTargetId, {
+      onSuccess: () => {
+        setDeleteTargetId(null);
+        toast.success('삭제되었습니다.');
+      },
       onError: (error) => {
         const detail = getApiErrorDetail(error);
         toast.error(detail ?? '삭제에 실패했습니다.');
+        setDeleteTargetId(null);
       },
     });
   }
@@ -271,8 +279,7 @@ export default function MemberListScreen() {
                   <Button
                     variant="pink"
                     className="h-9 rounded-[12px]!"
-                    onClick={() => handleDelete(member.memberId)}
-                    disabled={isDeletePending}
+                    onClick={() => setDeleteTargetId(member.memberId)}
                     aria-label={`${member.memberName} 삭제`}
                   >
                     삭제
@@ -284,6 +291,16 @@ export default function MemberListScreen() {
         </tbody>
       </InstitutionListLayout>
       <BulkUploadResultDialog result={bulkUploadResult} onClose={() => setBulkUploadResult(null)} />
+      <ConfirmModal
+        open={deleteTargetId !== null}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleDelete}
+        title="구성원을 삭제하시겠어요?"
+        description="삭제 후 복구가 불가능합니다."
+        confirmLabel="삭제"
+        confirmVariant="pink"
+        isLoading={isDeletePending}
+      />
     </>
   );
 }
