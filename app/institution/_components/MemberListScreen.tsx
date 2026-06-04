@@ -18,6 +18,7 @@ import { getApiErrorDetail } from '@/types/common';
 import type { BulkUploadResult, MemberListParams } from '@/types/institution';
 import { INSTITUTION_LEVEL_LABEL_MAP } from '@/constants/levelConfig';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 function cell(value: string | number | null | undefined) {
   return value !== null && value !== undefined ? String(value) : '-';
@@ -256,21 +257,26 @@ export default function MemberListScreen() {
                 <td className="h-[72px] w-[100px] shrink-0 px-4 py-3">{cell(member.seScore)}</td>
                 <td className="h-[72px] w-[100px] shrink-0 px-4 py-3">{cell(member.sjScore)}</td>
                 <td className="h-[72px] w-[100px] shrink-0 px-4 py-3">{cell(member.bhScore)}</td>
-                <td className="h-[72px] shrink-0 px-4 py-3">{cell(member.resultCode)}</td>
+                <td className="h-[72px] shrink-0 px-4 py-3">
+                  <Link
+                    href={`/result/member/${member.resultCode}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="txt-b-regular text-special-dark-blue-500 underline"
+                  >
+                    {member.resultCode}
+                  </Link>
+                </td>
                 <td className="h-[72px] w-[120px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
-                  {member.resultCode === null ? (
-                    <Button
-                      variant="pink"
-                      className="h-9 rounded-[12px]!"
-                      onClick={() => handleDelete(member.memberId)}
-                      disabled={isDeletePending}
-                      aria-label={`${member.memberName} 삭제`}
-                    >
-                      삭제
-                    </Button>
-                  ) : (
-                    <span className="txt-b-regular text-gray-400">-</span>
-                  )}
+                  <Button
+                    variant="pink"
+                    className="h-9 rounded-[12px]!"
+                    onClick={() => handleDelete(member.memberId)}
+                    disabled={isDeletePending}
+                    aria-label={`${member.memberName} 삭제`}
+                  >
+                    삭제
+                  </Button>
                 </td>
               </tr>
             ))

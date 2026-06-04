@@ -17,6 +17,7 @@ import type { BulkUploadResult, ExecutiveListParams } from '@/types/institution'
 import InstitutionListLayout from './shared/InstitutionListLayout';
 import BulkUploadResultDialog from './shared/BulkUploadResultDialog';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 function cell(value: string | number | null) {
   return value !== null && value !== undefined ? String(value) : '-';
@@ -226,21 +227,24 @@ export default function ExecutiveListScreen() {
                   {cell(executive.gapMs)}
                 </td>
                 <td className="h-[72px] max-w-[200px] shrink-0 px-4 py-3">
-                  {cell(executive.resultCode)}
+                  <Link
+                    href={`/result/executive/${executive.resultCode}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="txt-b-regular text-special-dark-blue-500 underline"
+                  >
+                    {executive.resultCode}
+                  </Link>
                 </td>
                 <td className="h-[72px] w-[200px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
-                  {executive.resultCode === null ? (
-                    <Button
-                      variant="pink"
-                      className="h-9 rounded-[12px]!"
-                      onClick={() => handleDelete(executive.executiveId)}
-                      aria-label={`${executive.executiveName} 삭제`}
-                    >
-                      삭제
-                    </Button>
-                  ) : (
-                    <span className="txt-b-regular text-gray-400">-</span>
-                  )}
+                  <Button
+                    variant="pink"
+                    className="h-9 rounded-[12px]!"
+                    onClick={() => handleDelete(executive.executiveId)}
+                    aria-label={`${executive.executiveName} 삭제`}
+                  >
+                    삭제
+                  </Button>
                 </td>
               </tr>
             ))
