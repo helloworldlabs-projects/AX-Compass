@@ -295,8 +295,8 @@ export default function MemberListScreen() {
         open={deleteTargetId !== null}
         onClose={() => setDeleteTargetId(null)}
         onConfirm={handleDelete}
-        title="구성원을 삭제하시겠어요?"
-        description="삭제 후 복구가 불가능합니다."
+        title="선택한 검사자를 삭제하시겠어요?"
+        description="삭제한 검사자 정보는 되돌릴 수 없습니다."
         confirmLabel="삭제"
         confirmVariant="pink"
         isLoading={isDeletePending}
