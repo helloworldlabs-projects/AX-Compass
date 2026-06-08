@@ -17,6 +17,8 @@ import type { BulkUploadResult, ExecutiveListParams } from '@/types/institution'
 import InstitutionListLayout from './shared/InstitutionListLayout';
 import BulkUploadResultDialog from './shared/BulkUploadResultDialog';
 import { toast } from 'sonner';
+import Link from 'next/link';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
 
 function cell(value: string | number | null) {
   return value !== null && value !== undefined ? String(value) : '-';
@@ -27,10 +29,10 @@ export default function ExecutiveListScreen() {
   const [filterCompleted, setFilterCompleted] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [registerError, setRegisterError] = useState('');
-
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const debouncedSearch = useDebounce(searchValue);
   const { mutate: register } = useRegisterMember();
-  const { mutate: deleteExecutive } = useDeleteExecutive();
+  const { mutate: deleteExecutive, isPending: isDeletePending } = useDeleteExecutive();
   const { mutate: downloadExcel, isPending: isDownloading } = useDownloadExecutiveExcel();
   const { mutateAsync: bulkRegister } = useBulkRegisterExecutives();
   const [bulkUploadResult, setBulkUploadResult] = useState<BulkUploadResult | null>(null);
@@ -70,11 +72,17 @@ export default function ExecutiveListScreen() {
     );
   }
 
-  function handleDelete(executiveId: number) {
-    deleteExecutive(executiveId, {
+  function handleDelete() {
+    if (deleteTargetId === null) return;
+    deleteExecutive(deleteTargetId, {
+      onSuccess: () => {
+        setDeleteTargetId(null);
+        toast.success('삭제되었습니다.');
+      },
       onError: (error) => {
         const detail = getApiErrorDetail(error);
         toast.error(detail ?? '삭제에 실패했습니다.');
+        setDeleteTargetId(null);
       },
     });
   }
@@ -226,21 +234,24 @@ export default function ExecutiveListScreen() {
                   {cell(executive.gapMs)}
                 </td>
                 <td className="h-[72px] max-w-[200px] shrink-0 px-4 py-3">
-                  {cell(executive.resultCode)}
+                  <Link
+                    href={`/result/executive/${executive.resultCode}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="txt-b-regular text-special-dark-blue-500 underline"
+                  >
+                    {executive.resultCode}
+                  </Link>
                 </td>
                 <td className="h-[72px] w-[200px] shrink-0 px-4 py-3 text-center lg:px-5 lg:py-4">
-                  {executive.resultCode === null ? (
-                    <Button
-                      variant="pink"
-                      className="h-9 rounded-[12px]!"
-                      onClick={() => handleDelete(executive.executiveId)}
-                      aria-label={`${executive.executiveName} 삭제`}
-                    >
-                      삭제
-                    </Button>
-                  ) : (
-                    <span className="txt-b-regular text-gray-400">-</span>
-                  )}
+                  <Button
+                    variant="pink"
+                    className="h-9 rounded-[12px]!"
+                    onClick={() => setDeleteTargetId(executive.executiveId)}
+                    aria-label={`${executive.executiveName} 삭제`}
+                  >
+                    삭제
+                  </Button>
                 </td>
               </tr>
             ))
@@ -248,6 +259,16 @@ export default function ExecutiveListScreen() {
         </tbody>
       </InstitutionListLayout>
       <BulkUploadResultDialog result={bulkUploadResult} onClose={() => setBulkUploadResult(null)} />
+      <ConfirmModal
+        open={deleteTargetId !== null}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleDelete}
+        title="선택한 검사자를 삭제하시겠어요?"
+        description="삭제한 검사자 정보는 되돌릴 수 없습니다."
+        confirmLabel="삭제"
+        confirmVariant="pink"
+        isLoading={isDeletePending}
+      />
     </>
   );
 }

@@ -69,7 +69,7 @@ export default function AssessmentPage() {
             </div>
             <div className="bg-gray-0 flex w-full flex-1 flex-col items-center gap-[50px] rounded-[30px] px-4 pt-[75px] pb-[50px] shadow">
               <div className="flex flex-col gap-4 text-center">
-                <div className="txt-st-bold text-black">
+                <div className="txt-t2 text-black">
                   <span className="text-purple-700">개인 </span> AX 역량 검사
                 </div>
                 <div className="txt-b-regular flex h-[84px] flex-col justify-center break-keep text-black">
@@ -80,7 +80,7 @@ export default function AssessmentPage() {
                 </div>
               </div>
 
-              <div className="border-special-dark-blue-300 flex w-full max-w-[600px] flex-col items-center gap-4 rounded-[20px] border bg-white px-3 py-6 shadow">
+              <div className="border-special-dark-blue-300 flex w-full max-w-[600px] flex-col items-center gap-4 rounded-[20px] border bg-white px-3 py-4 shadow lg:py-6">
                 <div className="flex items-center gap-2.5">
                   <UserRound className="text-special-dark-blue-500 size-7 lg:size-10" />
                   <Button
@@ -100,19 +100,19 @@ export default function AssessmentPage() {
               <div className="flex flex-wrap justify-center gap-2 lg:gap-3">
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
                   <UserRound className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">회원가입 없이</span>
+                  <span className="txt-c1-regular text-black">회원가입 없이</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
                   <Gift className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">무료 검사</span>
+                  <span className="txt-c1-regular text-black">무료 검사</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
                   <CircleCheck className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">즉시 결과 확인</span>
+                  <span className="txt-c1-regular text-black">즉시 결과 확인</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
                   <Clock className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">약 15분</span>
+                  <span className="txt-c1-regular text-black">약 15분</span>
                 </div>
               </div>
 
@@ -121,7 +121,7 @@ export default function AssessmentPage() {
 
                 <div className="mt-4 flex w-full items-center justify-center gap-1.5 text-gray-500">
                   <Info className="size-4 shrink-0" strokeWidth={3} />
-                  <span className="txt-c2-regular">
+                  <span className="txt-c1-regular">
                     개인 검사는 기관 통계에 포함되지 않으며, 개인 결과 확인용으로 제공됩니다.
                   </span>
                 </div>
@@ -134,7 +134,7 @@ export default function AssessmentPage() {
             </div>
             <div className="flex w-full flex-1 flex-col items-center gap-[50px] rounded-[30px] bg-white px-4 pt-[75px] pb-[50px] shadow">
               <div className="flex flex-col gap-4 text-center">
-                <div className="txt-st-bold text-black">
+                <div className="txt-t2 text-black">
                   <span className="text-purple-700">기관 </span> AX 진단 참여
                 </div>
                 <div className="txt-b-regular flex h-[84px] flex-col justify-center break-keep text-black">
@@ -181,26 +181,26 @@ export default function AssessmentPage() {
               <div className="flex flex-wrap justify-center gap-2 lg:gap-3">
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
                   <Lock className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">인증코드 필요</span>
+                  <span className="txt-c1-regular text-black">기관코드</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
                   <ChartColumnIncreasing
                     className="size-4 text-purple-700 lg:size-4"
                     strokeWidth={3}
                   />
-                  <span className="txt-c2-regular text-black">기관 통계</span>
+                  <span className="txt-c1-regular text-black">기관 통계</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
                   <SquarePen className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">결과 보고서</span>
+                  <span className="txt-c1-regular text-black">결과 보고서</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
                   <CircleCheck className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">즉시 결과 확인</span>
+                  <span className="txt-c1-regular text-black">즉시 결과 확인</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow lg:px-3">
                   <Clock className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c2-regular text-black">약 30분 (임원진 5분)</span>
+                  <span className="txt-c1-regular text-black">약 30분 (임원진 5분)</span>
                 </div>
               </div>
 
@@ -209,7 +209,7 @@ export default function AssessmentPage() {
 
                 <div className="mt-4 flex w-full items-center justify-center gap-1.5 text-gray-500">
                   <Info className="size-4 shrink-0" strokeWidth={3} />
-                  <span className="txt-c2-regular">
+                  <span className="txt-c1-regular">
                     기관 인증코드가 없다면, 기관 검사 문의를 통해 안내받을 수 있습니다.
                   </span>
                 </div>
