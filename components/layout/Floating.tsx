@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronUp, Printer, Send } from 'lucide-react';
+import { ChevronUp, Mail, Printer, Send } from 'lucide-react';
 import { InquiryModal } from '../modals/InquiryModal';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -9,23 +9,21 @@ import FloatingBanner from './FloatingBanner';
 function ScrollTopButton({ handleClick }: { handleClick: () => void }) {
   return (
     <button
-      className="flex size-[50px] cursor-pointer items-center justify-center rounded-[30px] bg-purple-900 shadow transition-colors duration-200 hover:bg-purple-700 lg:size-[60px]"
+      className="flex h-[32px] w-[80px] cursor-pointer items-center justify-center rounded-[30px] bg-purple-900 shadow transition-colors duration-200 hover:bg-purple-700"
       onClick={handleClick}
     >
-      <ChevronUp className="size-8 text-white lg:size-9" />
+      <ChevronUp className="size-4 text-white" strokeWidth={3} />
     </button>
   );
 }
 
 function InquiryButton({ handleClick }: { handleClick: () => void }) {
   return (
-    <button className="group flex cursor-pointer flex-col items-center gap-1" onClick={handleClick}>
-      <div className="flex size-[50px] items-center justify-center rounded-[30px] bg-purple-900 shadow transition-colors duration-200 group-hover:bg-purple-700 lg:size-[60px]">
-        <Send className="size-8 text-white lg:size-9" />
+    <button className="group flex cursor-pointer flex-col items-center" onClick={handleClick}>
+      <div className="flex h-[32px] w-[80px] items-center justify-center gap-1 rounded-[30px] bg-purple-900 shadow transition-colors duration-200 group-hover:bg-purple-700">
+        <Mail className="size-4 text-white" strokeWidth={3} />
+        <span className="txt-c1-bold text-white">문의</span>
       </div>
-      <p className="txt-c1-bold rounded-[15px] bg-purple-200 px-1 text-purple-900 shadow lg:px-1.5">
-        문의하기
-      </p>
     </button>
   );
 }
@@ -59,20 +57,54 @@ function PrintAndDownloadButton() {
 
   return (
     <button
-      className="group flex cursor-pointer flex-col items-center gap-1"
+      className="group hidden cursor-pointer flex-col items-center gap-1 lg:flex"
       onClick={handlePrint}
       disabled={preparing}
     >
-      <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[120px] w-[50px] items-center justify-center rounded-[30px] shadow transition-colors duration-200 lg:w-[60px]">
+      <div className="bg-special-pink-600 group-hover:bg-special-pink-400 flex h-[32px] w-[80px] items-center justify-center gap-1 rounded-[30px] shadow transition-colors duration-200">
         {preparing ? (
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
         ) : (
-          <Printer className="size-8 text-white lg:size-9" />
+          <>
+            <Printer className="size-4 text-white" strokeWidth={3} />
+            <span className="txt-c1-bold text-white">프린트</span>
+          </>
         )}
       </div>
-      <p className="txt-c1-bold bg-special-pink-200 rounded-[15px] px-1 text-purple-900 shadow lg:px-1.5">
-        {preparing ? '준비 중...' : '복사·저장'}
-      </p>
+    </button>
+  );
+}
+
+const KAKAO_CHANNEL_ID = '_hJJnX';
+
+function KaKaoChannelButton() {
+  function handleClick() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const kakao = (window as any).Kakao;
+    if (kakao) {
+      if (!kakao.isInitialized()) {
+        kakao.init(process.env.NEXT_PUBLIC_KAKAO_APP_KEY);
+      }
+      kakao.Channel.chat({ channelPublicId: KAKAO_CHANNEL_ID });
+    } else {
+      window.open(`http://pf.kakao.com/${KAKAO_CHANNEL_ID}/chat`, '_blank');
+    }
+  }
+
+  return (
+    <button
+      className="group flex cursor-pointer flex-col items-center gap-1"
+      onClick={handleClick}
+    >
+      <div className="flex h-[32px] w-[80px] items-center justify-center gap-0.5 rounded-[30px] bg-yellow-500 shadow transition-colors duration-200 group-hover:bg-yellow-300 lg:gap-1">
+        <svg className="size-4" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M5.88281 0C9.13165 0 11.7656 1.97546 11.7656 4.41211C11.7655 6.84869 9.13158 8.82422 5.88281 8.82422C5.6064 8.82422 5.33462 8.80794 5.06836 8.78027L1.96094 11.1113L2.70703 8.125C1.07922 7.34031 7.23263e-05 5.97121 0 4.41211C0 1.97546 2.63398 1.20803e-08 5.88281 0Z"
+            fill="#151515"
+          />
+        </svg>
+        <span className="txt-c1-bold text-gray-900">시작하기</span>
+      </div>
     </button>
   );
 }
@@ -103,10 +135,11 @@ export function Floating() {
             <FloatingBanner />
           </div>
         )}
-        <div className="pointer-events-auto mb-5 ml-auto flex flex-col gap-4 pr-2.5 lg:ml-0 lg:gap-6 lg:pr-5">
+        <div className="pointer-events-auto mb-5 ml-auto flex flex-col gap-3 pr-2.5 lg:ml-0 lg:gap-4">
           {showScrollAndInquiry && (
             <ScrollTopButton handleClick={() => window.scrollTo({ top: 0 })} />
           )}
+          {showScrollAndInquiry && <KaKaoChannelButton />}
           {showScrollAndInquiry && <InquiryButton handleClick={() => setOpen(true)} />}
           {showPrintAndDownload && <PrintAndDownloadButton />}
         </div>
