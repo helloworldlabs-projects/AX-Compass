@@ -41,6 +41,28 @@ interface InstitutionListLayoutProps {
   children: React.ReactNode;
 }
 
+const MAX_VISIBLE_PAGES = 5;
+
+function getVisiblePageNumbers(currentPage: number, totalPages: number): number[] {
+  if (totalPages <= MAX_VISIBLE_PAGES) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const half = Math.floor(MAX_VISIBLE_PAGES / 2);
+  let start = currentPage - half;
+  let end = currentPage + half;
+
+  if (start < 1) {
+    start = 1;
+    end = MAX_VISIBLE_PAGES;
+  } else if (end > totalPages) {
+    end = totalPages;
+    start = totalPages - MAX_VISIBLE_PAGES + 1;
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+
 export default function InstitutionListLayout({
   institutionName,
   institutionCode,
@@ -92,7 +114,7 @@ export default function InstitutionListLayout({
     }
   }
 
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pageNumbers = getVisiblePageNumbers(currentPage, totalPages);
 
   return (
     <Container className="items-start overflow-x-auto">
