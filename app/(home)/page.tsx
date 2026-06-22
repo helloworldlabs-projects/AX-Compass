@@ -16,6 +16,7 @@ import {
   CuponSection,
   TestimonialSection,
   ResultReportSection,
+  NextStepSection,
 } from './components/section';
 import SectionNav from '@/components/layout/SectionNav';
 
@@ -51,6 +52,7 @@ export default function Home() {
         {/* <OrganizationBenefitSection /> */}
         <TestimonialSection />
         <ResultReportSection />
+        <NextStepSection />
         <FinalCtaSection />
       </Container>
     </>

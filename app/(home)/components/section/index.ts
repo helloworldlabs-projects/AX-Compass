@@ -13,3 +13,4 @@ export * from './AssessmentSupportCtaSection';
 export * from './CuponSection';
 export * from './TestimonialSection';
 export * from './ResultReportSection';
+export * from './NextStepSection';
