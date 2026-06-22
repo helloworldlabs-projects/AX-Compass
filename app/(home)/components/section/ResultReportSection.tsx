@@ -161,7 +161,7 @@ export function ResultReportSection() {
         {/* 좌측 화살표 */}
         <button
           onClick={handleArrowPrev}
-          className="absolute top-1/2 z-[20] flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow transition-opacity duration-200 hover:opacity-80"
+          className="absolute top-1/2 z-[51] flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow transition-opacity duration-200 hover:opacity-80"
           style={{ left: 'calc(50% - 190px)' }}
           aria-label="이전 리포트 이미지"
         >
@@ -171,7 +171,7 @@ export function ResultReportSection() {
         {/* 우측 화살표 */}
         <button
           onClick={handleArrowNext}
-          className="absolute top-1/2 z-[20] flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow transition-opacity duration-200 hover:opacity-80"
+          className="absolute top-1/2 z-[51] flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow transition-opacity duration-200 hover:opacity-80"
           style={{ right: 'calc(50% - 190px)' }}
           aria-label="다음 리포트 이미지"
         >
