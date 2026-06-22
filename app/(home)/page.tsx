@@ -14,6 +14,8 @@ import {
   AssessmentStatsSection,
   AssessmentSupportCtaSection,
   CuponSection,
+  TestimonialSection,
+  ResultReportSection,
 } from './components/section';
 import SectionNav from '@/components/layout/SectionNav';
 
@@ -42,11 +44,13 @@ export default function Home() {
         <HeroSection />
         <CuponSection />
         {/* <AssessmentNeedSection /> */}
-        <GrowthProcessSection />
-        <ConsultingCtaSection />
-        <AssessmentSystemSection />
-        <ProgressComparisonSection />
-        <OrganizationBenefitSection />
+        {/* <GrowthProcessSection /> */}
+        {/* <ConsultingCtaSection /> */}
+        {/* <AssessmentSystemSection /> */}
+        {/* <ProgressComparisonSection /> */}
+        {/* <OrganizationBenefitSection /> */}
+        <TestimonialSection />
+        <ResultReportSection />
         <FinalCtaSection />
       </Container>
     </>

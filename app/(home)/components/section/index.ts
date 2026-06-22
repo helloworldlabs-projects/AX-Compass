@@ -11,3 +11,5 @@ export * from './InstitutionRollingBanner';
 export * from './AssessmentStatsSection';
 export * from './AssessmentSupportCtaSection';
 export * from './CuponSection';
+export * from './TestimonialSection';
+export * from './ResultReportSection';
