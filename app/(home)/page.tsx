@@ -15,6 +15,7 @@ import {
 import SectionNav from '@/components/layout/SectionNav';
 import Section from '@/components/layout/Section';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { AssessmentStatsSection } from './components/section/AssessmentStatsSection';
 
 const NAV_GROUPS = [
   {
@@ -36,6 +37,7 @@ export default function Home() {
         <CompassIcon className="absolute top-[100px] left-1/2 h-[300px] w-[272px] -translate-x-1/2 lg:h-[600px] lg:w-[543px]" />
 
         <InstitutionRollingBanner />
+        <AssessmentStatsSection />
         <HeroSection />
         <AssessmentNeedSection />
         <GrowthProcessSection />
