@@ -7,3 +7,4 @@ export * from './ProgressComparisonSection';
 export * from './OrganizationBenefitSection';
 export * from './FinalCtaSection';
 export * from './ReportHeroSection';
+export * from './InstitutionRollingBanner';

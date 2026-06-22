@@ -10,8 +10,11 @@ import {
   OrganizationBenefitSection,
   FinalCtaSection,
   ReportHeroSection,
+  InstitutionRollingBanner,
 } from './components/section';
 import SectionNav from '@/components/layout/SectionNav';
+import Section from '@/components/layout/Section';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 const NAV_GROUPS = [
   {
@@ -31,6 +34,8 @@ export default function Home() {
       <ReportHeroSection />
       <Container className="rounded-t-none">
         <CompassIcon className="absolute top-[100px] left-1/2 h-[300px] w-[272px] -translate-x-1/2 lg:h-[600px] lg:w-[543px]" />
+
+        <InstitutionRollingBanner />
         <HeroSection />
         <AssessmentNeedSection />
         <GrowthProcessSection />
