@@ -10,3 +10,4 @@ export * from './ReportHeroSection';
 export * from './InstitutionRollingBanner';
 export * from './AssessmentStatsSection';
 export * from './AssessmentSupportCtaSection';
+export * from './CuponSection';
