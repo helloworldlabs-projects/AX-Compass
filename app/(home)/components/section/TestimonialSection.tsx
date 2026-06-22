@@ -17,7 +17,7 @@ export function TestimonialSection() {
       />
       <div className="flex flex-col gap-[30px]">
         <div className="flex max-w-[1470px] flex-wrap gap-[30px]">
-          <div className="border-special-navy-100 flex h-fit min-w-[500px] flex-1 flex-col gap-6 rounded-[20px] border p-6 lg:gap-[30px] lg:p-[50px]">
+          <div className="border-special-navy-100 flex h-fit min-w-[500px] flex-1 flex-col gap-6 rounded-[20px] border bg-white p-6 lg:gap-[30px] lg:p-[50px]">
             <Quote
               className="size-[40px] rotate-180 lg:size-[60px]"
               fill="#c0a0fc"
@@ -64,7 +64,7 @@ export function TestimonialSection() {
             </div>
           </div>
           <div className="flex min-w-[500px] flex-1 flex-col gap-[30px]">
-            <div className="border-special-navy-100 flex h-fit flex-1 flex-col gap-6 rounded-[20px] border p-6 lg:gap-[30px]">
+            <div className="border-special-navy-100 flex h-fit flex-1 flex-col gap-6 rounded-[20px] border bg-white p-6 lg:gap-[30px]">
               <Quote
                 className="size-[30px] rotate-180"
                 fill="#c0a0fc"
@@ -104,7 +104,7 @@ export function TestimonialSection() {
                 </div>
               </div>
             </div>
-            <div className="border-special-navy-100 flex h-fit flex-1 flex-col gap-6 rounded-[20px] border p-6 lg:gap-[30px]">
+            <div className="border-special-navy-100 flex h-fit flex-1 flex-col gap-6 rounded-[20px] border bg-white p-6 lg:gap-[30px]">
               <Quote
                 className="size-[30px] rotate-180"
                 fill="#c0a0fc"

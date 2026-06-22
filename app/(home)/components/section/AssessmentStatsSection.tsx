@@ -15,7 +15,7 @@ export function AssessmentStatsSection() {
         as="h1"
       />
       <div className="flex max-w-[1272px] flex-wrap items-center justify-center gap-6">
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border p-[20px] lg:gap-4">
+        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <Building2 className="size-9 lg:size-[50px]" />
@@ -34,7 +34,7 @@ export function AssessmentStatsSection() {
             함께하고 있습니다.
           </div>
         </div>
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border p-[20px] lg:gap-4">
+        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <SquarePen className="size-9 lg:size-[50px]" />
@@ -53,7 +53,7 @@ export function AssessmentStatsSection() {
             축적되었습니다.
           </div>
         </div>
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border p-[20px] lg:gap-4">
+        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <Clock3 className="size-9 lg:size-[50px]" />
@@ -72,7 +72,7 @@ export function AssessmentStatsSection() {
             함께한 시간입니다.
           </div>
         </div>
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border p-[20px] lg:gap-4">
+        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <Gift className="size-9 lg:size-[50px]" />
