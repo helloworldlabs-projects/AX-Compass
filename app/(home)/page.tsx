@@ -11,11 +11,10 @@ import {
   FinalCtaSection,
   ReportHeroSection,
   InstitutionRollingBanner,
+  AssessmentStatsSection,
+  AssessmentSupportCtaSection,
 } from './components/section';
 import SectionNav from '@/components/layout/SectionNav';
-import Section from '@/components/layout/Section';
-import { SectionHeader } from '@/components/ui/SectionHeader';
-import { AssessmentStatsSection } from './components/section/AssessmentStatsSection';
 
 const NAV_GROUPS = [
   {
@@ -38,6 +37,7 @@ export default function Home() {
 
         <InstitutionRollingBanner />
         <AssessmentStatsSection />
+        <AssessmentSupportCtaSection />
         <HeroSection />
         <AssessmentNeedSection />
         <GrowthProcessSection />
