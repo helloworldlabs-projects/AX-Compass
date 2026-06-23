@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Building } from 'lucide-react';
-import { AdminLoginModal } from '../modals/AdminLoginModal';
+import { AdminLoginModal, type LoginCredentials } from '../modals/AdminLoginModal';
 import { useState, useSyncExternalStore } from 'react';
 import { useLoginAdmin } from '@/hooks/useLoginAdmin';
 
@@ -25,8 +25,15 @@ export default function InstitutionLoginButton() {
   const [open, setOpen] = useState(false);
   const { mutate: loginAdmin } = useLoginAdmin();
 
-  const handleConfirm = (code: string, password: string) => {
-    loginAdmin({ safarionCode: code, password }, { onSuccess: () => setOpen(false) });
+  const handleConfirm = (credentials: LoginCredentials) => {
+    if (credentials.type === 'code') {
+      loginAdmin(
+        { safarionCode: credentials.code, password: credentials.password },
+        { onSuccess: () => setOpen(false) },
+      );
+    } else {
+      console.warn('운영자 계정 로그인 미구현');
+    }
   };
 
   if (token === undefined) return null;
