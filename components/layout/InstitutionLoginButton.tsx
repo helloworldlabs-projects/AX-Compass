@@ -47,7 +47,7 @@ export default function InstitutionLoginButton() {
         onClick={() => setOpen(true)}
       >
         <Building className="size-5" />
-        <span className="txt-b-bold">기관 관리</span>
+        <span className="txt-b-bold">기관 로그인 & 회원가입</span>
       </button>
       <AdminLoginModal open={open} onClose={() => setOpen(false)} onConfirm={handleConfirm} />
     </>
