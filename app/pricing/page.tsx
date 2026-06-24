@@ -77,7 +77,7 @@ export default function PricingPage() {
                   </div>
                   <Button
                     variant="purple"
-                    className="mx-auto h-[60px] w-fit"
+                    className="mx-auto mt-auto h-[60px] w-fit"
                     onClick={() => setOpen(true)}
                   >
                     이용 문의하기
@@ -173,7 +173,7 @@ export default function PricingPage() {
                   </div>
                   <Button
                     variant="dark-blue"
-                    className="mx-auto h-[60px] w-fit"
+                    className="mx-auto mt-auto h-[60px] w-fit"
                     onClick={() => setOpen(true)}
                   >
                     맞춤 문의하기
