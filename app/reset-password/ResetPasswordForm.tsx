@@ -15,6 +15,20 @@ const CODE_LENGTH = 6;
 const TIMER_SECONDS = 10;
 const MOCK_VERIFICATION_CODE = '111111';
 
+const AUTH_MESSAGES = {
+  emailRequired: '이메일을 입력해 주세요.',
+  emailInvalid: '올바른 이메일 주소를 입력해 주세요.',
+  codeRequestRequired: '인증번호를 먼저 요청해 주세요.',
+  codeVerifyRequired: '이메일 인증을 완료한 뒤 진행해 주세요.',
+  codeExpired: '인증 시간이 만료되었습니다. 인증번호를 다시 요청해 주세요.',
+  codeMismatch: '인증번호가 일치하지 않습니다. 다시 입력해 주세요.',
+  codeVerified: '이메일 인증이 완료되었습니다.',
+  codeSent: '인증번호를 이메일로 보냈습니다. (테스트: 111111)',
+  submitAuthRequired: '비밀번호 변경을 위해 이메일 인증을 먼저 완료해 주세요.',
+} as const;
+
+const FORM_VALIDATION_TOAST = '입력한 정보를 확인해 주세요.';
+
 type FormErrors = {
   email?: string;
   verificationCode?: string;
@@ -59,8 +73,8 @@ export function ResetPasswordForm() {
   }, []);
 
   const validateEmail = useCallback(() => {
-    if (!email.trim()) return '이메일을 입력해 주세요.';
-    if (!EMAIL_REGEX.test(email)) return '올바른 이메일 형식이 아닙니다.';
+    if (!email.trim()) return AUTH_MESSAGES.emailRequired;
+    if (!EMAIL_REGEX.test(email)) return AUTH_MESSAGES.emailInvalid;
     return undefined;
   }, [email]);
 
@@ -77,6 +91,7 @@ export function ResetPasswordForm() {
     const emailError = validateEmail();
     if (emailError) {
       setErrors({ email: emailError });
+      toast.error(FORM_VALIDATION_TOAST);
       return;
     }
 
@@ -87,21 +102,21 @@ export function ResetPasswordForm() {
     setConfirmPassword('');
     setTimerSeconds(TIMER_SECONDS);
     setErrors({});
-    toast.success('인증번호가 이메일로 전송되었습니다. (테스트: 111111)');
+    toast.success(AUTH_MESSAGES.codeSent);
   }
 
   function verifyCode(code: string) {
     if (code.length !== CODE_LENGTH || codeVerified) return;
     if (timerSeconds <= 0) {
-      setErrors({
-        verificationCode: '인증번호가 만료되었습니다. 새 인증번호를 받아주세요.',
-      });
+      setErrors({ verificationCode: AUTH_MESSAGES.codeExpired });
+      toast.error(AUTH_MESSAGES.codeExpired);
       return;
     }
 
     if (code !== MOCK_VERIFICATION_CODE) {
-      setErrors({ verificationCode: '인증번호가 올바르지 않습니다. 다시 확인해 주세요.' });
+      setErrors({ verificationCode: AUTH_MESSAGES.codeMismatch });
       setCodeVerified(false);
+      toast.error(AUTH_MESSAGES.codeMismatch);
       return;
     }
 
@@ -115,7 +130,14 @@ export function ResetPasswordForm() {
 
   function handleConfirm(e: React.FormEvent) {
     e.preventDefault();
-    if (!codeVerified) return;
+    if (!codeVerified) {
+      const message = !codeRequested
+        ? AUTH_MESSAGES.codeRequestRequired
+        : AUTH_MESSAGES.codeVerifyRequired;
+      setErrors({ verificationCode: message });
+      toast.error(AUTH_MESSAGES.submitAuthRequired);
+      return;
+    }
 
     const nextErrors: FormErrors = {};
     if (!password) {
@@ -132,6 +154,7 @@ export function ResetPasswordForm() {
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
+      toast.error(FORM_VALIDATION_TOAST);
       return;
     }
 
@@ -142,7 +165,7 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <div className="shadow-card mx-auto flex w-full max-w-[600px] flex-col gap-6 rounded-[20px] border bg-white px-6 py-[50px] lg:px-[50px]">
+    <div className="mx-auto flex w-full max-w-[600px] flex-col gap-6 rounded-[20px] border bg-white px-6 py-[50px] shadow lg:px-[50px]">
       <div className="flex flex-col">
         <h1 className="txt-t1">비밀번호 재설정</h1>
         <p className="txt-b-regular">이메일 인증 후 비밀번호를 재설정해 주세요.</p>
@@ -203,12 +226,10 @@ export function ResetPasswordForm() {
               }
             />
             {codeVerified && (
-              <p className="txt-c1-bold text-gray-700">인증번호가 확인 되었습니다.</p>
+              <p className="txt-c1-bold text-gray-700">{AUTH_MESSAGES.codeVerified}</p>
             )}
             {timerSeconds <= 0 && !codeVerified && (
-              <p className="txt-c1-bold text-red-500">
-                인증 시간이 만료되었습니다. 인증번호를 다시 요청해 주세요.
-              </p>
+              <p className="txt-c1-bold text-red-500">{AUTH_MESSAGES.codeExpired}</p>
             )}
           </div>
         )}

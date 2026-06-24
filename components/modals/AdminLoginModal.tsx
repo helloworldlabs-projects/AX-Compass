@@ -112,6 +112,7 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
                   <span className="txt-c1-regular">비밀번호를 잊으셨나요?</span>
                   <Link
                     href="/reset-password"
+                    onClick={handleClose}
                     className="txt-c1-bold text-special-dark-blue-500 underline"
                   >
                     재설정하기
@@ -122,6 +123,7 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
                   <span className="txt-c1-regular">운영자 계정이 없으신가요?</span>
                   <Link
                     href="/register"
+                    onClick={handleClose}
                     className="txt-c1-bold text-special-dark-blue-500 underline"
                   >
                     기관·운영자 등록하기
