@@ -1,8 +1,34 @@
+'use client';
+
 import Section from '@/components/layout/Section';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { useDashboardOverview } from '@/hooks/useDashboardOverview';
+import { useCountUp } from '@/hooks/useCountUp';
 import { Building2, Clock3, Gift, SquarePen } from 'lucide-react';
 
 export function AssessmentStatsSection() {
+  const { data, isLoading } = useDashboardOverview();
+
+  const ready = !isLoading && data != null;
+  const fmt = (n: number) => n.toLocaleString('ko-KR');
+
+  const { count: institutionCount, ref: institutionRef } = useCountUp({
+    target: data?.participatingInstitutionCount ?? 0,
+    enabled: ready,
+  });
+  const { count: examCount, ref: examRef } = useCountUp({
+    target: data?.totalExamCount ?? 0,
+    enabled: ready,
+  });
+  const { count: examHours, ref: examHoursRef } = useCountUp({
+    target: data != null ? Math.floor(data.totalExamMinutes / 60) : 0,
+    enabled: ready,
+  });
+  const { count: costSupport, ref: costSupportRef } = useCountUp({
+    target: data?.totalCostSupport ?? 0,
+    enabled: ready,
+  });
+
   return (
     <Section>
       <SectionHeader
@@ -15,7 +41,7 @@ export function AssessmentStatsSection() {
         as="h1"
       />
       <div className="flex max-w-[1272px] flex-wrap items-center justify-center gap-6">
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
+        <div ref={institutionRef} className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <Building2 className="size-9 lg:size-[50px]" />
@@ -24,7 +50,7 @@ export function AssessmentStatsSection() {
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-purple-700">
-              <span className="txt-t1">{'86'}</span>
+              <span className="txt-t1">{ready ? fmt(institutionCount) : '—'}</span>
               <span className="txt-t2">곳</span>
             </div>
           </div>
@@ -34,7 +60,7 @@ export function AssessmentStatsSection() {
             함께하고 있습니다.
           </div>
         </div>
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
+        <div ref={examRef} className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <SquarePen className="size-9 lg:size-[50px]" />
@@ -43,7 +69,7 @@ export function AssessmentStatsSection() {
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-purple-700">
-              <span className="txt-t1">{'12,840'}</span>
+              <span className="txt-t1">{ready ? fmt(examCount) : '—'}</span>
               <span className="txt-t2">건</span>
             </div>
           </div>
@@ -53,7 +79,7 @@ export function AssessmentStatsSection() {
             축적되었습니다.
           </div>
         </div>
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
+        <div ref={examHoursRef} className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <Clock3 className="size-9 lg:size-[50px]" />
@@ -62,7 +88,7 @@ export function AssessmentStatsSection() {
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-purple-700">
-              <span className="txt-t1">{'4,920'}</span>
+              <span className="txt-t1">{ready ? fmt(examHours) : '—'}</span>
               <span className="txt-t2">시간</span>
             </div>
           </div>
@@ -72,7 +98,7 @@ export function AssessmentStatsSection() {
             함께한 시간입니다.
           </div>
         </div>
-        <div className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
+        <div ref={costSupportRef} className="rounded-card border-special-navy-100 flex w-[300px] min-w-[300px] shrink-0 flex-col gap-3 border bg-white p-[20px] lg:gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-purple-0 rounded-card flex h-[50px] w-[50px] shrink-0 items-center justify-center text-purple-700 lg:h-[75px] lg:w-[75px]">
               <Gift className="size-9 lg:size-[50px]" />
@@ -81,7 +107,7 @@ export function AssessmentStatsSection() {
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-purple-700">
-              <span className="txt-t1">{'101,436,000'}</span>
+              <span className="txt-t1">{ready ? fmt(costSupport) : '—'}</span>
               <span className="txt-t2">원</span>
             </div>
           </div>
