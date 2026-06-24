@@ -51,7 +51,7 @@ export function TestimonialSection() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               <div className="bg-special-dark-blue-0 txt-b-bold border-special-dark-blue-100 text-special-dark-blue-700 w-fit rounded-[12px] border px-2 py-1">
                 직무별 역량 분석
               </div>
