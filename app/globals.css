@@ -438,6 +438,18 @@ body {
   animation: bounce-up 1s infinite;
 }
 
+@keyframes rolling-banner {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-rolling-banner {
+  animation: rolling-banner 60s linear infinite;
+}
+
 @media (min-width: 1024px) {
   .rounded-card {
     border-radius: 20px;

@@ -8,6 +8,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import Link from 'next/link';
 import { InstitutionStartModal } from '@/components/modals/InstitutionStartModal';
 import { InquiryModal } from '@/components/modals/InquiryModal';
+import { PersonalCodeModal } from '@/components/modals/PersonalCodeModal';
 import { useRouter } from 'next/navigation';
 import { useLogin } from '@/hooks/useLogin';
 import {
@@ -31,6 +32,7 @@ export default function AssessmentPage() {
   const { mutate: login, isPending: isLoggingIn } = useLogin();
   const [institutionType, setInstitutionType] = useState<InstitutionType>(null);
   const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [personalCodeOpen, setPersonalCodeOpen] = useState(false);
 
   function handleConfirm(code: string, name: string) {
     if (!institutionType) return;
@@ -73,7 +75,7 @@ export default function AssessmentPage() {
                   <span className="text-purple-700">개인 </span> AX 역량 검사
                 </div>
                 <div className="txt-b-regular flex h-[84px] flex-col justify-center break-keep text-black">
-                  회원가입 없이 바로 시작할 수 있는 무료 진단입니다.
+                  회원가입 없이 바로 시작할 수 있는 개인용 AX 역량 검사입니다.
                   <br />
                   AI 이해, 활용, 평가·개선, 책임 있는 사용 역량을 기반으로 현재 AX 역량 수준과
                   프로필 유형을 확인합니다.
@@ -84,10 +86,9 @@ export default function AssessmentPage() {
                 <div className="flex items-center gap-2.5">
                   <UserRound className="text-special-dark-blue-500 size-7 lg:size-10" />
                   <Button
-                    render={<Link href="/assessment/general" />}
-                    nativeButton={false}
                     variant="navy"
                     className="w-[200px]"
+                    onClick={() => setPersonalCodeOpen(true)}
                   >
                     개인 검사 시작 →
                   </Button>
@@ -101,10 +102,6 @@ export default function AssessmentPage() {
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
                   <UserRound className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
                   <span className="txt-c1-regular text-black">회원가입 없이</span>
-                </div>
-                <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
-                  <Gift className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
-                  <span className="txt-c1-regular text-black">무료 검사</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-white p-2 shadow lg:px-3">
                   <CircleCheck className="size-4 text-purple-700 lg:size-4" strokeWidth={3} />
@@ -237,6 +234,7 @@ export default function AssessmentPage() {
         </div>
       </div>
 
+      <PersonalCodeModal open={personalCodeOpen} onClose={() => setPersonalCodeOpen(false)} />
       <InstitutionStartModal
         open={institutionType !== null}
         onClose={() => setInstitutionType(null)}
