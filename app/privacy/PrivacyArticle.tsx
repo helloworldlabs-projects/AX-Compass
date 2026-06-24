@@ -72,14 +72,14 @@ export function PrivacyContentBlock({ content }: { content: PrivacyContent }) {
       if (content.dot) {
         return (
           <DotItem>
-            <p className={`whitespace-pre-line${content.bold ? 'txt-b-bold' : ''}`}>
+            <p className={`whitespace-pre-line${content.bold ? ' txt-b-bold' : ''}`}>
               {content.text}
             </p>
           </DotItem>
         );
       }
       return (
-        <p className={`whitespace-pre-line${content.bold ? 'txt-b-bold' : ''}`}>{content.text}</p>
+        <p className={`whitespace-pre-line${content.bold ? ' txt-b-bold' : ''}`}>{content.text}</p>
       );
     case 'numbered-list':
       return <NumberedList intro={content.intro} items={content.items} />;
