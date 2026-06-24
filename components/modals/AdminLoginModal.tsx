@@ -20,7 +20,8 @@ interface AdminLoginModalProps {
 }
 
 function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
-  const [activeTab, setActiveTab] = useState<LoginTab>('account');
+  // const [activeTab, setActiveTab] = useState<LoginTab>('account');
+  const [activeTab, setActiveTab] = useState<LoginTab>('code');
 
   const [email, setEmail] = useState('');
   const [accountPassword, setAccountPassword] = useState('');
@@ -42,7 +43,8 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
 
   function handleClose() {
     reset();
-    setActiveTab('account');
+    // setActiveTab('account');
+    setActiveTab('code');
     onClose();
   }
 
@@ -65,13 +67,13 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
       </div>
 
       <div className="flex items-center justify-center gap-6">
-        <Button
+        {/* <Button
           variant={activeTab === 'account' ? 'dark-blue' : 'gray'}
           onClick={() => handleTabChange('account')}
           aria-pressed={activeTab === 'account'}
         >
           운영자 계정 로그인
-        </Button>
+        </Button> */}
         <Button
           variant={activeTab === 'code' ? 'dark-blue' : 'gray'}
           onClick={() => handleTabChange('code')}
