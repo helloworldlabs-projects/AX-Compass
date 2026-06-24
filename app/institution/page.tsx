@@ -16,6 +16,7 @@ import { InstitutionPageSkeleton } from './_components/InstitutionPageSkeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 import SectionNav from '@/components/layout/SectionNav';
 import type { SectionNavGroup } from '@/components/layout/SectionNav';
+import { InstitutionPlanCard } from './_components/InstitutionPlanCard';
 
 const MATURITY_ITEMS = [
   { label: 'AX 성숙도 등급', targetId: 'maturity-grade' },
@@ -112,15 +113,7 @@ export default function InstitutionPage() {
         />
       )}
       <Container>
-        <Link
-          data-print-hidden
-          href="https://helloworldlabs-1.gitbook.io/helloworldlabs-manual/IEjzBMwL1CRDQtU4u05j/ax-compass"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="txt-b-bold bg-special-pink-600 border-special-pink-0 absolute top-10 right-10 flex h-10 items-center justify-center rounded-[20px] border-2 px-6 text-white shadow"
-        >
-          기관 관리 매뉴얼 Link
-        </Link>
+        <InstitutionPlanCard />
         <InstitutionHeaderSection stats={stats} />
         {fullStats && fullStats.departments.length > 1 && (
           <div

@@ -11,7 +11,18 @@ interface InstitutionHeaderSectionProps {
 export function InstitutionHeaderSection({ stats }: InstitutionHeaderSectionProps) {
   return (
     <Section data-print-hidden className="flex w-[700px] shrink-0">
-      <div className="txt-t1 flex w-full">{stats.institutionName}</div>
+      <div className="flex w-full items-start justify-between gap-4">
+        <div className="txt-t1 flex-1">{stats.institutionName}</div>
+        <Link
+          data-print-hidden
+          href="https://helloworldlabs-1.gitbook.io/helloworldlabs-manual/IEjzBMwL1CRDQtU4u05j/ax-compass"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="txt-b-bold bg-special-pink-600 border-special-pink-0 mt-1 flex h-10 items-center justify-center rounded-[20px] border-2 px-6 text-white shadow"
+        >
+          기관 관리 매뉴얼 보기
+        </Link>
+      </div>
       <div className="flex w-full items-center gap-4">
         <Users className="size-10 text-purple-700" />
         <span className="txt-t1 text-black">전체 평가 인원</span>
