@@ -8,6 +8,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import Link from 'next/link';
 import { InstitutionStartModal } from '@/components/modals/InstitutionStartModal';
 import { InquiryModal } from '@/components/modals/InquiryModal';
+import { PersonalCodeModal } from '@/components/modals/PersonalCodeModal';
 import { useRouter } from 'next/navigation';
 import { useLogin } from '@/hooks/useLogin';
 import {
@@ -31,6 +32,7 @@ export default function AssessmentPage() {
   const { mutate: login, isPending: isLoggingIn } = useLogin();
   const [institutionType, setInstitutionType] = useState<InstitutionType>(null);
   const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [personalCodeOpen, setPersonalCodeOpen] = useState(false);
 
   function handleConfirm(code: string, name: string) {
     if (!institutionType) return;
@@ -84,10 +86,9 @@ export default function AssessmentPage() {
                 <div className="flex items-center gap-2.5">
                   <UserRound className="text-special-dark-blue-500 size-7 lg:size-10" />
                   <Button
-                    render={<Link href="/assessment/general" />}
-                    nativeButton={false}
                     variant="navy"
                     className="w-[200px]"
+                    onClick={() => setPersonalCodeOpen(true)}
                   >
                     개인 검사 시작 →
                   </Button>
@@ -233,6 +234,7 @@ export default function AssessmentPage() {
         </div>
       </div>
 
+      <PersonalCodeModal open={personalCodeOpen} onClose={() => setPersonalCodeOpen(false)} />
       <InstitutionStartModal
         open={institutionType !== null}
         onClose={() => setInstitutionType(null)}
