@@ -55,7 +55,7 @@ function PersonalCodeModal({ open, onClose }: PersonalCodeModalProps) {
   }
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal open={open} onClose={handleClose} className="w-[340px] lg:w-[600px]">
       <ModalTitle>개인 AX 검사 코드 입력</ModalTitle>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -74,7 +74,7 @@ function PersonalCodeModal({ open, onClose }: PersonalCodeModalProps) {
         <button
           type="button"
           onClick={handleAddChannel}
-          className="relative h-[222px] w-[540px] cursor-pointer overflow-hidden rounded-[16px]"
+          className="relative h-[123px] w-[300px] cursor-pointer overflow-hidden rounded-[16px] lg:h-[222px] lg:w-[540px]"
         >
           <Image src="/images/assessment/img_free_cupon.png" alt="" fill className="object-cover" />
         </button>
