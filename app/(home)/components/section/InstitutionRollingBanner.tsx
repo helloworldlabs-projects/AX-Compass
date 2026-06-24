@@ -1,18 +1,19 @@
 'use client';
 
+import Image from 'next/image';
 import Section from '@/components/layout/Section';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-
-const INSTITUTIONS = [
-  { name: '이젠아카데미' },
-  { name: '솔트룩스' },
-  { name: '동대문구시설관리공단' },
-  { name: '시넥스' },
-  { name: '엘캠퍼스' },
-  { name: '이볼브' },
-];
+import { useInstitutions } from '@/hooks/useInstitutions';
 
 export function InstitutionRollingBanner() {
+  const { data, isLoading } = useInstitutions();
+
+  const CARD_WIDTH = 264; // 240px card + 24px gap
+  const MIN_FILL = Math.ceil(1920 / CARD_WIDTH) + 2;
+  const repeatCount = data.length > 0 ? Math.ceil(MIN_FILL / data.length) : 1;
+  const base = Array.from({ length: repeatCount }, () => data).flat();
+  const items = [...base, ...base];
+
   return (
     <Section>
       <SectionHeader
@@ -26,15 +27,32 @@ export function InstitutionRollingBanner() {
       />
       <div className="w-full overflow-hidden pb-1">
         <div className="animate-rolling-banner flex w-max gap-6">
-          {[...INSTITUTIONS, ...INSTITUTIONS].map((inst, i) => (
-            <div
-              key={i}
-              className="flex w-[240px] shrink-0 flex-col items-center justify-center gap-3 rounded-[12px] bg-white px-4 py-3 shadow"
-            >
-              <div className="h-[53px] w-[180px] bg-gray-200" />
-              <span className="txt-b-bold text-special-dark-blue-500">{inst.name}</span>
-            </div>
-          ))}
+          {isLoading || items.length === 0
+            ? Array.from({ length: 12 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex w-[240px] shrink-0 flex-col items-center justify-center gap-3 rounded-[12px] bg-white px-4 py-3 shadow"
+                >
+                  <div className="h-[53px] w-[180px] animate-pulse bg-gray-200" />
+                  <div className="h-5 w-24 animate-pulse rounded bg-gray-200" />
+                </div>
+              ))
+            : items.map((inst, i) => (
+                <div
+                  key={`${inst.institutionId}-${i}`}
+                  className="flex w-[240px] shrink-0 flex-col items-center justify-center gap-3 rounded-[12px] bg-white px-4 py-3 shadow"
+                >
+                  <div className="relative h-[53px] w-[180px]">
+                    <Image
+                      src={inst.logoUrl}
+                      alt={inst.institutionName}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <span className="txt-b-bold text-special-dark-blue-500">{inst.institutionName}</span>
+                </div>
+              ))}
         </div>
       </div>
     </Section>
