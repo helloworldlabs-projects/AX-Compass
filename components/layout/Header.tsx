@@ -28,8 +28,14 @@ export default function Header() {
 
           {/* 데스크톱 네비게이션 */}
           <nav className="hidden items-center gap-6 lg:flex">
+            <Link href="/assessment" className="flex items-center gap-1.5 text-white">
+              <span className="txt-b-bold">검사 시작</span>
+            </Link>
             <Link href="/about" className="flex items-center gap-1.5 text-white">
               <span className="txt-b-bold">검사 소개</span>
+            </Link>
+            <Link href="/pricing" className="flex items-center gap-1.5 text-white">
+              <span className="txt-b-bold">이용 요금</span>
             </Link>
             <ResultSearchButton />
             <InstitutionLoginButton />
@@ -49,8 +55,14 @@ export default function Header() {
         {isMenuOpen && (
           <nav className="border-t border-white/5 pt-[14.5px] lg:hidden">
             <div className="flex items-center justify-end gap-4">
+              <Link href="/assessment" className="flex items-center gap-1.5 text-white">
+                <span className="txt-b-bold">검사 시작</span>
+              </Link>
               <Link href="/about" className="flex items-center text-white">
                 <span className="txt-b-bold">검사 소개</span>
+              </Link>
+              <Link href="/pricing" className="flex items-center gap-1.5 text-white">
+                <span className="txt-b-bold">이용 요금</span>
               </Link>
               <ResultSearchButton />
             </div>

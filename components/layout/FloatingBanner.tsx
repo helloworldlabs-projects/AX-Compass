@@ -18,7 +18,7 @@ const BannerContent = ({ onClose }: { onClose: () => void }) => (
     <div className="flex flex-col gap-4 rounded-[12px] border border-purple-700 bg-black/20 px-5 py-4">
       <div className="flex flex-col gap-2">
         <div className="txt-st-bold text-white">
-          AX 역량 검사 <span className="text-special-pink-600">무료</span> 제공
+          AX 역량 검사 <span className="text-special-pink-600">무료</span> 지원
         </div>
         <p className="txt-c1-regular text-white">
           역량 검사 후 교육 컨설팅까지{' '}
@@ -111,7 +111,12 @@ export default function FloatingBanner() {
       <div ref={desktopRef} className="hidden pr-5 lg:flex">
         {isOpen ? (
           <div className="relative flex h-[500px] w-[360px] flex-col gap-3 overflow-hidden rounded-[20px] border-2 border-white p-4 shadow">
-            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover" />
+            <Image
+              src="/images/img_bg_sidebanner.png"
+              alt=""
+              fill
+              className="absolute inset-0 object-cover"
+            />
             <div className="relative z-10 flex justify-between">
               <div className="flex flex-col gap-1">
                 <div className="relative h-[20px] w-[90px]">
@@ -137,7 +142,12 @@ export default function FloatingBanner() {
             onClick={() => setIsOpen(true)}
             className="relative flex h-[500px] w-[60px] flex-col items-center gap-6 overflow-hidden rounded-[20px] border-2 border-white px-2.5 py-4 shadow"
           >
-            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover object-right-top" />
+            <Image
+              src="/images/img_bg_sidebanner.png"
+              alt=""
+              fill
+              className="absolute inset-0 object-cover object-right-top"
+            />
             <PanelRightOpen className="relative z-10 size-7 text-white" />
             <div className="border-special-dark-blue-700 txt-st2-bold relative z-10 flex h-[416px] w-[40px] flex-col items-center justify-center rounded-[12px] border bg-black/20 text-white">
               <span>최</span>
@@ -161,7 +171,12 @@ export default function FloatingBanner() {
       <div ref={mobileRef} className="flex w-full lg:hidden">
         {isOpen ? (
           <div className="relative flex w-full flex-col gap-3 overflow-hidden rounded-[20px] border-2 border-white p-4 shadow">
-            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover" />
+            <Image
+              src="/images/img_bg_sidebanner.png"
+              alt=""
+              fill
+              className="absolute inset-0 object-cover"
+            />
             <div className="relative z-10 flex justify-between">
               <div className="flex flex-col gap-1">
                 <div className="relative h-[16px] w-[70px]">
@@ -187,7 +202,12 @@ export default function FloatingBanner() {
             onClick={() => setIsOpen(true)}
             className="relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-[20px] border-2 border-white px-2.5 py-4 shadow"
           >
-            <Image src="/images/img_bg_sidebanner.png" alt="" fill className="absolute inset-0 object-cover object-right-top" />
+            <Image
+              src="/images/img_bg_sidebanner.png"
+              alt=""
+              fill
+              className="absolute inset-0 object-cover object-right-top"
+            />
             <span className="border-special-dark-blue-700 txt-st2-bold relative z-10 flex h-[40px] w-full items-center justify-center gap-1.5 rounded-[12px] border bg-black/20 text-white">
               최대 <span className="text-special-pink-600">95% 환급</span> AX 교육 확인
             </span>

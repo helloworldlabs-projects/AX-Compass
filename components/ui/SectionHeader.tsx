@@ -15,7 +15,7 @@ export function SectionHeader({ title, description, as = 'h2' }: SectionHeaderPr
     <div className="flex flex-col items-center gap-1.5 lg:gap-2.5">
       <Heading className={headingClass}>{title}</Heading>
       {description && (
-        <p className="text-shadow flex flex-col gap-1 text-center">
+        <p className="text-shadow flex flex-col gap-1 text-center whitespace-pre-line">
           {Array.isArray(description)
             ? description.map((line, i) => <span key={i}>{line}</span>)
             : description}

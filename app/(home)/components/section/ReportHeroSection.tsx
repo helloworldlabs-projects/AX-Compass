@@ -23,7 +23,7 @@ export function ReportHeroSection() {
             <div className="mx-auto flex w-[340px] shrink-0 flex-col gap-6 lg:w-[500px] lg:min-w-[500px]">
               <div className="text-shadow txt-h2 items-center text-white">
                 <span className="mr-1 bg-linear-to-b from-purple-200 to-[#533799] bg-clip-text text-transparent">
-                  무료 AX 역량 진단
+                  AX 역량 진단
                 </span>
                 <br className="block lg:hidden" />
                 부터 결과 분석까지
@@ -41,7 +41,7 @@ export function ReportHeroSection() {
                   className="h-[60px] w-[140px]"
                   onClick={() => setInquiryOpen(true)}
                 >
-                  무료 진단 문의 →
+                  AX 진단 문의 →
                 </Button>
                 <Button
                   render={<Link href="/assessment" />}
@@ -81,7 +81,7 @@ export function ReportHeroSection() {
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <div className="txt-b-bold text-special-dark-blue-200">Step 1</div>
-                <div className="txt-st2-bold break-keep text-white">무료 역량 진단</div>
+                <div className="txt-st2-bold break-keep text-white">AX 역량 진단</div>
                 <div className="txt-c1-regular break-keep text-white">
                   체계적인 AX 역량 검사를 통해
                   <br />
