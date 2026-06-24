@@ -1,0 +1,282 @@
+'use client';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FieldLabel } from '@/components/ui/Modal';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CODE_LENGTH = 6;
+// const TIMER_SECONDS = 5 * 60;
+const TIMER_SECONDS = 10;
+const MOCK_VERIFICATION_CODE = '111111';
+
+type FormErrors = {
+  email?: string;
+  verificationCode?: string;
+  password?: string;
+  confirmPassword?: string;
+};
+
+function formatTimer(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+export function ResetPasswordForm() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [codeRequested, setCodeRequested] = useState(false);
+  const [codeVerified, setCodeVerified] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (timerSeconds <= 0) return;
+    const id = setInterval(() => {
+      setTimerSeconds((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timerSeconds]);
+
+  const clearError = useCallback((key: keyof FormErrors) => {
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }, []);
+
+  const validateEmail = useCallback(() => {
+    if (!email.trim()) return '이메일을 입력해 주세요.';
+    if (!EMAIL_REGEX.test(email)) return '올바른 이메일 형식이 아닙니다.';
+    return undefined;
+  }, [email]);
+
+  const getConfirmPasswordError = useCallback((pwd: string, confirm: string) => {
+    if (!confirm) return undefined;
+    if (pwd !== confirm) return '비밀번호가 일치하지 않습니다.';
+    return undefined;
+  }, []);
+
+  const passwordsMatch =
+    password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
+
+  function handleRequestCode() {
+    const emailError = validateEmail();
+    if (emailError) {
+      setErrors({ email: emailError });
+      return;
+    }
+
+    setCodeRequested(true);
+    setCodeVerified(false);
+    setVerificationCode('');
+    setPassword('');
+    setConfirmPassword('');
+    setTimerSeconds(TIMER_SECONDS);
+    setErrors({});
+    toast.success('인증번호가 이메일로 전송되었습니다. (테스트: 111111)');
+  }
+
+  function verifyCode(code: string) {
+    if (code.length !== CODE_LENGTH || codeVerified) return;
+    if (timerSeconds <= 0) {
+      setErrors({
+        verificationCode: '인증번호가 만료되었습니다. 새 인증번호를 받아주세요.',
+      });
+      return;
+    }
+
+    if (code !== MOCK_VERIFICATION_CODE) {
+      setErrors({ verificationCode: '인증번호가 올바르지 않습니다. 다시 확인해 주세요.' });
+      setCodeVerified(false);
+      return;
+    }
+
+    setCodeVerified(true);
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.verificationCode;
+      return next;
+    });
+  }
+
+  function handleConfirm(e: React.FormEvent) {
+    e.preventDefault();
+    if (!codeVerified) return;
+
+    const nextErrors: FormErrors = {};
+    if (!password) {
+      nextErrors.password = '비밀번호를 입력해 주세요.';
+    } else if (password.length < 8) {
+      nextErrors.password = '비밀번호는 8자 이상이어야 합니다.';
+    }
+    if (!confirmPassword) {
+      nextErrors.confirmPassword = '비밀번호 확인을 입력해 주세요.';
+    } else {
+      const confirmError = getConfirmPasswordError(password, confirmPassword);
+      if (confirmError) nextErrors.confirmPassword = confirmError;
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    toast.success('비밀번호가 변경되었습니다. (테스트 모드)');
+    router.push('/');
+    setIsSubmitting(false);
+  }
+
+  return (
+    <div className="shadow-card mx-auto flex w-full max-w-[600px] flex-col gap-6 rounded-[20px] border bg-white px-6 py-[50px] lg:px-[50px]">
+      <div className="flex flex-col">
+        <h1 className="txt-t1">비밀번호 재설정</h1>
+        <p className="txt-b-regular">이메일 인증 후 비밀번호를 재설정해 주세요.</p>
+      </div>
+
+      <div className="bg-special-navy-100 h-px w-full" />
+
+      <form id="reset-password-form" onSubmit={handleConfirm} className="flex flex-col gap-[30px]">
+        <div className="flex flex-col gap-2.5 lg:gap-3">
+          <FieldLabel required>아이디(이메일)</FieldLabel>
+          <Input
+            type="email"
+            placeholder="이메일을 입력해 주세요."
+            value={email}
+            onChange={(v) => {
+              setEmail(v);
+              clearError('email');
+            }}
+            disabled={codeRequested || isSubmitting}
+            error={errors.email}
+          />
+        </div>
+
+        <Button
+          type="button"
+          variant={codeRequested ? 'gray' : 'purple'}
+          className="w-fit"
+          onClick={handleRequestCode}
+          disabled={isSubmitting || (codeRequested && timerSeconds > 0)}
+        >
+          인증번호 요청
+        </Button>
+
+        {codeRequested && (
+          <div className="flex flex-col gap-2.5 lg:gap-3">
+            <FieldLabel>인증번호 확인</FieldLabel>
+            <Input
+              type="text"
+              inputMode="numeric"
+              maxLength={CODE_LENGTH}
+              placeholder="인증번호 6자리"
+              value={verificationCode}
+              onChange={(v) => {
+                const digits = v.replace(/\D/g, '').slice(0, CODE_LENGTH);
+                setVerificationCode(digits);
+                clearError('verificationCode');
+                if (codeVerified) setCodeVerified(false);
+                if (digits.length === CODE_LENGTH) verifyCode(digits);
+              }}
+              disabled={codeVerified || isSubmitting || timerSeconds <= 0}
+              error={errors.verificationCode}
+              suffix={
+                timerSeconds > 0 && !codeVerified ? (
+                  <span className="txt-b-regular text-special-orange-500">
+                    {formatTimer(timerSeconds)}
+                  </span>
+                ) : undefined
+              }
+            />
+            {codeVerified && (
+              <p className="txt-c1-bold text-gray-700">인증번호가 확인 되었습니다.</p>
+            )}
+            {timerSeconds <= 0 && !codeVerified && (
+              <p className="txt-c1-bold text-red-500">
+                인증 시간이 만료되었습니다. 인증번호를 다시 요청해 주세요.
+              </p>
+            )}
+          </div>
+        )}
+
+        {codeVerified && (
+          <>
+            <div className="flex flex-col gap-2">
+              <FieldLabel required>비밀번호</FieldLabel>
+              <Input
+                type="password"
+                placeholder="비밀번호를 입력해 주세요."
+                value={password}
+                onChange={(v) => {
+                  setPassword(v);
+                  clearError('password');
+                  const confirmError = getConfirmPasswordError(v, confirmPassword);
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    if (confirmError) next.confirmPassword = confirmError;
+                    else delete next.confirmPassword;
+                    return next;
+                  });
+                }}
+                disabled={isSubmitting}
+                error={errors.password}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <FieldLabel required>비밀번호 확인</FieldLabel>
+              <Input
+                type="password"
+                placeholder="비밀번호를 다시 입력해 주세요."
+                value={confirmPassword}
+                onChange={(v) => {
+                  setConfirmPassword(v);
+                  const confirmError = getConfirmPasswordError(password, v);
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    if (confirmError) next.confirmPassword = confirmError;
+                    else delete next.confirmPassword;
+                    return next;
+                  });
+                }}
+                disabled={isSubmitting}
+                error={errors.confirmPassword}
+              />
+            </div>
+          </>
+        )}
+      </form>
+
+      <div className="h-px w-full bg-gray-100" />
+
+      <div className="flex justify-center gap-3">
+        <Button render={<Link href="/" />} variant="gray" className="w-fit">
+          메인으로
+        </Button>
+        {codeVerified && (
+          <Button
+            type="submit"
+            form="reset-password-form"
+            variant="purple"
+            disabled={isSubmitting || !passwordsMatch || password.length < 8}
+          >
+            {isSubmitting ? '변경 중...' : '비밀번호 변경'}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
