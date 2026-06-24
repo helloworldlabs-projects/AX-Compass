@@ -17,7 +17,10 @@ export function CuponSection() {
 
   return (
     <Section>
-      <div className="rounded-card relative h-[425px] w-[340px] overflow-hidden p-6 lg:h-[625px] lg:w-[500px] lg:p-[50px]">
+      <button
+        className="rounded-card relative flex h-[425px] w-[340px] cursor-pointer overflow-hidden p-6 lg:h-[625px] lg:w-[500px] lg:p-[50px]"
+        onClick={handleAddChannel}
+      >
         <Image src="/images/main/img_cupon.png" alt="" fill className="object-cover" />
         <div className="relative flex flex-col gap-3 lg:gap-6">
           <div className="flex w-fit items-center gap-2 rounded-[12px] bg-purple-700 px-4 py-1 text-white lg:px-6 lg:py-3">
@@ -30,10 +33,7 @@ export function CuponSection() {
             <span className="txt-t1 text-purple-500">무료 쿠폰</span> 받기
           </div>
         </div>
-        <button
-          onClick={handleAddChannel}
-          className="txt-st2-bold text-shadow absolute bottom-6 left-1/2 flex w-fit -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-[20px] bg-yellow-500 px-4 py-2 text-gray-900 transition-colors hover:bg-yellow-400"
-        >
+        <div className="txt-st2-bold text-shadow absolute bottom-6 left-1/2 flex w-fit -translate-x-1/2 items-center gap-1.5 rounded-[20px] bg-yellow-500 px-4 py-2 text-gray-900">
           <div className="relative h-[24px] w-[38px]">
             <Image
               src="/images/main/img_kakao_channel.png"
@@ -43,8 +43,8 @@ export function CuponSection() {
             />
           </div>
           채널 추가
-        </button>
-      </div>
+        </div>
+      </button>
     </Section>
   );
 }
