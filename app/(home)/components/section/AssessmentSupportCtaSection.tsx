@@ -14,7 +14,7 @@ export function AssessmentSupportCtaSection() {
       <InquiryModal open={isInquiryModalOpen} onClose={() => setIsInquiryModalOpen(false)} />
       <Section>
         <div className="flex w-full max-w-[1416px] flex-wrap gap-4">
-          <div className="rounded-card relative w-full max-w-[700px] min-w-[340px] flex-1 overflow-hidden rounded-[12px] p-6 lg:min-w-[500px] lg:gap-6 lg:px-[75px] lg:py-[50px]">
+          <div className="rounded-card relative min-w-[340px] flex-1 overflow-hidden rounded-[12px] p-6 lg:min-w-[500px] lg:gap-6 lg:px-[75px] lg:py-[50px]">
             <Image src="/images/main/img_cta_1.png" alt="" fill className="object-cover" />
             <div className="relative flex flex-col gap-6">
               <div className="flex w-fit items-center gap-2 rounded-[12px] bg-purple-700 px-4 py-1 text-white lg:px-6 lg:py-3">
@@ -37,7 +37,7 @@ export function AssessmentSupportCtaSection() {
               </div>
             </div>
           </div>
-          <div className="rounded-card relative max-w-[700px] min-w-[340px] flex-1 overflow-hidden rounded-[12px] p-6 lg:min-w-[500px] lg:gap-6 lg:px-[75px] lg:py-[50px]">
+          <div className="rounded-card relative min-w-[340px] flex-1 overflow-hidden rounded-[12px] p-6 lg:min-w-[500px] lg:gap-6 lg:px-[75px] lg:py-[50px]">
             <Image src="/images/main/img_cta_2.png" alt="" fill className="object-cover" />
             <div className="relative flex w-fit flex-col gap-2 text-center">
               <div className="relative mx-auto h-[28px] w-[180px]">
@@ -62,7 +62,7 @@ export function AssessmentSupportCtaSection() {
                   setIsInquiryModalOpen(true);
                 }}
               >
-                검사 비용 지원 안내 →
+                검사 비용 지원 문의 →
               </Button>
             </div>
           </div>
