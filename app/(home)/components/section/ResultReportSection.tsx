@@ -114,7 +114,7 @@ export function ResultReportSection() {
       />
 
       {/* 캐러셀 컨테이너 */}
-      <div className="relative isolate h-[520px] w-full overflow-hidden">
+      <div className="relative isolate h-[460px] w-full overflow-hidden lg:h-[520px]">
         {/* 카드들 */}
         {IMAGES.map((src, index) => {
           const offset = getOffset(index, active);
@@ -145,15 +145,16 @@ export function ResultReportSection() {
                   : undefined
               }
             >
-              <Image
-                src={src}
-                alt={`AX Compass 결과 리포트 예시 ${index + 1}`}
-                width={300}
-                height={424}
-                className="rounded-[12px] object-cover shadow"
-                draggable={false}
-                priority={isActive}
-              />
+              <div className="relative h-[424px] w-[300px] overflow-hidden rounded-[12px] shadow">
+                <Image
+                  src={src}
+                  alt={`AX Compass 결과 리포트 예시 ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  draggable={false}
+                  priority={isActive}
+                />
+              </div>
             </div>
           );
         })}
@@ -162,7 +163,7 @@ export function ResultReportSection() {
         <button
           onClick={handleArrowPrev}
           className="absolute top-1/2 z-[51] flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow transition-opacity duration-200 hover:opacity-80"
-          style={{ left: 'calc(50% - 190px)' }}
+          style={{ left: 'max(8px, calc(50% - 190px))' }}
           aria-label="이전 리포트 이미지"
         >
           <ChevronLeft className="h-5 w-5 text-gray-700" />
@@ -172,7 +173,7 @@ export function ResultReportSection() {
         <button
           onClick={handleArrowNext}
           className="absolute top-1/2 z-[51] flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow transition-opacity duration-200 hover:opacity-80"
-          style={{ right: 'calc(50% - 190px)' }}
+          style={{ right: 'max(8px, calc(50% - 190px))' }}
           aria-label="다음 리포트 이미지"
         >
           <ChevronRight className="h-5 w-5 text-gray-700" />
