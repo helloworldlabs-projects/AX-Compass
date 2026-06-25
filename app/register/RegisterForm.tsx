@@ -8,13 +8,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FieldLabel } from '@/components/ui/Modal';
 import { cn } from '@/lib/utils';
@@ -162,7 +156,10 @@ export function RegisterForm() {
 
   // ── 로고 미리보기 URL ──
   useEffect(() => {
-    if (!logoFile) { setLogoPreviewUrl(null); return; }
+    if (!logoFile) {
+      setLogoPreviewUrl(null);
+      return;
+    }
     const url = URL.createObjectURL(logoFile);
     setLogoPreviewUrl(url);
     return () => URL.revokeObjectURL(url);
@@ -491,25 +488,17 @@ export function RegisterForm() {
               {/* 업태 */}
               <div className="flex flex-col gap-2.5 lg:gap-3">
                 <FieldLabel required>업태</FieldLabel>
-                <Select
+                <SearchableSelect
                   value={businessType}
                   onValueChange={(v) => {
-                    if (v) setBusinessType(v);
+                    setBusinessType(v);
                     clearStep1Error('businessType');
                   }}
+                  options={businessTypesData?.sectors ?? []}
+                  placeholder="업태를 검색해 주세요."
                   disabled={isBusinessTypesLoading}
-                >
-                  <SelectTrigger variant="field" aria-label="업태 선택">
-                    <SelectValue placeholder="업태를 검색해 주세요." />
-                  </SelectTrigger>
-                  <SelectContent variant="field" alignItemWithTrigger={false}>
-                    {(businessTypesData?.sectors ?? []).map((sector) => (
-                      <SelectItem key={sector.id} value={sector.name} variant="field">
-                        {sector.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  aria-label="업태 선택"
+                />
                 {step1Errors.businessType && (
                   <p className="txt-c1-bold text-red-500">{step1Errors.businessType}</p>
                 )}
@@ -518,25 +507,17 @@ export function RegisterForm() {
               {/* 업종 */}
               <div className="flex flex-col gap-2.5 lg:gap-3">
                 <FieldLabel required>업종</FieldLabel>
-                <Select
+                <SearchableSelect
                   value={businessCategory}
                   onValueChange={(v) => {
-                    if (v) setBusinessCategory(v);
+                    setBusinessCategory(v);
                     clearStep1Error('businessCategory');
                   }}
+                  options={businessTypesData?.categories ?? []}
+                  placeholder="업종을 검색해 주세요."
                   disabled={isBusinessTypesLoading}
-                >
-                  <SelectTrigger variant="field" aria-label="업종 선택">
-                    <SelectValue placeholder="업종을 검색해 주세요." />
-                  </SelectTrigger>
-                  <SelectContent variant="field" alignItemWithTrigger={false}>
-                    {(businessTypesData?.categories ?? []).map((category) => (
-                      <SelectItem key={category.id} value={category.name} variant="field">
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  aria-label="업종 선택"
+                />
                 {step1Errors.businessCategory && (
                   <p className="txt-c1-bold text-red-500">{step1Errors.businessCategory}</p>
                 )}
