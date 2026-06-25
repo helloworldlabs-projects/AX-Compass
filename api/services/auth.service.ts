@@ -16,6 +16,7 @@ import {
   LoginResponseDTO,
   RegisterRequestDTO,
   SendEmailVerificationRequestDTO,
+  SignupCompanyRequestDTO,
 } from '@/types/auth';
 import { apiFetch } from '../client';
 
@@ -96,5 +97,12 @@ export const authService = {
       body: JSON.stringify(body),
     });
     return mapEmailVerificationToken(dto);
+  },
+
+  signupCompany: async (body: SignupCompanyRequestDTO): Promise<void> => {
+    await apiFetch<void>('/auth/signup/company', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
   },
 };

@@ -112,3 +112,27 @@ export interface ConfirmEmailVerificationResponseDTO {
 export interface EmailVerificationToken {
   verifiedToken: string;
 }
+
+// ─── Company Signup ───────────────────────────────────────────────────────────
+
+// DTO — 백엔드 raw
+export interface SignupCompanyRequestDTO {
+  name: string;
+  englishName: string;
+  businessNumber: string;
+  businessSectorId: number;
+  businessCategoryId: number;
+  address: string;
+  addressDetail: string;
+  representativeName: string;
+  contactPhone: string;
+  logoUrl: string;
+  originalLogoFileName: string;
+  adminEmail: string;
+  adminName: string;
+  adminPassword: string;
+  adminDepartment: string;
+  adminPosition: string;
+  verifiedToken: string;
+  operatingInstitutionEnglishName: string;
+}
