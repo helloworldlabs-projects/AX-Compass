@@ -119,6 +119,15 @@ export function RegisterForm() {
 
   // ── 공통 상태 ──
   const [step, setStep] = useState<1 | 2>(1);
+  const isFirstStepRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstStepRender.current) {
+      isFirstStepRender.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0 });
+  }, [step]);
 
   // ── Step 1 상태 ──
   const [institutionName, setInstitutionName] = useState('');
