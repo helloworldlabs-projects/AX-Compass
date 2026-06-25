@@ -21,7 +21,7 @@ export const authService = {
   },
 
   loginAdmin: async (body: LoginAdminRequestDTO): Promise<AdminAuthToken> => {
-    const response = await apiFetch<LoginAdminResponseDTO>('/auth/login/admin', {
+    const response = await apiFetch<LoginAdminResponseDTO>('/auth/login/admin/code', {
       method: 'POST',
       body: JSON.stringify(body),
     });
