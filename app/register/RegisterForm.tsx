@@ -138,6 +138,7 @@ export function RegisterForm() {
   const [businessType, setBusinessType] = useState('');
   const [businessCategory, setBusinessCategory] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [step1Errors, setStep1Errors] = useState<Step1Errors>({});
 
   // ── Step 2 상태 ──
@@ -161,6 +162,14 @@ export function RegisterForm() {
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ── 로고 미리보기 URL ──
+  useEffect(() => {
+    if (!logoFile) { setLogoPreviewUrl(null); return; }
+    const url = URL.createObjectURL(logoFile);
+    setLogoPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [logoFile]);
 
   // ── 타이머 ──
   useEffect(() => {
@@ -561,11 +570,11 @@ export function RegisterForm() {
                     aria-label="로고 파일 선택"
                     onChange={handleLogoChange}
                   />
-                  {logoFile ? (
+                  {logoPreviewUrl ? (
                     <div>
                       <Image
-                        src={URL.createObjectURL(logoFile)}
-                        alt={logoFile.name}
+                        src={logoPreviewUrl}
+                        alt={logoFile?.name ?? ''}
                         width={180}
                         height={60}
                         className="object-contain"
