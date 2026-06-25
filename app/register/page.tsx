@@ -2,13 +2,13 @@ import { Suspense } from 'react';
 
 import Container from '@/components/layout/Container';
 
-import { RegisterForm } from './RegisterForm';
+import RegisterPageClient from './RegisterPageClient';
 
 export default function RegisterPage() {
   return (
     <Container>
       <Suspense>
-        <RegisterForm />
+        <RegisterPageClient />
       </Suspense>
     </Container>
   );

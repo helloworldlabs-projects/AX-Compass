@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronUp, FileUp } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,7 +22,6 @@ import { cn } from '@/lib/utils';
 import { useBusinessTypes } from '@/hooks/useBusinessTypes';
 import { authService } from '@/api/services/auth.service';
 import { fileService } from '@/api/services/file.service';
-import { RegisterCompleteView } from './_components/RegisterCompleteView';
 import Image from 'next/image';
 import { ApiError } from '@/types/common';
 
@@ -110,9 +109,7 @@ function StepTab({ step, label, active }: StepTabProps) {
 
 export function RegisterForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isComplete = searchParams.has('complete');
 
   // ── 비즈니스 타입 데이터 ──
   const { data: businessTypesData, isLoading: isBusinessTypesLoading } = useBusinessTypes();
@@ -393,10 +390,6 @@ export function RegisterForm() {
   }
 
   // ─── 렌더 ────────────────────────────────────────────────────────────────────
-
-  if (isComplete) {
-    return <RegisterCompleteView />;
-  }
 
   return (
     <div className="mx-auto flex w-full max-w-[600px] flex-col gap-6">
