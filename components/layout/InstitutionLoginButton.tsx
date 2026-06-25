@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Building } from 'lucide-react';
+import { Building, LogOut } from 'lucide-react';
 import { AdminLoginModal, type LoginCredentials } from '../modals/AdminLoginModal';
 import { useState, useSyncExternalStore } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLoginAdmin } from '@/hooks/useLoginAdmin';
 
 function subscribeToStorage(callback: () => void) {
@@ -23,7 +24,14 @@ export default function InstitutionLoginButton() {
   );
 
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
   const { mutate: loginAdmin } = useLoginAdmin();
+
+  function handleLogout() {
+    localStorage.removeItem('axcompass:adminToken');
+    queryClient.clear();
+    window.dispatchEvent(new Event('axcompass:tokenChanged'));
+  }
 
   const handleConfirm = (credentials: LoginCredentials) => {
     if (credentials.type === 'code') {
@@ -40,10 +48,20 @@ export default function InstitutionLoginButton() {
 
   if (token) {
     return (
-      <Link href="/institution" className="flex items-center gap-1.5 text-white">
-        <Building className="size-5" />
-        <span className="txt-b-bold">기관 관리</span>
-      </Link>
+      <div className="flex items-center gap-4">
+        <Link href="/institution" className="flex items-center gap-1.5 text-white">
+          <Building className="size-5" />
+          <span className="txt-b-bold">기관 관리</span>
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="flex cursor-pointer items-center gap-1.5 text-white"
+          aria-label="로그아웃"
+        >
+          <LogOut className="size-5" />
+          <span className="txt-b-bold">로그아웃</span>
+        </button>
+      </div>
     );
   }
 
