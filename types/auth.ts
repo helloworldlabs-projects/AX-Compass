@@ -113,6 +113,27 @@ export interface EmailVerificationToken {
   verifiedToken: string;
 }
 
+// ─── Password Reset ───────────────────────────────────────────────────────────
+
+// DTO — 백엔드 raw
+export interface PasswordResetRequestDTO {
+  email: string;
+}
+
+export interface PasswordResetVerifyRequestDTO {
+  email: string;
+  otpCode: string;
+}
+
+export interface PasswordResetVerifyResponseDTO {
+  resetToken: string;
+}
+
+// Domain Model — UI 소비용
+export interface PasswordResetToken {
+  resetToken: string;
+}
+
 // ─── Company Signup ───────────────────────────────────────────────────────────
 
 // DTO — 백엔드 raw

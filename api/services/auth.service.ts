@@ -14,6 +14,10 @@ import {
   LoginAdminResponseDTO,
   LoginRequestDTO,
   LoginResponseDTO,
+  PasswordResetRequestDTO,
+  PasswordResetToken,
+  PasswordResetVerifyRequestDTO,
+  PasswordResetVerifyResponseDTO,
   RegisterRequestDTO,
   SendEmailVerificationRequestDTO,
   SignupCompanyRequestDTO,
@@ -22,6 +26,10 @@ import { apiFetch } from '../client';
 
 const mapEmailVerificationToken = (dto: ConfirmEmailVerificationResponseDTO): EmailVerificationToken => ({
   verifiedToken: dto.verifiedToken,
+});
+
+const mapPasswordResetToken = (dto: PasswordResetVerifyResponseDTO): PasswordResetToken => ({
+  resetToken: dto.resetToken,
 });
 
 const toAdminAuthToken = (dto: LoginAdminResponseDTO): AdminAuthToken => ({
@@ -104,5 +112,20 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify(body),
     });
+  },
+
+  requestPasswordReset: async (body: PasswordResetRequestDTO): Promise<void> => {
+    await apiFetch<void>('/auth/password-reset/request', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  verifyPasswordResetOtp: async (body: PasswordResetVerifyRequestDTO): Promise<PasswordResetToken> => {
+    const dto = await apiFetch<PasswordResetVerifyResponseDTO>('/auth/password-reset/verify', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    return mapPasswordResetToken(dto);
   },
 };
