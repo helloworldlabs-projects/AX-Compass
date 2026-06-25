@@ -9,6 +9,7 @@ import { authService } from '@/api/services/auth.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/ui/Modal';
+import { ApiError } from '@/types/common';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CODE_LENGTH = 6;
@@ -110,7 +111,7 @@ export function ResetPasswordForm() {
       setErrors({});
       toast.success(AUTH_MESSAGES.codeSent);
     } catch (error) {
-      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      const message = error instanceof ApiError ? error.detail : '오류가 발생했습니다.';
       toast.error(message);
     } finally {
       setIsSendingCode(false);
@@ -136,7 +137,7 @@ export function ResetPasswordForm() {
         return next;
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      const message = error instanceof ApiError ? error.detail : '오류가 발생했습니다.';
       setErrors({ verificationCode: AUTH_MESSAGES.codeMismatch });
       setCodeVerified(false);
       toast.error(message);
@@ -181,7 +182,7 @@ export function ResetPasswordForm() {
       toast.success('비밀번호가 변경되었습니다.');
       router.push('/');
     } catch (error) {
-      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      const message = error instanceof ApiError ? error.detail : '오류가 발생했습니다.';
       toast.error(message);
     } finally {
       setIsSubmitting(false);
