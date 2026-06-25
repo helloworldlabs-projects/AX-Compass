@@ -44,7 +44,7 @@ const ONBOARDING_STEPS = [
 const TEST_TYPES = [
   {
     icon: Users,
-    color: 'special-dark-blue-700',
+    colorClass: 'text-special-dark-blue-700',
     bg: 'bg-special-dark-blue-0',
     border: 'border-special-dark-blue-100',
     title: '구성원 검사',
@@ -54,7 +54,7 @@ const TEST_TYPES = [
   },
   {
     icon: UserStar,
-    color: 'purple-700',
+    colorClass: 'text-purple-700',
     bg: 'bg-purple-0',
     border: 'border-special-navy-100',
     title: '임원진 검사',
@@ -151,17 +151,17 @@ export function RegisterCompleteView() {
           <div className="txt-st2-bold">검사 유형 한 눈에 보기</div>
           <div className="flex w-full flex-wrap justify-center gap-6">
             {TEST_TYPES.map(
-              ({ icon: Icon, color, bg, border, title, description, target, purpose }) => (
+              ({ icon: Icon, colorClass, bg, border, title, description, target, purpose }) => (
                 <div
                   key={title}
                   className="rounded-card border-special-dark-blue-100 flex max-w-[400px] min-w-[298px] flex-1 flex-col overflow-hidden border bg-white lg:max-w-none lg:min-w-[400px]"
                 >
                   <div className={`flex items-center gap-6 p-6 ${bg}`}>
                     <div className="flex size-[50px] shrink-0 items-center justify-center rounded-full bg-white shadow lg:size-[75px]">
-                      <Icon className={`size-8 lg:size-10 text-${color}`} />
+                      <Icon className={`size-8 lg:size-10 ${colorClass}`} />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <div className={`txt-st2-bold text-${color}`}>{title}</div>
+                      <div className={`txt-st2-bold ${colorClass}`}>{title}</div>
                       <p className="txt-b-regular">{description}</p>
                     </div>
                   </div>
