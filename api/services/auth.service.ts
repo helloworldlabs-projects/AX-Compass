@@ -14,6 +14,7 @@ import {
   LoginAdminResponseDTO,
   LoginRequestDTO,
   LoginResponseDTO,
+  PasswordResetConfirmRequestDTO,
   PasswordResetRequestDTO,
   PasswordResetToken,
   PasswordResetVerifyRequestDTO,
@@ -127,5 +128,12 @@ export const authService = {
       body: JSON.stringify(body),
     });
     return mapPasswordResetToken(dto);
+  },
+
+  confirmPasswordReset: async (body: PasswordResetConfirmRequestDTO): Promise<void> => {
+    await apiFetch<void>('/auth/password-reset/confirm', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
   },
 };

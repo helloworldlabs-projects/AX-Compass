@@ -134,6 +134,11 @@ export interface PasswordResetToken {
   resetToken: string;
 }
 
+export interface PasswordResetConfirmRequestDTO {
+  resetToken: string;
+  newPassword: string;
+}
+
 // ─── Company Signup ───────────────────────────────────────────────────────────
 
 // DTO — 백엔드 raw
