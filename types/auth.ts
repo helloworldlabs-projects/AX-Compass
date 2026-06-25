@@ -80,3 +80,14 @@ export interface BusinessTypes {
   sectors: BusinessSector[];
   categories: BusinessCategory[];
 }
+
+// ─── Business Number Check ────────────────────────────────────────────────────
+
+// DTO — 백엔드 raw
+export interface CheckBusinessNumberRequestDTO {
+  businessNumber: string;
+}
+
+export interface CheckBusinessNumberResponseDTO {
+  exists: boolean;
+}

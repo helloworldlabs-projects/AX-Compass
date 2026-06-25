@@ -3,6 +3,8 @@ import {
   AdminEmailAuthToken,
   BusinessTypes,
   BusinessTypesResponseDto,
+  CheckBusinessNumberRequestDTO,
+  CheckBusinessNumberResponseDTO,
   LoginAdminEmailRequestDTO,
   LoginAdminEmailResponseDTO,
   LoginAdminRequestDTO,
@@ -60,5 +62,16 @@ export const authService = {
   getBusinessTypes: async (): Promise<BusinessTypes> => {
     const dto = await apiFetch<BusinessTypesResponseDto>('/auth/signup/company/business-types');
     return mapBusinessTypes(dto);
+  },
+
+  checkBusinessNumber: async (body: CheckBusinessNumberRequestDTO): Promise<boolean> => {
+    const dto = await apiFetch<CheckBusinessNumberResponseDTO>(
+      '/auth/signup/company/business-number/check',
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+      },
+    );
+    return dto.exists;
   },
 };
