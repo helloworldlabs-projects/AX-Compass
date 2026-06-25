@@ -5,15 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+import { authService } from '@/api/services/auth.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/ui/Modal';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CODE_LENGTH = 6;
-// const TIMER_SECONDS = 5 * 60;
-const TIMER_SECONDS = 10;
-const MOCK_VERIFICATION_CODE = '111111';
+const TIMER_SECONDS = 5 * 60;
 
 const AUTH_MESSAGES = {
   emailRequired: '이메일을 입력해 주세요.',
@@ -23,7 +22,7 @@ const AUTH_MESSAGES = {
   codeExpired: '인증 시간이 만료되었습니다. 인증번호를 다시 요청해 주세요.',
   codeMismatch: '인증번호가 일치하지 않습니다. 다시 입력해 주세요.',
   codeVerified: '이메일 인증이 완료되었습니다.',
-  codeSent: '인증번호를 이메일로 보냈습니다. (테스트: 111111)',
+  codeSent: '인증번호를 이메일로 보냈습니다.',
   submitAuthRequired: '비밀번호 변경을 위해 이메일 인증을 먼저 완료해 주세요.',
 } as const;
 
@@ -51,9 +50,12 @@ export function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [codeRequested, setCodeRequested] = useState(false);
   const [codeVerified, setCodeVerified] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
 
   useEffect(() => {
     if (timerSeconds <= 0) return;
@@ -87,7 +89,7 @@ export function ResetPasswordForm() {
   const passwordsMatch =
     password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
 
-  function handleRequestCode() {
+  async function handleRequestCode() {
     const emailError = validateEmail();
     if (emailError) {
       setErrors({ email: emailError });
@@ -95,17 +97,27 @@ export function ResetPasswordForm() {
       return;
     }
 
-    setCodeRequested(true);
-    setCodeVerified(false);
-    setVerificationCode('');
-    setPassword('');
-    setConfirmPassword('');
-    setTimerSeconds(TIMER_SECONDS);
-    setErrors({});
-    toast.success(AUTH_MESSAGES.codeSent);
+    setIsSendingCode(true);
+    try {
+      await authService.requestPasswordReset({ email });
+      setCodeRequested(true);
+      setCodeVerified(false);
+      setResetToken(null);
+      setVerificationCode('');
+      setPassword('');
+      setConfirmPassword('');
+      setTimerSeconds(TIMER_SECONDS);
+      setErrors({});
+      toast.success(AUTH_MESSAGES.codeSent);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      toast.error(message);
+    } finally {
+      setIsSendingCode(false);
+    }
   }
 
-  function verifyCode(code: string) {
+  async function verifyCode(code: string) {
     if (code.length !== CODE_LENGTH || codeVerified) return;
     if (timerSeconds <= 0) {
       setErrors({ verificationCode: AUTH_MESSAGES.codeExpired });
@@ -113,22 +125,27 @@ export function ResetPasswordForm() {
       return;
     }
 
-    if (code !== MOCK_VERIFICATION_CODE) {
+    setIsVerifyingCode(true);
+    try {
+      const result = await authService.verifyPasswordResetOtp({ email, otpCode: code });
+      setResetToken(result.resetToken);
+      setCodeVerified(true);
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.verificationCode;
+        return next;
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
       setErrors({ verificationCode: AUTH_MESSAGES.codeMismatch });
       setCodeVerified(false);
-      toast.error(AUTH_MESSAGES.codeMismatch);
-      return;
+      toast.error(message);
+    } finally {
+      setIsVerifyingCode(false);
     }
-
-    setCodeVerified(true);
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next.verificationCode;
-      return next;
-    });
   }
 
-  function handleConfirm(e: React.FormEvent) {
+  async function handleConfirm(e: React.FormEvent) {
     e.preventDefault();
     if (!codeVerified) {
       const message = !codeRequested
@@ -159,9 +176,16 @@ export function ResetPasswordForm() {
     }
 
     setIsSubmitting(true);
-    toast.success('비밀번호가 변경되었습니다. (테스트 모드)');
-    router.push('/');
-    setIsSubmitting(false);
+    try {
+      await authService.confirmPasswordReset({ resetToken: resetToken!, newPassword: password });
+      toast.success('비밀번호가 변경되었습니다.');
+      router.push('/');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -184,7 +208,7 @@ export function ResetPasswordForm() {
               setEmail(v);
               clearError('email');
             }}
-            disabled={codeRequested || isSubmitting}
+            disabled={codeVerified || (codeRequested && timerSeconds > 0) || isSubmitting}
             error={errors.email}
           />
         </div>
@@ -194,7 +218,7 @@ export function ResetPasswordForm() {
           variant={codeRequested ? 'gray' : 'purple'}
           className="w-fit"
           onClick={handleRequestCode}
-          disabled={isSubmitting || (codeRequested && timerSeconds > 0)}
+          disabled={isSendingCode || codeVerified || isSubmitting}
         >
           인증번호 요청
         </Button>
@@ -215,7 +239,7 @@ export function ResetPasswordForm() {
                 if (codeVerified) setCodeVerified(false);
                 if (digits.length === CODE_LENGTH) verifyCode(digits);
               }}
-              disabled={codeVerified || isSubmitting || timerSeconds <= 0}
+              disabled={codeVerified || isSubmitting || isVerifyingCode || timerSeconds <= 0}
               error={errors.verificationCode}
               suffix={
                 timerSeconds > 0 && !codeVerified ? (
