@@ -24,6 +24,7 @@ import { authService } from '@/api/services/auth.service';
 import { fileService } from '@/api/services/file.service';
 import { RegisterCompleteView } from './_components/RegisterCompleteView';
 import Image from 'next/image';
+import { ApiError } from '@/types/common';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
@@ -250,7 +251,7 @@ export function RegisterForm() {
         return next;
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      const message = error instanceof ApiError ? error.detail : '오류가 발생했습니다.';
       toast.error(message);
     } finally {
       setIsSendingCode(false);
@@ -354,6 +355,9 @@ export function RegisterForm() {
         verifiedToken: verifiedToken!,
         operatingInstitutionEnglishName,
       });
+
+      const { token } = await authService.loginAdminByEmail({ email, rawPassword: password });
+      localStorage.setItem('axcompass:adminToken', token);
 
       router.replace('/register?complete');
     } catch (error) {
@@ -599,7 +603,7 @@ export function RegisterForm() {
                     setEmail(v);
                     clearStep2Error('email');
                   }}
-                  disabled={codeRequested && timerSeconds > 0}
+                  disabled={codeVerified || (codeRequested && timerSeconds > 0)}
                   error={step2Errors.email}
                 />
               </div>
@@ -607,10 +611,10 @@ export function RegisterForm() {
               {/* 인증번호 요청 버튼 */}
               <Button
                 type="button"
-                variant={codeRequested && timerSeconds > 0 ? 'gray' : 'purple'}
+                variant={codeVerified || (codeRequested && timerSeconds > 0) ? 'gray' : 'purple'}
                 className="w-fit"
                 onClick={handleRequestCode}
-                disabled={isSendingCode}
+                disabled={isSendingCode || codeVerified}
               >
                 {isSendingCode ? '발송 중...' : '인증번호 요청'}
               </Button>
