@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronUp, Upload } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,6 +18,8 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { FieldLabel } from '@/components/ui/Modal';
 import { cn } from '@/lib/utils';
+
+import { RegisterCompleteView } from './_components/RegisterCompleteView';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
@@ -131,10 +133,12 @@ function StepTab({ step, label, active }: StepTabProps) {
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isComplete = searchParams.has('complete');
 
   // ── 공통 상태 ──
-  const [step, setStep] = useState<1 | 2>(2);
+  const [step, setStep] = useState<1 | 2>(1);
 
   // ── Step 1 상태 ──
   const [institutionName, setInstitutionName] = useState('');
@@ -301,10 +305,14 @@ export function RegisterForm() {
       return;
     }
 
-    router.push('/');
+    router.replace('/register?complete');
   }
 
   // ─── 렌더 ────────────────────────────────────────────────────────────────────
+
+  if (isComplete) {
+    return <RegisterCompleteView />;
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-[600px] flex-col gap-6">
