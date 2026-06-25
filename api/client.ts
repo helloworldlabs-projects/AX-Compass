@@ -14,10 +14,11 @@ export const apiFetch = async <T>(
   },
 ): Promise<T> => {
   const { tokenKey, ...fetchOptions } = options ?? {};
+  const isFormData = fetchOptions.body instanceof FormData;
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
     ...fetchOptions,
     headers: {
-      'Content-Type': 'application/json',
+      ...(!isFormData && { 'Content-Type': 'application/json' }),
       ...getAuthHeader(tokenKey),
       ...fetchOptions.headers,
     },
@@ -51,10 +52,11 @@ export const apiFetchPaginated = async <T, P>(
   options?: ApiFetchOptions,
 ): Promise<{ data: T; pagination: P }> => {
   const { tokenKey, ...fetchOptions } = options ?? {};
+  const isFormData = fetchOptions.body instanceof FormData;
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
     ...fetchOptions,
     headers: {
-      'Content-Type': 'application/json',
+      ...(!isFormData && { 'Content-Type': 'application/json' }),
       ...getAuthHeader(tokenKey),
       ...fetchOptions.headers,
     },

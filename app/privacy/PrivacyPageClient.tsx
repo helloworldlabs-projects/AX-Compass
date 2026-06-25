@@ -36,7 +36,10 @@ export default function PrivacyPageClient({ versions, currentVersion }: Props) {
           modal={false}
           value={selectedKey}
           onValueChange={(v) => {
-            if (v) setSelectedKey(v);
+            if (v) {
+              setSelectedKey(v);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
           }}
         >
           <SelectTrigger

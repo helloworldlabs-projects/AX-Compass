@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal, ModalBody, ModalFooter, ModalTitle } from '@/components/ui/Modal';
+import { useAdminEmailLogin } from '@/hooks/useAdminEmailLogin';
 
 type LoginTab = 'account' | 'code';
 
@@ -20,8 +21,7 @@ interface AdminLoginModalProps {
 }
 
 function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
-  // const [activeTab, setActiveTab] = useState<LoginTab>('account');
-  const [activeTab, setActiveTab] = useState<LoginTab>('code');
+  const [activeTab, setActiveTab] = useState<LoginTab>('account');
 
   const [email, setEmail] = useState('');
   const [accountPassword, setAccountPassword] = useState('');
@@ -29,11 +29,23 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
   const [code, setCode] = useState('');
   const [codePassword, setCodePassword] = useState('');
 
+  const [accountError, setAccountError] = useState<string | null>(null);
+
+  const adminEmailLogin = useAdminEmailLogin({
+    onSuccess: () => {
+      handleClose();
+    },
+    onError: (message) => {
+      setAccountError(message);
+    },
+  });
+
   function reset() {
     setEmail('');
     setAccountPassword('');
     setCode('');
     setCodePassword('');
+    setAccountError(null);
   }
 
   function handleTabChange(tab: LoginTab) {
@@ -43,19 +55,21 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
 
   function handleClose() {
     reset();
-    // setActiveTab('account');
-    setActiveTab('code');
+    setActiveTab('account');
     onClose();
   }
 
   function handleConfirm(e: React.FormEvent) {
     e.preventDefault();
     if (activeTab === 'account') {
-      onConfirm({ type: 'account', email, password: accountPassword });
+      setAccountError(null);
+      adminEmailLogin.mutate({ email, rawPassword: accountPassword });
     } else {
       onConfirm({ type: 'code', code, password: codePassword });
     }
   }
+
+  const isAccountLoading = adminEmailLogin.isPending;
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -67,13 +81,13 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
       </div>
 
       <div className="flex items-center justify-center gap-6">
-        {/* <Button
+        <Button
           variant={activeTab === 'account' ? 'dark-blue' : 'gray'}
           onClick={() => handleTabChange('account')}
           aria-pressed={activeTab === 'account'}
         >
           운영자 계정 로그인
-        </Button> */}
+        </Button>
         <Button
           variant={activeTab === 'code' ? 'dark-blue' : 'gray'}
           onClick={() => handleTabChange('code')}
@@ -107,6 +121,10 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
                     onChange={setAccountPassword}
                   />
                 </div>
+
+                {accountError !== null && (
+                  <p className="txt-c1-bold text-red-500">{accountError}</p>
+                )}
               </div>
 
               <div className="mt-6 flex flex-col gap-4">
@@ -114,6 +132,7 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
                   <span className="txt-c1-regular">비밀번호를 잊으셨나요?</span>
                   <Link
                     href="/reset-password"
+                    onClick={handleClose}
                     className="txt-c1-bold text-special-dark-blue-500 underline"
                   >
                     재설정하기
@@ -124,6 +143,7 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
                   <span className="txt-c1-regular">운영자 계정이 없으신가요?</span>
                   <Link
                     href="/register"
+                    onClick={handleClose}
                     className="txt-c1-bold text-special-dark-blue-500 underline"
                   >
                     기관·운영자 등록하기
@@ -160,11 +180,11 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
         )}
 
         <ModalFooter>
-          <Button type="button" variant="gray" onClick={handleClose}>
+          <Button type="button" variant="gray" onClick={handleClose} disabled={isAccountLoading}>
             닫기
           </Button>
-          <Button type="submit" variant="purple">
-            로그인
+          <Button type="submit" variant="purple" disabled={isAccountLoading}>
+            {isAccountLoading ? '로그인 중...' : '로그인'}
           </Button>
         </ModalFooter>
       </form>
