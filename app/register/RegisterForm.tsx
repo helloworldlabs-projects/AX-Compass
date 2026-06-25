@@ -379,6 +379,7 @@ export function RegisterForm() {
 
       const { token } = await authService.loginAdminByEmail({ email, rawPassword: password });
       localStorage.setItem('axcompass:adminToken', token);
+      window.dispatchEvent(new Event('axcompass:tokenChanged'));
 
       router.replace('/register?complete');
     } catch (error) {
