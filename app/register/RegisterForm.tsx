@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronUp, Upload } from 'lucide-react';
+import { ChevronUp, FileUp, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -20,14 +20,16 @@ import { FieldLabel } from '@/components/ui/Modal';
 import { cn } from '@/lib/utils';
 
 import { useBusinessTypes } from '@/hooks/useBusinessTypes';
+import { authService } from '@/api/services/auth.service';
+import { fileService } from '@/api/services/file.service';
 import { RegisterCompleteView } from './_components/RegisterCompleteView';
+import Image from 'next/image';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
 const TIMER_SECONDS = 5 * 60;
 const CODE_LENGTH = 6;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MOCK_VERIFICATION_CODE = '123456';
 
 const AUTH_MESSAGES = {
   emailRequired: '이메일을 입력해 주세요.',
@@ -41,7 +43,6 @@ const AUTH_MESSAGES = {
 } as const;
 
 const FORM_VALIDATION_TOAST = '입력한 정보를 확인해 주세요.';
-
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
 
@@ -143,6 +144,13 @@ export function RegisterForm() {
   const [codeVerified, setCodeVerified] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [step2Errors, setStep2Errors] = useState<Step2Errors>({});
+  const [verifiedToken, setVerifiedToken] = useState<string | null>(null);
+
+  // ── 로딩 상태 ──
+  const [isCheckingBizNum, setIsCheckingBizNum] = useState(false);
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ── 타이머 ──
   useEffect(() => {
@@ -168,7 +176,7 @@ export function RegisterForm() {
     if (file) clearStep1Error('logo');
   }
 
-  function handleStep1Next() {
+  async function handleStep1Next() {
     const errors: Step1Errors = {};
     if (!institutionName.trim()) errors.institutionName = '기관명을 입력해 주세요.';
     if (!institutionNameEn.trim()) errors.institutionNameEn = '기관 영문명을 입력해 주세요.';
@@ -184,7 +192,24 @@ export function RegisterForm() {
       return;
     }
 
-    setStep(2);
+    setIsCheckingBizNum(true);
+    try {
+      const exists = await authService.checkBusinessNumber({ businessNumber });
+      if (exists) {
+        setStep1Errors((prev) => ({
+          ...prev,
+          businessNumber: '이미 등록된 사업자 등록번호입니다.',
+        }));
+        toast.error(FORM_VALIDATION_TOAST);
+        return;
+      }
+      setStep(2);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      toast.error(message);
+    } finally {
+      setIsCheckingBizNum(false);
+    }
   }
 
   // ─── Step 2 핸들러 ──────────────────────────────────────────────────────────
@@ -198,7 +223,7 @@ export function RegisterForm() {
     });
   }
 
-  function handleRequestCode() {
+  async function handleRequestCode() {
     if (!email.trim()) {
       setStep2Errors((prev) => ({ ...prev, email: AUTH_MESSAGES.emailRequired }));
       toast.error(FORM_VALIDATION_TOAST);
@@ -209,39 +234,57 @@ export function RegisterForm() {
       toast.error(FORM_VALIDATION_TOAST);
       return;
     }
-    setCodeRequested(true);
-    setCodeVerified(false);
-    setVerificationCode('');
-    setTimerSeconds(TIMER_SECONDS);
-    setStep2Errors((prev) => {
-      const next = { ...prev };
-      delete next.email;
-      delete next.verificationCode;
-      return next;
-    });
+
+    setIsSendingCode(true);
+    try {
+      await authService.sendEmailVerification({ email });
+      setCodeRequested(true);
+      setCodeVerified(false);
+      setVerifiedToken(null);
+      setVerificationCode('');
+      setTimerSeconds(TIMER_SECONDS);
+      setStep2Errors((prev) => {
+        const next = { ...prev };
+        delete next.email;
+        delete next.verificationCode;
+        return next;
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      toast.error(message);
+    } finally {
+      setIsSendingCode(false);
+    }
   }
 
-  function verifyCode(code: string) {
+  async function verifyCode(code: string) {
     if (code.length !== CODE_LENGTH || codeVerified) return;
     if (timerSeconds <= 0) {
       setStep2Errors((prev) => ({ ...prev, verificationCode: AUTH_MESSAGES.codeExpired }));
       toast.error(AUTH_MESSAGES.codeExpired);
       return;
     }
-    if (code !== MOCK_VERIFICATION_CODE) {
+
+    setIsVerifyingCode(true);
+    try {
+      const result = await authService.confirmEmailVerification({ email, otpCode: code });
+      setVerifiedToken(result.verifiedToken);
+      setCodeVerified(true);
+      setStep2Errors((prev) => {
+        const next = { ...prev };
+        delete next.verificationCode;
+        return next;
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : AUTH_MESSAGES.codeMismatch;
       setStep2Errors((prev) => ({ ...prev, verificationCode: AUTH_MESSAGES.codeMismatch }));
-      toast.error(AUTH_MESSAGES.codeMismatch);
-      return;
+      toast.error(message);
+    } finally {
+      setIsVerifyingCode(false);
     }
-    setCodeVerified(true);
-    setStep2Errors((prev) => {
-      const next = { ...prev };
-      delete next.verificationCode;
-      return next;
-    });
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     const errors: Step2Errors = {};
@@ -283,7 +326,42 @@ export function RegisterForm() {
       return;
     }
 
-    router.replace('/register?complete');
+    setIsSubmitting(true);
+    try {
+      const { fileName, publicUrl } = await fileService.uploadFile(logoFile!);
+
+      const operatingInstitutionEnglishName =
+        window.location.hostname.split('.')[1] ?? 'helloworldlabs';
+
+      await authService.signupCompany({
+        name: institutionName,
+        englishName: institutionNameEn,
+        businessNumber,
+        businessSectorId: businessTypesData?.sectors.find((s) => s.name === businessType)?.id ?? 0,
+        businessCategoryId:
+          businessTypesData?.categories.find((c) => c.name === businessCategory)?.id ?? 0,
+        address: '',
+        addressDetail: '',
+        representativeName,
+        contactPhone: phoneNumber,
+        logoUrl: publicUrl,
+        originalLogoFileName: fileName,
+        adminEmail: email,
+        adminName: operatorName,
+        adminPassword: password,
+        adminDepartment: department,
+        adminPosition: position,
+        verifiedToken: verifiedToken!,
+        operatingInstitutionEnglishName,
+      });
+
+      router.replace('/register?complete');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '오류가 발생했습니다.';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   // ─── 렌더 ────────────────────────────────────────────────────────────────────
@@ -453,8 +531,8 @@ export function RegisterForm() {
                     className="w-fit"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Upload className="size-4" aria-hidden />
                     파일 업로드
+                    <FileUp className="size-6" aria-hidden />
                   </Button>
                   <input
                     ref={fileInputRef}
@@ -465,7 +543,15 @@ export function RegisterForm() {
                     onChange={handleLogoChange}
                   />
                   {logoFile ? (
-                    <p className="txt-c1-regular text-gray-700">{logoFile.name}</p>
+                    <div>
+                      <Image
+                        src={URL.createObjectURL(logoFile)}
+                        alt={logoFile.name}
+                        width={180}
+                        height={60}
+                        className="object-contain"
+                      />
+                    </div>
                   ) : (
                     <p className="txt-c1-regular text-gray-700">
                       PNG 또는 JPG 파일을 업로드해주세요.
@@ -486,8 +572,13 @@ export function RegisterForm() {
               <Button render={<Link href="/" />} variant="gray">
                 메인으로
               </Button>
-              <Button type="button" variant="purple" onClick={handleStep1Next}>
-                운영자 정보 입력
+              <Button
+                type="button"
+                variant="purple"
+                onClick={handleStep1Next}
+                disabled={isCheckingBizNum}
+              >
+                {isCheckingBizNum ? '확인 중...' : '운영자 정보 입력'}
               </Button>
             </div>
           </>
@@ -519,8 +610,9 @@ export function RegisterForm() {
                 variant={codeRequested && timerSeconds > 0 ? 'gray' : 'purple'}
                 className="w-fit"
                 onClick={handleRequestCode}
+                disabled={isSendingCode}
               >
-                인증번호 요청
+                {isSendingCode ? '발송 중...' : '인증번호 요청'}
               </Button>
               {step2Errors.verificationCode && !codeRequested && (
                 <p role="alert" className="txt-c1-bold -mt-4 text-red-500">
@@ -545,7 +637,7 @@ export function RegisterForm() {
                       if (codeVerified) setCodeVerified(false);
                       if (digits.length === CODE_LENGTH) verifyCode(digits);
                     }}
-                    disabled={codeVerified || timerSeconds <= 0}
+                    disabled={codeVerified || timerSeconds <= 0 || isVerifyingCode}
                     error={step2Errors.verificationCode}
                     suffix={
                       timerSeconds > 0 && !codeVerified ? (
@@ -761,8 +853,8 @@ export function RegisterForm() {
               <Button render={<Link href="/" />} variant="gray">
                 메인으로
               </Button>
-              <Button type="submit" form="register-form" variant="purple">
-                회원가입 완료
+              <Button type="submit" form="register-form" variant="purple" disabled={isSubmitting}>
+                {isSubmitting ? '처리 중...' : '회원가입 완료'}
               </Button>
             </div>
           </>
