@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal, ModalBody, ModalFooter, ModalTitle } from '@/components/ui/Modal';
+import { useAdminEmailLogin } from '@/hooks/useAdminEmailLogin';
 
 type LoginTab = 'account' | 'code';
 
@@ -28,11 +29,23 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
   const [code, setCode] = useState('');
   const [codePassword, setCodePassword] = useState('');
 
+  const [accountError, setAccountError] = useState<string | null>(null);
+
+  const adminEmailLogin = useAdminEmailLogin({
+    onSuccess: () => {
+      handleClose();
+    },
+    onError: (message) => {
+      setAccountError(message);
+    },
+  });
+
   function reset() {
     setEmail('');
     setAccountPassword('');
     setCode('');
     setCodePassword('');
+    setAccountError(null);
   }
 
   function handleTabChange(tab: LoginTab) {
@@ -49,11 +62,14 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
   function handleConfirm(e: React.FormEvent) {
     e.preventDefault();
     if (activeTab === 'account') {
-      onConfirm({ type: 'account', email, password: accountPassword });
+      setAccountError(null);
+      adminEmailLogin.mutate({ email, rawPassword: accountPassword });
     } else {
       onConfirm({ type: 'code', code, password: codePassword });
     }
   }
+
+  const isAccountLoading = adminEmailLogin.isPending;
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -105,6 +121,10 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
                     onChange={setAccountPassword}
                   />
                 </div>
+
+                {accountError !== null && (
+                  <p className="txt-c1-bold text-red-500">{accountError}</p>
+                )}
               </div>
 
               <div className="mt-6 flex flex-col gap-4">
@@ -160,11 +180,11 @@ function AdminLoginModal({ open, onClose, onConfirm }: AdminLoginModalProps) {
         )}
 
         <ModalFooter>
-          <Button type="button" variant="gray" onClick={handleClose}>
+          <Button type="button" variant="gray" onClick={handleClose} disabled={isAccountLoading}>
             닫기
           </Button>
-          <Button type="submit" variant="purple">
-            로그인
+          <Button type="submit" variant="purple" disabled={isAccountLoading}>
+            {isAccountLoading ? '로그인 중...' : '로그인'}
           </Button>
         </ModalFooter>
       </form>

@@ -29,7 +29,20 @@ export interface LoginResponseDTO {
   token: string;
 }
 
+export interface LoginAdminEmailRequestDTO {
+  email: string;
+  rawPassword: string;
+}
+
+export interface LoginAdminEmailResponseDTO {
+  token: string;
+}
+
 // Domain Model — UI 소비용
 export interface AdminAuthToken {
+  token: string;
+}
+
+export interface AdminEmailAuthToken {
   token: string;
 }

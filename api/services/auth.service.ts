@@ -1,5 +1,8 @@
 import {
   AdminAuthToken,
+  AdminEmailAuthToken,
+  LoginAdminEmailRequestDTO,
+  LoginAdminEmailResponseDTO,
   LoginAdminRequestDTO,
   LoginAdminResponseDTO,
   LoginRequestDTO,
@@ -9,6 +12,10 @@ import {
 import { apiFetch } from '../client';
 
 const toAdminAuthToken = (dto: LoginAdminResponseDTO): AdminAuthToken => ({
+  token: dto.token,
+});
+
+const toAdminEmailAuthToken = (dto: LoginAdminEmailResponseDTO): AdminEmailAuthToken => ({
   token: dto.token,
 });
 
@@ -26,6 +33,14 @@ export const authService = {
       body: JSON.stringify(body),
     });
     return toAdminAuthToken(response);
+  },
+
+  loginAdminByEmail: async (body: LoginAdminEmailRequestDTO): Promise<AdminEmailAuthToken> => {
+    const response = await apiFetch<LoginAdminEmailResponseDTO>('/auth/login/admin/email', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    return toAdminEmailAuthToken(response);
   },
 
   login: async (body: LoginRequestDTO): Promise<LoginResponseDTO> => {
