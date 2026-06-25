@@ -91,3 +91,24 @@ export interface CheckBusinessNumberRequestDTO {
 export interface CheckBusinessNumberResponseDTO {
   exists: boolean;
 }
+
+// ─── Email Verification ───────────────────────────────────────────────────────
+
+// DTO — 백엔드 raw
+export interface SendEmailVerificationRequestDTO {
+  email: string;
+}
+
+export interface ConfirmEmailVerificationRequestDTO {
+  email: string;
+  otpCode: string;
+}
+
+export interface ConfirmEmailVerificationResponseDTO {
+  verifiedToken: string;
+}
+
+// Domain Model — UI 소비용
+export interface EmailVerificationToken {
+  verifiedToken: string;
+}

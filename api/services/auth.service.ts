@@ -5,6 +5,9 @@ import {
   BusinessTypesResponseDto,
   CheckBusinessNumberRequestDTO,
   CheckBusinessNumberResponseDTO,
+  ConfirmEmailVerificationRequestDTO,
+  ConfirmEmailVerificationResponseDTO,
+  EmailVerificationToken,
   LoginAdminEmailRequestDTO,
   LoginAdminEmailResponseDTO,
   LoginAdminRequestDTO,
@@ -12,8 +15,13 @@ import {
   LoginRequestDTO,
   LoginResponseDTO,
   RegisterRequestDTO,
+  SendEmailVerificationRequestDTO,
 } from '@/types/auth';
 import { apiFetch } from '../client';
+
+const mapEmailVerificationToken = (dto: ConfirmEmailVerificationResponseDTO): EmailVerificationToken => ({
+  verifiedToken: dto.verifiedToken,
+});
 
 const toAdminAuthToken = (dto: LoginAdminResponseDTO): AdminAuthToken => ({
   token: dto.token,
@@ -73,5 +81,20 @@ export const authService = {
       },
     );
     return dto.exists;
+  },
+
+  sendEmailVerification: async (body: SendEmailVerificationRequestDTO): Promise<void> => {
+    await apiFetch<void>('/auth/email-verification/send', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  confirmEmailVerification: async (body: ConfirmEmailVerificationRequestDTO): Promise<EmailVerificationToken> => {
+    const dto = await apiFetch<ConfirmEmailVerificationResponseDTO>('/auth/email-verification/confirm', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    return mapEmailVerificationToken(dto);
   },
 };
