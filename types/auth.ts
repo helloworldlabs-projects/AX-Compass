@@ -46,3 +46,37 @@ export interface AdminAuthToken {
 export interface AdminEmailAuthToken {
   token: string;
 }
+
+// ─── Business Types ──────────────────────────────────────────────────────────
+
+// DTO — 백엔드 raw
+export interface BusinessSectorDto {
+  id: number;
+  name: string;
+}
+
+export interface BusinessCategoryDto {
+  id: number;
+  name: string;
+}
+
+export interface BusinessTypesResponseDto {
+  sectors: BusinessSectorDto[];
+  categories: BusinessCategoryDto[];
+}
+
+// Domain Model — UI 소비용
+export interface BusinessSector {
+  id: number;
+  name: string;
+}
+
+export interface BusinessCategory {
+  id: number;
+  name: string;
+}
+
+export interface BusinessTypes {
+  sectors: BusinessSector[];
+  categories: BusinessCategory[];
+}

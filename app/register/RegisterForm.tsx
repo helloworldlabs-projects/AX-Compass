@@ -19,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { FieldLabel } from '@/components/ui/Modal';
 import { cn } from '@/lib/utils';
 
+import { useBusinessTypes } from '@/hooks/useBusinessTypes';
 import { RegisterCompleteView } from './_components/RegisterCompleteView';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
@@ -41,32 +42,6 @@ const AUTH_MESSAGES = {
 
 const FORM_VALIDATION_TOAST = '입력한 정보를 확인해 주세요.';
 
-const BUSINESS_TYPE_OPTIONS = [
-  '제조',
-  '서비스',
-  '도소매',
-  '건설',
-  '금융/보험',
-  'IT/소프트웨어',
-  '교육',
-  '의료/보건',
-  '운수',
-  '부동산',
-  '기타',
-];
-
-const BUSINESS_CATEGORY_OPTIONS = [
-  '소프트웨어 개발',
-  '경영 컨설팅',
-  '광고/마케팅',
-  '식품',
-  '의류',
-  '운수/물류',
-  '부동산 중개',
-  '의료 서비스',
-  '교육 서비스',
-  '기타',
-];
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
 
@@ -136,6 +111,9 @@ export function RegisterForm() {
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isComplete = searchParams.has('complete');
+
+  // ── 비즈니스 타입 데이터 ──
+  const { data: businessTypesData, isLoading: isBusinessTypesLoading } = useBusinessTypes();
 
   // ── 공통 상태 ──
   const [step, setStep] = useState<1 | 2>(1);
@@ -418,14 +396,15 @@ export function RegisterForm() {
                     if (v) setBusinessType(v);
                     clearStep1Error('businessType');
                   }}
+                  disabled={isBusinessTypesLoading}
                 >
                   <SelectTrigger variant="field" aria-label="업태 선택">
                     <SelectValue placeholder="업태를 검색해 주세요." />
                   </SelectTrigger>
                   <SelectContent variant="field" alignItemWithTrigger={false}>
-                    {BUSINESS_TYPE_OPTIONS.map((opt) => (
-                      <SelectItem key={opt} value={opt} variant="field">
-                        {opt}
+                    {(businessTypesData?.sectors ?? []).map((sector) => (
+                      <SelectItem key={sector.id} value={sector.name} variant="field">
+                        {sector.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -444,14 +423,15 @@ export function RegisterForm() {
                     if (v) setBusinessCategory(v);
                     clearStep1Error('businessCategory');
                   }}
+                  disabled={isBusinessTypesLoading}
                 >
                   <SelectTrigger variant="field" aria-label="업종 선택">
                     <SelectValue placeholder="업종을 검색해 주세요." />
                   </SelectTrigger>
                   <SelectContent variant="field" alignItemWithTrigger={false}>
-                    {BUSINESS_CATEGORY_OPTIONS.map((opt) => (
-                      <SelectItem key={opt} value={opt} variant="field">
-                        {opt}
+                    {(businessTypesData?.categories ?? []).map((category) => (
+                      <SelectItem key={category.id} value={category.name} variant="field">
+                        {category.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

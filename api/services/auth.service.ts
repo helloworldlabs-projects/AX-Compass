@@ -1,6 +1,8 @@
 import {
   AdminAuthToken,
   AdminEmailAuthToken,
+  BusinessTypes,
+  BusinessTypesResponseDto,
   LoginAdminEmailRequestDTO,
   LoginAdminEmailResponseDTO,
   LoginAdminRequestDTO,
@@ -13,6 +15,11 @@ import { apiFetch } from '../client';
 
 const toAdminAuthToken = (dto: LoginAdminResponseDTO): AdminAuthToken => ({
   token: dto.token,
+});
+
+const mapBusinessTypes = (dto: BusinessTypesResponseDto): BusinessTypes => ({
+  sectors: dto.sectors.map(({ id, name }) => ({ id, name })),
+  categories: dto.categories.map(({ id, name }) => ({ id, name })),
 });
 
 const toAdminEmailAuthToken = (dto: LoginAdminEmailResponseDTO): AdminEmailAuthToken => ({
@@ -48,5 +55,10 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify(body),
     });
+  },
+
+  getBusinessTypes: async (): Promise<BusinessTypes> => {
+    const dto = await apiFetch<BusinessTypesResponseDto>('/auth/signup/company/business-types');
+    return mapBusinessTypes(dto);
   },
 };
