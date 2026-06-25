@@ -49,8 +49,8 @@ export function AssessmentSupportCtaSection() {
                 />
               </div>
               <div className="text-gray-100">
-                <div className="txt-b-bold">정상가(1인)</div>
-                <div className="txt-st-regular line-through">27,900원</div>
+                <div className="txt-c1-regular">정상가(1인) 27,900원</div>
+                <div className="txt-st-bold line-through decoration-purple-500">2,790,000원</div>
               </div>
               <div className="relative mx-auto h-[73px] w-[94px] lg:h-[104px] lg:w-[134px]">
                 <Image src="/images/main/img_cta_price.png" alt="" fill className="object-cover" />
