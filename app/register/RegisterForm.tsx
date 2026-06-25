@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronUp, FileUp, Upload } from 'lucide-react';
+import { ChevronUp, FileUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -173,6 +173,12 @@ export function RegisterForm() {
 
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
+
+    if (file && file.size > 1 * 1024 * 1024) {
+      toast.error('파일 크기는 1MB를 초과할 수 없습니다.');
+      return;
+    }
+
     setLogoFile(file);
     if (file) clearStep1Error('logo');
   }
@@ -277,7 +283,7 @@ export function RegisterForm() {
         return next;
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : AUTH_MESSAGES.codeMismatch;
+      const message = error instanceof ApiError ? error.detail : AUTH_MESSAGES.codeMismatch;
       setStep2Errors((prev) => ({ ...prev, verificationCode: AUTH_MESSAGES.codeMismatch }));
       toast.error(message);
     } finally {
