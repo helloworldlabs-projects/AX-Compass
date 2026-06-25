@@ -435,7 +435,8 @@ export function RegisterForm() {
                   placeholder="영문 소문자로 공백 없이 입력해 주세요."
                   value={institutionNameEn}
                   onChange={(v) => {
-                    setInstitutionNameEn(v);
+                    const en = v.replace(/[^a-zA-Z0-9\-_]/g, '');
+                    setInstitutionNameEn(en);
                     clearStep1Error('institutionNameEn');
                   }}
                   error={step1Errors.institutionNameEn}
