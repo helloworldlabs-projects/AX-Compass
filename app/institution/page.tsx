@@ -125,6 +125,7 @@ export default function InstitutionPage() {
               executiveCount={fullStats.totalCounts.executiveCount}
               memberExamCount={fullStats.totalCounts.memberExamCount}
               memberCount={fullStats.totalCounts.memberCount}
+              status="COMPLETED"
             />
           )}
         {fullStats && fullStats.departments.length > 1 && (
