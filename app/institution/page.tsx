@@ -119,7 +119,13 @@ export default function InstitutionPage() {
         {fullStats &&
           fullStats?.totalCounts.executiveExamCount > 0 &&
           fullStats?.totalCounts.memberExamCount > 2 && (
-            <ReportRequestCard institutionName={fullStats.institutionName} />
+            <ReportRequestCard
+              institutionName={fullStats.institutionName}
+              executiveExamCount={fullStats.totalCounts.executiveExamCount}
+              executiveCount={fullStats.totalCounts.executiveCount}
+              memberExamCount={fullStats.totalCounts.memberExamCount}
+              memberCount={fullStats.totalCounts.memberCount}
+            />
           )}
         {fullStats && fullStats.departments.length > 1 && (
           <div
