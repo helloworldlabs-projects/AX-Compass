@@ -3,11 +3,8 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { Geist } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import Footer from '@/components/layout/Footer';
-import Header from '@/components/layout/Header';
 import { Providers } from './providers';
 import Script from 'next/script';
-import { Floating } from '@/components/layout/Floating';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
@@ -93,13 +90,8 @@ export default function RootLayout({
     >
       <body className={`${pretendard.className} txt-b-regular flex min-h-screen flex-col`}>
         <Providers>
-          <Header />
-          <main className="bg-special-dark-blue-900 h-auto flex-1 lg:px-[100px] print:bg-transparent print:px-0">
-            {children}
-          </main>
+          {children}
         </Providers>
-        <Floating />
-        <Footer />
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
           strategy="afterInteractive"
