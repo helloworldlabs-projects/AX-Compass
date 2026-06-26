@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import SectionNav from '@/components/layout/SectionNav';
 import type { SectionNavGroup } from '@/components/layout/SectionNav';
 import { InstitutionPlanCard } from './_components/InstitutionPlanCard';
+import { ReportRequestCard } from './_components/ReportRequestCard';
 
 const MATURITY_ITEMS = [
   { label: 'AX 성숙도 등급', targetId: 'maturity-grade' },
@@ -115,6 +116,11 @@ export default function InstitutionPage() {
       <Container>
         <InstitutionPlanCard />
         <InstitutionHeaderSection stats={stats} />
+        {fullStats &&
+          fullStats?.totalCounts.executiveExamCount > 0 &&
+          fullStats?.totalCounts.memberExamCount > 2 && (
+            <ReportRequestCard institutionName={fullStats.institutionName} />
+          )}
         {fullStats && fullStats.departments.length > 1 && (
           <div
             data-print-hidden
