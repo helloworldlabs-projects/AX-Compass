@@ -20,11 +20,7 @@ export type AxExecCompetencyCode =
   | 'EXEC_DATA_SYSTEM'
   | 'EXEC_STRATEGY';
 
-export type AxMemberCompetencyCode =
-  | 'UNDERSTAND'
-  | 'USE_AND_APPLY'
-  | 'EVALUATE'
-  | 'RESPONSIBLE';
+export type AxMemberCompetencyCode = 'UNDERSTAND' | 'USE_AND_APPLY' | 'EVALUATE' | 'RESPONSIBLE';
 
 export interface AxReportAnalysisInsight {
   title: string;
@@ -210,3 +206,7 @@ export interface AxReportDetail {
   completedAt: string | null;
   analysis: AxReportAnalysis;
 }
+
+export type AxReportStatusResponse = {
+  status: 'NOT_STARTED' | 'DRAFT' | 'COMPLETED';
+};

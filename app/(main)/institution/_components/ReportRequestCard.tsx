@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { CircleCheck, ClipboardCheck, Clock3 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { axReportKeys } from '@/api/keys/axReport.keys';
+import { axReportService } from '@/api/services/axReport.service';
 import { Button } from '@/components/ui/button';
 import { ReportRequestConfirmModal } from './ReportRequestConfirmModal';
-
-type ReportStatus = 'NOT_STARTED' | 'REQUESTED' | 'COMPLETED';
 
 const REPORT_STATUS_CONFIG = {
   NOT_STARTED: {
@@ -20,7 +21,7 @@ const REPORT_STATUS_CONFIG = {
     buttonVariant: 'purple' as const,
     buttonDisabled: false,
   },
-  REQUESTED: {
+  DRAFT: {
     icon: Clock3,
     iconClass: 'text-purple-700',
     titleClass: 'text-purple-700',
@@ -28,7 +29,7 @@ const REPORT_STATUS_CONFIG = {
     description: '신청하신 데이터를 기준으로 리포트를 작성하고 있습니다. 2~3일 정도 소요됩니다.',
     buttonLabel: '리포트 처리 중',
     buttonVariant: 'purple600' as const,
-    buttonDisabled: false,
+    buttonDisabled: true,
   },
   COMPLETED: {
     icon: ClipboardCheck,
@@ -48,7 +49,6 @@ interface Props {
   executiveCount: number;
   memberExamCount: number;
   memberCount: number;
-  status: ReportStatus;
 }
 
 export function ReportRequestCard({
@@ -57,11 +57,16 @@ export function ReportRequestCard({
   executiveCount,
   memberExamCount,
   memberCount,
-  status,
 }: Props) {
   const [isRequesting, setIsRequesting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const { data: statusData, isLoading: isStatusLoading } = useQuery({
+    queryKey: axReportKeys.status(),
+    queryFn: axReportService.getReportStatus,
+  });
+
+  const status = statusData?.status ?? 'NOT_STARTED';
   const config = REPORT_STATUS_CONFIG[status];
   const Icon = config.icon;
 
@@ -104,7 +109,7 @@ export function ReportRequestCard({
           variant={config.buttonVariant}
           className="h-[60px] w-[140px]"
           onClick={handleButtonClick}
-          disabled={config.buttonDisabled || isRequesting}
+          disabled={config.buttonDisabled || isRequesting || isStatusLoading}
         >
           {config.buttonLabel}
         </Button>
