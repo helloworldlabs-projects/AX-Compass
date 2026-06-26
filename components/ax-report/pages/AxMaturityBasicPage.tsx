@@ -131,19 +131,19 @@ function MaturityCard({ label, level }: MaturityCardProps) {
         <div className="txt-c2-bold text-purple-700">[권장 역량 등급]</div>
         <div className="flex items-center gap-1">
           <div className="flex flex-1 flex-col items-center gap-0.5 rounded-[8px] border border-red-300 bg-red-500 py-1 text-white">
-            <div className="text-[8px]">이해</div>
+            <div className="text-[8px] leading-[140%]">이해</div>
             <div className="txt-c2-bold">{grades.understanding}</div>
           </div>
           <div className="border-special-blue-300 bg-special-blue-500 flex flex-1 flex-col items-center gap-0.5 rounded-[8px] border py-1 text-white">
-            <div className="text-[8px]">활용</div>
+            <div className="text-[8px] leading-[140%]">활용</div>
             <div className="txt-c2-bold">{grades.utilization}</div>
           </div>
           <div className="flex flex-1 flex-col items-center gap-0.5 rounded-[8px] border border-purple-300 bg-purple-700 py-1 text-white">
-            <div className="text-[8px]">평가·개선</div>
+            <div className="text-[8px] leading-[140%]">평가·개선</div>
             <div className="txt-c2-bold">{grades.evaluation}</div>
           </div>
           <div className="flex flex-1 flex-col items-center gap-0.5 rounded-[8px] border border-gray-300 bg-gray-700 py-1 text-white">
-            <div className="text-[8px]">책임·거버넌스</div>
+            <div className="text-[8px] leading-[140%]">책임·거버넌스</div>
             <div className="txt-c2-bold">{grades.governance}</div>
           </div>
         </div>

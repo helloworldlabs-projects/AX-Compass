@@ -458,8 +458,15 @@ body {
 }
 
 @media print {
+  /* 일반 인쇄(기관·결과 페이지) */
   @page {
     margin: 5mm;
+  }
+
+  /* AX 리포트 인쇄 — A4 풀블리드 */
+  @page report-page {
+    size: A4 portrait;
+    margin: 0;
   }
 
   * {
@@ -475,6 +482,7 @@ body {
 
   body {
     background: white !important;
+    min-width: 0 !important;
   }
 
   main {
@@ -509,23 +517,8 @@ body {
     break-inside: auto !important;
     page-break-inside: auto !important;
   }
-}
 
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 0;
-  }
-
-  html {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  body {
-    min-width: 0 !important;
-  }
-
+  /* AX 리포트 */
   .report-print-container {
     width: 210mm !important;
     max-width: none !important;
@@ -535,6 +528,7 @@ body {
   }
 
   .report-print-page {
+    page: report-page;
     width: 210mm !important;
     height: 297mm !important;
     overflow: hidden;

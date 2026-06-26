@@ -32,7 +32,7 @@ export function AxReportPageLayout({
         </div>
       </div>
       {children}
-      <p className="border-special-navy-500 mt-auto border-t pt-1 text-[8px] text-gray-400">
+      <p className="border-special-navy-500 mt-auto border-t pt-1 text-[8px] leading-[140%] text-gray-400">
         Copyright 2026. HelloworldLabs Inc.
       </p>
       {isLastPage && (

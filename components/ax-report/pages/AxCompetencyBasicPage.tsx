@@ -146,7 +146,7 @@ export function AxCompetencyBasicPage({ data }: AxCompetencyBasicPageProps) {
               );
             })}
           </div>
-          <div className="text-[8px] text-gray-500">
+          <div className="text-[8px] leading-[140%] text-gray-500">
             ※ Gap = 목표 수준 - 현재 수준 (값이 클수록 개선 필요도가 높음)
           </div>
         </div>

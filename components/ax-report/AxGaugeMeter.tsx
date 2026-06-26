@@ -94,7 +94,7 @@ export function AxGaugeMeter({
 
         {/* Target value badge */}
         <div
-          className="bg-special-dark-blue-100 absolute rounded-full px-1 py-0.5 text-[8px] font-bold text-gray-700"
+          className="bg-special-dark-blue-100 absolute rounded-full px-1 py-0.5 text-[8px] leading-[140%] font-bold text-gray-700"
           style={{ top: 12, right: 2 }}
         >
           목표: {target.toFixed(0)}

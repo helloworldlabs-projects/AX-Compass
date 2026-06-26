@@ -110,13 +110,13 @@ export function AxDetailCompetencyPage({ data }: AxDetailCompetencyPageProps) {
               >
                 <div className="flex items-center justify-between">
                   <div className="txt-c2-bold">{COMPETENCY_LABELS[code]}</div>
-                  <div className="text-[8px]">
+                  <div className="text-[8px] leading-[140%]">
                     평균: <span className="font-bold">{avg.toFixed(0)}</span>
                   </div>
                 </div>
                 {tags.map((tag) => (
                   <div key={tag.tagCode} className="flex flex-col gap-1 py-[3px]">
-                    <div className="text-[8px] font-bold">
+                    <div className="text-[8px] leading-[140%] font-bold">
                       {tag.tagCode.toUpperCase()}. {tag.tagName}
                     </div>
                     <div className="flex items-center justify-between gap-1">
@@ -126,7 +126,7 @@ export function AxDetailCompetencyPage({ data }: AxDetailCompetencyPageProps) {
                           style={{ width: `${tag.score}%` }}
                         />
                       </div>
-                      <div className="shrink-0 text-[8px] font-bold">
+                      <div className="shrink-0 text-[8px] leading-[140%] font-bold">
                         {tag.score.toFixed(0)}
                       </div>
                     </div>

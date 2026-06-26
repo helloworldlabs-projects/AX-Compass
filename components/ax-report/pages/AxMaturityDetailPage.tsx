@@ -48,8 +48,8 @@ export function AxMaturityDetailPage({ data }: AxMaturityDetailPageProps) {
         <div className="txt-b-bold text-special-navy-500">05</div>
         <div className="txt-b-bold">기관 AX 성숙도 분석 - 4대 관점</div>
         <div className="txt-c2-regular">
-          전략·리더십, 운영체계·확산, 업무·적용, 데이터·시스템 관점에서 현재와
-          목표 간 격차를 비교하고 개선 우선순위를 제시합니다.
+          전략·리더십, 운영체계·확산, 업무·적용, 데이터·시스템 관점에서 현재와 목표 간 격차를
+          비교하고 개선 우선순위를 제시합니다.
         </div>
       </div>
       <AxMaturityQuadrantChart perspectives={perspectives} />
@@ -62,11 +62,11 @@ export function AxMaturityDetailPage({ data }: AxMaturityDetailPageProps) {
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-end gap-0.5 text-red-500">
                   <span className="txt-c2-bold">집중 개선 영역</span>
-                  <span className="text-[8px] font-bold">(Top Priority)</span>
+                  <span className="text-[8px] leading-[140%] font-bold">(Top Priority)</span>
                 </div>
-                <div className="text-[8px]">
-                  현재 수준이 낮고 개선 필요도가 높은 영역으로, 집중적인 투자와
-                  개선이 필요한 영역입니다.
+                <div className="text-[8px] leading-[140%]">
+                  현재 수준이 낮고 개선 필요도가 높은 영역으로, 집중적인 투자와 개선이 필요한
+                  영역입니다.
                 </div>
               </div>
             </div>
@@ -75,11 +75,11 @@ export function AxMaturityDetailPage({ data }: AxMaturityDetailPageProps) {
               <div className="flex flex-col gap-0.5">
                 <div className="text-special-orange-500 flex items-end gap-0.5">
                   <span className="txt-c2-bold">점진 개선 영역</span>
-                  <span className="text-[8px] font-bold">(Midium Priority)</span>
+                  <span className="text-[8px] leading-[140%] font-bold">(Midium Priority)</span>
                 </div>
-                <div className="text-[8px]">
-                  현재 수준은 높지만 개선 필요도도 높은 영역으로, 단계적으로
-                  개선을 추진해야 하는 영역입니다.
+                <div className="text-[8px] leading-[140%]">
+                  현재 수준은 높지만 개선 필요도도 높은 영역으로, 단계적으로 개선을 추진해야 하는
+                  영역입니다.
                 </div>
               </div>
             </div>
@@ -88,11 +88,11 @@ export function AxMaturityDetailPage({ data }: AxMaturityDetailPageProps) {
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-end gap-0.5 text-gray-700">
                   <span className="txt-c2-bold">모니터링 영역</span>
-                  <span className="text-[8px] font-bold">(Monitor)</span>
+                  <span className="text-[8px] leading-[140%] font-bold">(Monitor)</span>
                 </div>
-                <div className="text-[8px]">
-                  현재 수준이 낮고 개선 필요도가 높은 영역으로, 집중적인 투자와
-                  개선이 필요한 영역입니다.
+                <div className="text-[8px] leading-[140%]">
+                  현재 수준이 낮고 개선 필요도가 높은 영역으로, 집중적인 투자와 개선이 필요한
+                  영역입니다.
                 </div>
               </div>
             </div>
@@ -101,11 +101,11 @@ export function AxMaturityDetailPage({ data }: AxMaturityDetailPageProps) {
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-end gap-0.5 text-green-500">
                   <span className="txt-c2-bold">유지 강화 영역</span>
-                  <span className="text-[8px] font-bold">(Low Priority)</span>
+                  <span className="text-[8px] leading-[140%] font-bold">(Low Priority)</span>
                 </div>
-                <div className="text-[8px]">
-                  현재 수준이 낮고 개선 필요도가 높은 영역으로, 집중적인 투자와
-                  개선이 필요한 영역입니다.
+                <div className="text-[8px] leading-[140%]">
+                  현재 수준이 낮고 개선 필요도가 높은 영역으로, 집중적인 투자와 개선이 필요한
+                  영역입니다.
                 </div>
               </div>
             </div>
@@ -120,7 +120,9 @@ export function AxMaturityDetailPage({ data }: AxMaturityDetailPageProps) {
               <div className="w-[40px] min-w-[40px] shrink-0 px-2 py-1.5 text-center">현재</div>
               <div className="w-[40px] min-w-[40px] shrink-0 px-2 py-1.5 text-center">목표</div>
               <div className="w-[40px] min-w-[40px] shrink-0 px-2 py-1.5 text-center">Gap</div>
-              <div className="w-[90px] min-w-[90px] shrink-0 px-2 py-1.5 text-center">개선 우선순위</div>
+              <div className="w-[90px] min-w-[90px] shrink-0 px-2 py-1.5 text-center">
+                개선 우선순위
+              </div>
             </div>
             {sortedScores.map((score, index) => (
               <div
@@ -152,7 +154,7 @@ export function AxMaturityDetailPage({ data }: AxMaturityDetailPageProps) {
               </div>
             ))}
           </div>
-          <div className="text-[8px] text-gray-500">
+          <div className="text-[8px] leading-[140%] text-gray-500">
             ※ Gap = 목표 수준 - 현재 수준 (값이 클수록 개선 필요도가 높음)
           </div>
         </div>

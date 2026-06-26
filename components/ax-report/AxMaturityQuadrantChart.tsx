@@ -54,7 +54,7 @@ export function AxMaturityQuadrantChart({
           ) : (
             <span
               key={index}
-              className="block text-[8px] leading-[10px] font-bold"
+              className="block text-[8px] leading-[140%] font-bold"
             >
               {char}
             </span>
@@ -65,7 +65,7 @@ export function AxMaturityQuadrantChart({
       {/* Y-axis scale */}
       <div
         style={{ gridArea: 'y-scale' }}
-        className="flex flex-col items-end justify-between text-[8px] text-gray-500"
+        className="flex flex-col items-end justify-between text-[8px] leading-[140%] text-gray-500"
       >
         <div className="flex flex-col items-end">
           <span className="text-green-500">높음</span>
@@ -86,34 +86,34 @@ export function AxMaturityQuadrantChart({
         {/* Quadrant backgrounds */}
         <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
           <div className="bg-red-0 flex h-[120px] w-[240px] flex-col items-start justify-start p-2">
-            <span className="text-[8px] font-bold text-red-400">
+            <span className="text-[8px] leading-[140%] font-bold text-red-400">
               집중 개선 영역 (Top Priority)
             </span>
-            <span className="text-[8px] text-gray-400">
+            <span className="text-[8px] leading-[140%] text-gray-400">
               현재 수준은 낮고, 목표 수준은 높은 영역
             </span>
           </div>
           <div className="bg-special-orange-0 flex h-[120px] w-[240px] flex-col items-end justify-start p-2">
-            <span className="text-right text-[8px] font-bold text-amber-500">
+            <span className="text-right text-[8px] leading-[140%] font-bold text-amber-500">
               점진 개선 영역 (Medium Priority)
             </span>
-            <span className="text-right text-[8px] text-gray-400">
+            <span className="text-right text-[8px] leading-[140%] text-gray-400">
               현재 수준은 높고, 목표 수준도 높은 영역
             </span>
           </div>
           <div className="bg-gray-0 flex h-[120px] w-[240px] flex-col items-start justify-end p-2">
-            <span className="text-[8px] font-bold text-gray-400">
+            <span className="text-[8px] leading-[140%] font-bold text-gray-400">
               모니터링 영역 (Monitor)
             </span>
-            <span className="text-[8px] text-gray-400">
+            <span className="text-[8px] leading-[140%] text-gray-400">
               현재 수준과 목표 수준 모두 낮은 영역
             </span>
           </div>
           <div className="bg-green-0 flex h-[120px] w-[240px] flex-col items-end justify-end p-2">
-            <span className="text-right text-[8px] font-bold text-teal-500">
+            <span className="text-right text-[8px] leading-[140%] font-bold text-teal-500">
               유지 강화 영역 (Low Priority)
             </span>
-            <span className="text-right text-[8px] text-gray-400">
+            <span className="text-right text-[8px] leading-[140%] text-gray-400">
               현재 수준은 높고, 목표 수준은 낮은 영역
             </span>
           </div>
@@ -138,7 +138,7 @@ export function AxMaturityQuadrantChart({
               >
                 {i + 1}
               </div>
-              <span className="absolute left-full top-1/2 ml-1 -translate-y-1/2 whitespace-nowrap text-[8px] font-bold text-gray-800">
+              <span className="absolute left-full top-1/2 ml-1 -translate-y-1/2 whitespace-nowrap text-[8px] leading-[140%] font-bold text-gray-800">
                 {p.name}
               </span>
             </div>
@@ -151,7 +151,7 @@ export function AxMaturityQuadrantChart({
         style={{ gridArea: 'x-axis' }}
         className="flex w-[480px] flex-col gap-0.5"
       >
-        <div className="flex justify-between text-[8px] text-gray-500">
+        <div className="flex justify-between text-[8px] leading-[140%] text-gray-500">
           <div className="flex flex-col">
             <span className="text-red-400">낮음</span>
             <span>0</span>
@@ -162,7 +162,7 @@ export function AxMaturityQuadrantChart({
             <span>100</span>
           </div>
         </div>
-        <div className="text-center text-[8px] font-bold text-gray-600">
+        <div className="text-center text-[8px] leading-[140%] font-bold text-gray-600">
           현재 AX 성숙도 수준
         </div>
       </div>
