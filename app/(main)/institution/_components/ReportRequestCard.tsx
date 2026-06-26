@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CircleCheck, ClipboardCheck, Clock3 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -60,6 +60,7 @@ export function ReportRequestCard({
 }: Props) {
   const [isRequesting, setIsRequesting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: statusData, isLoading: isStatusLoading } = useQuery({
     queryKey: axReportKeys.status(),
@@ -73,12 +74,13 @@ export function ReportRequestCard({
   async function handleRequest() {
     setIsRequesting(true);
     try {
-      const res = await fetch('/api/report-request', {
+      await axReportService.postReportRequest();
+      await fetch('/api/report-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ institutionName }),
       });
-      if (!res.ok) throw new Error();
+      await queryClient.invalidateQueries({ queryKey: axReportKeys.status() });
       toast.success('리포트 신청이 완료되었습니다.');
       setModalOpen(false);
     } catch {

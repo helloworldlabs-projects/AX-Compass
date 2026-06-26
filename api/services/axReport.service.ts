@@ -11,4 +11,10 @@ export const axReportService = {
     apiFetch<AxReportStatusResponse>(`/ax-reports/status`, {
       tokenKey: 'axcompass:adminToken',
     }),
+
+  postReportRequest: (): Promise<void> =>
+    apiFetch<void>(`/ax-reports`, {
+      method: 'POST',
+      tokenKey: 'axcompass:adminToken',
+    }),
 };
