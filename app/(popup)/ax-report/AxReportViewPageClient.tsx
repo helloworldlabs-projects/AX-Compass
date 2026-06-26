@@ -5,16 +5,16 @@ import { Printer } from 'lucide-react';
 import { axReportKeys } from '@/api/keys/axReport.keys';
 import { axReportService } from '@/api/services/axReport.service';
 import { buildAxPageData } from '@/types/ax-report';
-import { AxReportPageRenderer } from '../../../../components/ax-report/AxReportPageRenderer';
+import { AxReportPageRenderer } from '../../../components/ax-report/AxReportPageRenderer';
 
-interface AxReportViewPageClientProps {
-  reportId: string;
-}
-
-export function AxReportViewPageClient({ reportId }: AxReportViewPageClientProps) {
-  const { data: detail, isLoading, isError } = useQuery({
-    queryKey: axReportKeys.detail(reportId),
-    queryFn: () => axReportService.getReport(reportId),
+export function AxReportViewPageClient() {
+  const {
+    data: detail,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: axReportKeys.detail(),
+    queryFn: () => axReportService.getReport(),
   });
 
   if (isLoading) {
@@ -54,10 +54,7 @@ export function AxReportViewPageClient({ reportId }: AxReportViewPageClientProps
       </div>
       <div className="report-print-container mx-auto flex w-[624px] max-w-[624px] min-w-[624px] shrink-0 flex-col gap-[24px] py-[24px]">
         {pageData.map((page, index) => (
-          <div
-            key={index}
-            className="report-print-page rounded-[4px] border border-gray-100"
-          >
+          <div key={index} className="report-print-page rounded-[4px] border border-gray-100">
             <AxReportPageRenderer
               page={page}
               institutionLogoUrl={institutionLogoUrl}
