@@ -36,7 +36,7 @@ const REPORT_STATUS_CONFIG = {
     iconClass: 'text-purple-700',
     titleClass: 'text-purple-700',
     title: 'AX 역량 리포트 확인 가능',
-    description: '신청하신 리포트의 작성이 완료되었습니다. 지금 바로 결과를 확인할 수 있습니다.',
+    description: `신청하신 리포트의 작성이 완료되었습니다.\n지금 바로 결과를 확인할 수 있습니다`,
     buttonLabel: '리포트 확인하기',
     buttonVariant: 'pink' as const,
     buttonDisabled: false,
@@ -93,7 +93,7 @@ export function ReportRequestCard({
   function handleButtonClick() {
     if (status === 'NOT_STARTED') setModalOpen(true);
     if (status === 'COMPLETED') {
-      window.open(`/ax-report`, '_blank', 'width=1200,height=868');
+      window.open(`/ax-report`, '_blank', 'width=1476,height=868');
     }
   }
 
@@ -105,7 +105,9 @@ export function ReportRequestCard({
           <div className={`txt-b-bold ${config.titleClass}`}>{config.title}</div>
         </div>
         <div className="bg-special-navy-100 w-px shrink-0 self-stretch" />
-        <div className="txt-b-regular flex flex-1 items-center">{config.description}</div>
+        <div className="txt-b-regular flex flex-1 items-center whitespace-pre-wrap">
+          {config.description}
+        </div>
         <div className="bg-special-navy-100 w-px shrink-0 self-stretch" />
         <Button
           variant={config.buttonVariant}

@@ -58,8 +58,9 @@ export function ReportRequestConfirmModal({
               </li>
               <li className="txt-b-regular flex gap-1.5">
                 <span className="mt-2.5 size-1 shrink-0 rounded-full bg-black" aria-hidden />
-                검사를 완료한 전체 인원을 대상으로 분석된 리포트가 제공되며, 소속별 리포트를
-                희망하시는 경우 별도 문의 부탁 드립니다.
+                검사를 완료한 전체 인원을 대상으로 분석된 리포트가 제공되며,
+                <br />
+                소속별 리포트를 희망하시는 경우 별도 문의 부탁 드립니다.
               </li>
             </ul>
           </div>
