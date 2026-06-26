@@ -9,6 +9,8 @@ import { ReportRequestConfirmModal } from './ReportRequestConfirmModal';
 
 type ReportStatus = 'NOT_STARTED' | 'REQUESTED' | 'COMPLETED';
 
+const REPORT_ID = '019ef820-4af0-7fec-91f3-f8ce69ecefd3';
+
 const REPORT_STATUS_CONFIG = {
   NOT_STARTED: {
     icon: CircleCheck,
@@ -85,7 +87,9 @@ export function ReportRequestCard({
 
   function handleButtonClick() {
     if (status === 'NOT_STARTED') setModalOpen(true);
-    // COMPLETED: reportId를 props로 받아 팝업 연결 예정
+    if (status === 'COMPLETED') {
+      window.open(`/ax-report/${REPORT_ID}`, '_blank', 'width=1200,height=868');
+    }
   }
 
   return (
