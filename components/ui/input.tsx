@@ -20,6 +20,8 @@ export type InputProps = Omit<
   type?: InputType;
   error?: string;
   disabled?: boolean;
+  /** 입력 필드 우측에 표시할 요소 (타이머 등) */
+  suffix?: React.ReactNode;
 };
 
 /**
@@ -36,6 +38,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     type = 'text',
     error,
     disabled,
+    suffix,
     className,
     id: idProp,
     ...rest
@@ -93,7 +96,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           'disabled:cursor-not-allowed disabled:bg-white disabled:text-gray-700',
           isSearch && 'pr-3 pl-[44px] lg:pr-4 lg:pl-14',
           isPassword && 'pr-10 pl-3 lg:pr-12 lg:pl-4',
-          !isSearch && !isPassword && 'px-3 lg:px-4',
+          suffix && 'pr-16 pl-3 lg:pr-20 lg:pl-4',
+          !isSearch && !isPassword && !suffix && 'px-3 lg:px-4',
           className,
         )}
         {...rest}
@@ -113,6 +117,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           )}
         </button>
       )}
+      {suffix ? (
+        <div className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 lg:right-4">
+          {suffix}
+        </div>
+      ) : null}
     </div>
   );
 

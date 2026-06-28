@@ -16,6 +16,8 @@ const buttonVariants = cva(
           'bg-special-dark-blue-500 text-white hover:bg-special-dark-blue-300 border-special-dark-blue-100  transition-colors duration-200',
         purple:
           'bg-purple-800 text-white hover:bg-purple-600 border-purple-100  transition-colors duration-200',
+        purple600:
+          'bg-purple-600 text-white hover:bg-purple-400 border-purple-100  transition-colors duration-200',
         pink: 'bg-special-pink-600 text-white hover:bg-special-pink-400 border-special-pink-100 transition-colors duration-200',
       },
       size: {
