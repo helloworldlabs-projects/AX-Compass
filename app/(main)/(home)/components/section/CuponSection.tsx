@@ -16,8 +16,9 @@ export function CuponSection() {
   }
 
   return (
-    <Section>
+    <Section id="kakao-section">
       <button
+        id="btn-kakao-channel"
         className="rounded-card relative flex h-[425px] w-[340px] cursor-pointer overflow-hidden p-6 lg:h-[625px] lg:w-[500px] lg:p-[50px]"
         onClick={handleAddChannel}
       >

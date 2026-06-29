@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 type AssessmentType = {
+  id: string;
   title: string;
   descriptionLines: [string, string];
   recommendTitle: string;
@@ -14,6 +15,7 @@ type AssessmentType = {
 
 const assessmentTypes: AssessmentType[] = [
   {
+    id: 'btn-start-test',
     title: '일반 검사',
     descriptionLines: [
       '개인용 진단으로 현재 AX 역량을 확인합니다.',
@@ -28,6 +30,7 @@ const assessmentTypes: AssessmentType[] = [
     href: '/assessment',
   },
   {
+    id: 'btn-inquiry-institution',
     title: '기관 검사',
     descriptionLines: [
       '기관용 정밀 분석과 결과 리포트를 제공합니다.',
@@ -51,7 +54,11 @@ export function AssessmentTypeSection() {
         <div className="txt-t2">검사 유형 안내</div>
         <div className="flex flex-wrap gap-6">
           {assessmentTypes.map((item) => (
-            <div key={item.title} className="flex min-w-[300px] flex-1 flex-col gap-[30px]">
+            <div
+              key={item.title}
+              id={item.id}
+              className="flex min-w-[300px] flex-1 flex-col gap-[30px]"
+            >
               <div className="rounded-card flex flex-col gap-6 bg-white p-5 shadow lg:p-[30px]">
                 <div className="txt-st-bold">{item.title}</div>
                 <div>
@@ -68,11 +75,7 @@ export function AssessmentTypeSection() {
                     </ul>
                   </div>
                 </div>
-                <Button
-                  render={<Link href={item.href} />}
-                  variant={item.variant}
-                  className="w-fit"
-                >
+                <Button render={<Link href={item.href} />} variant={item.variant} className="w-fit">
                   {item.ctaLabel}
                 </Button>
               </div>
