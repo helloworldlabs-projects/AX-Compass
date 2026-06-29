@@ -68,6 +68,7 @@ export default function InstitutionLoginButton() {
   return (
     <>
       <button
+        id="btn-register-institution"
         className="flex cursor-pointer items-center gap-1.5 text-white"
         onClick={() => setOpen(true)}
       >
