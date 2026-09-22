@@ -11,12 +11,49 @@
       "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/admin/:path*"
     },
     {
-      "source": "/admin",
-      "destination": "https://ax-compass-after.vercel.app/admin"
+      "source": "/api/:path*",
+      "has": [{ "type": "host", "value": "ax-compass.helloworldlabs-dev.kr" }],
+      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/api/:path*"
     },
+    {
+      "source": "/_next/:path*",
+      "has": [{ "type": "host", "value": "ax-compass.helloworldlabs-dev.kr" }],
+      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/_next/:path*"
+    },
+    {
+      "source": "/logo.svg",
+      "has": [{ "type": "host", "value": "ax-compass.helloworldlabs-dev.kr" }],
+      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/logo.svg"
+    },
+    {
+      "source": "/company-logo.svg",
+      "has": [{ "type": "host", "value": "ax-compass.helloworldlabs-dev.kr" }],
+      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/company-logo.svg"
+    },
+    {
+      "source": "/report/:path*",
+      "has": [{ "type": "host", "value": "ax-compass.helloworldlabs-dev.kr" }],
+      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/report/:path*"
+    },
+
+    { "source": "/admin", "destination": "https://ax-compass-after.vercel.app/admin" },
     {
       "source": "/admin/:path*",
       "destination": "https://ax-compass-after.vercel.app/admin/:path*"
+    },
+    { "source": "/api/:path*", "destination": "https://ax-compass-after.vercel.app/api/:path*" },
+    {
+      "source": "/_next/:path*",
+      "destination": "https://ax-compass-after.vercel.app/_next/:path*"
+    },
+    { "source": "/logo.svg", "destination": "https://ax-compass-after.vercel.app/logo.svg" },
+    {
+      "source": "/company-logo.svg",
+      "destination": "https://ax-compass-after.vercel.app/company-logo.svg"
+    },
+    {
+      "source": "/report/:path*",
+      "destination": "https://ax-compass-after.vercel.app/report/:path*"
     }
   ]
 }
