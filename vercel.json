@@ -2,17 +2,7 @@
   "rewrites": [
     {
       "source": "/admin/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "ax-compass.helloworldlabs-dev.kr"
-        }
-      ],
-      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/:path*"
-    },
-    {
-      "source": "/admin/:path*",
-      "destination": "https://ax-compass-after.vercel.app/:path*"
+      "destination": "https://ax-compass-after.vercel.app/admin/:path*"
     }
   ]
 }
