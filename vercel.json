@@ -1,6 +1,20 @@
 {
   "rewrites": [
     {
+      "source": "/admin",
+      "has": [{ "type": "host", "value": "ax-compass.helloworldlabs-dev.kr" }],
+      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/admin"
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [{ "type": "host", "value": "ax-compass.helloworldlabs-dev.kr" }],
+      "destination": "https://ax-compass-after-git-dev-hello-world-labs.vercel.app/admin/:path*"
+    },
+    {
+      "source": "/admin",
+      "destination": "https://ax-compass-after.vercel.app/admin"
+    },
+    {
       "source": "/admin/:path*",
       "destination": "https://ax-compass-after.vercel.app/admin/:path*"
     }
