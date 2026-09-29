@@ -1,6 +1,6 @@
 import { COURSES, type Course, type Level } from '@/lib/admin/courses';
 import { MEMBER_COMPETENCIES, levelOf, rating, type MemberCompetency } from '@/lib/admin/metrics';
-import type { CompanyReport } from '@/lib/admin/report';
+import { rankByPost, type CompanyReport } from '@/lib/admin/report';
 import type { ProfileId } from '@/lib/admin/ax-scoring';
 import { with_ } from '@/lib/admin/josa';
 
@@ -71,7 +71,9 @@ export function recommendCourses(
 
   /* ── 2) 가장 낮은 역량 ───────────────────────────────── */
 
-  const byPost = r.competencies.filter((c) => c.post !== null).sort((a, b) => a.post! - b.post!);
+  const byPost = r.competencies
+    .filter((c) => c.post !== null)
+    .sort((a, b) => rankByPost(a) - rankByPost(b));
   const weakest = byPost[0];
   if (weakest) {
     signals.push({
@@ -88,7 +90,7 @@ export function recommendCourses(
   if (leastMoved && byChange.length > 1) {
     signals.push({
       weight: 4,
-      reason: `${leastMoved.short} 역량은 교육 뒤에도 가장 적게 움직였습니다 (${fmt(leastMoved.diff)}점)`,
+      reason: `${leastMoved.short} 역량은 교육 뒤에도 가장 적게 변화했습니다 (${fmt(leastMoved.diff)}점)`,
       match: (c) => c.competencies.includes(leastMoved.code as MemberCompetency),
     });
   }

@@ -45,7 +45,12 @@ export function GenerateButton({
     }
     setError(null);
     setWorking(true);
-    await refetchCompanyReportSources(queryClient, link);
+    try {
+      await refetchCompanyReportSources(queryClient, link);
+    } catch {
+      // 다시 받아오다 실패해도 여기서 멈추면 버튼이 "만드는 중…" 에 갇힌다.
+      // 계산은 이어 가고, 자료가 모자라면 Publisher 가 그때 알린다.
+    }
     setRefreshed(true);
   }
 
@@ -93,6 +98,27 @@ function Publisher({
     if (report.data === undefined) return;
     if (report.data === null) return onDone('링크가 없거나 사전검사 자료가 없습니다.');
     if (report.data.coverage.postN === 0) return onDone('사후검사 응답이 아직 없습니다.');
+
+    /*
+      만족도가 비어 있으면 발행하지 않는다.
+
+      발행한 보고서는 그때 담긴 내용으로 굳는다. 조회 하나가 실패해 만족도가
+      빈 채로 굳으면 "0개 회차의 교육을 받았습니다" 라고 적힌 문서가 기업에
+      나가고, 화면은 멀쩡해 보여 아무도 알아채지 못한다.
+
+      아직 오지 않은 것은 기다리고, 실패한 것만 멈춘다. 마지막으로 앞뒤가
+      맞는지도 본다 — 지표 평균은 있는데 회차 목록이 비어 있다면 그것은
+      데이터가 없는 것이 아니라 가져오지 못한 것이다.
+    */
+    if (report.sourcesPending) return;
+    if (report.sourcesFailed) {
+      return onDone('만족도 자료를 불러오지 못했습니다. 잠시 뒤 다시 눌러 주세요.');
+    }
+    const s = report.data.satisfaction;
+    if (s.metrics.length > 0 && s.courses.length === 0) {
+      return onDone('만족도는 있는데 교육 회차를 불러오지 못했습니다. 잠시 뒤 다시 눌러 주세요.');
+    }
+
     sent.current = true;
     mutate(
       { linkId, report: report.data },
@@ -103,7 +129,7 @@ function Publisher({
     );
     // 계산이 끝난 한 번만 발행한다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report.data, report.error]);
+  }, [report.data, report.error, report.sourcesPending, report.sourcesFailed]);
 
   return null;
 }

@@ -19,8 +19,13 @@ export interface ReportSummaryDto {
 /** PostExam.Report — P2 */
 export interface ReportDto {
   summary: ReportSummaryDto;
-  /** JSON 문자열. 없으면 null (전문 저장 이전 발행) */
-  payload: string | null;
+  /**
+   * 발행 시점의 보고서 전문. 없으면 null (전문 저장 이전 발행).
+   *
+   * **객체로 올 때도 있고 JSON 문자열로 올 때도 있다.** 처음에는 문자열이었고
+   * 뒤에 객체로 바뀌었다. 옛 기록과 새 기록이 섞여 있을 수 있어 둘 다 받는다.
+   */
+  payload: CompanyReport | string | null;
 }
 
 /** PostExam.PublishReportRequest — P3 */
