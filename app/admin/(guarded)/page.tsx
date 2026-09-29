@@ -16,11 +16,13 @@ import {
 } from '@/components/admin/ui';
 import { lowestMetric, metricMeans } from '@/components/admin/satisfaction/metric-means';
 import { useCohorts } from '@/hooks/useReference';
+import { with_ } from '@/lib/admin/josa';
 import {
   SCALE_MAX,
   cohortLabel,
   hasSatisfaction,
   overallScore,
+  rating,
   responseRate,
   todayKST,
 } from '@/lib/admin/metrics';
@@ -187,7 +189,7 @@ function Dashboard({ cohorts }: { cohorts: Cohort[] }) {
                         weak ? 'text-special-pink-600' : 'text-gray-900',
                       )}
                     >
-                      {m.mean}
+                      {rating(m.mean)}
                     </span>
                   </div>
                   <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
@@ -205,8 +207,8 @@ function Dashboard({ cohorts }: { cohorts: Cohort[] }) {
           </ul>
           {weakest && (
             <p className="txt-c2-regular mt-5 text-gray-500">
-              <b className="text-special-pink-600">{weakest.label}</b> 이 가장 낮습니다. 보고서의
-              보완 포인트로 쓰기 좋습니다.
+              <b className="text-special-pink-600">{with_(weakest.label, '이')}</b> 가장 낮습니다.
+              보고서의 보완 포인트로 쓰기 좋습니다.
             </p>
           )}
         </Card>
@@ -248,7 +250,9 @@ function Dashboard({ cohorts }: { cohorts: Cohort[] }) {
                       {score === null ? (
                         <Badge tone="neutral">미수집</Badge>
                       ) : (
-                        <span className="txt-c1-bold text-gray-900 tabular-nums">{score}</span>
+                        <span className="txt-c1-bold text-gray-900 tabular-nums">
+                          {rating(score)}
+                        </span>
                       )}
                     </Td>
                   </tr>
@@ -264,8 +268,8 @@ function Dashboard({ cohorts }: { cohorts: Cohort[] }) {
         <p className="txt-c1-regular mt-2 text-gray-500">
           운영 기관 · 교육 운영 · 만족도는 SafariOn 에서 실시간으로 읽어옵니다. 학습 기업 연결은
           선택 사항이라 비어 있는 회차가 많은 것이 정상이고, 차수 없이 단건으로 끝난 교육도
-          있습니다. 사전검사와 사후검사는 아직 연동 전이라, 연결되면 같은 자리에 매칭률과 향상도가
-          채워집니다.
+          있습니다. 사전검사와 사후검사도 같이 읽어와, 이름이 이어진 사람에 대해 매칭률과 향상도를
+          보여줍니다.
         </p>
       </div>
     </>

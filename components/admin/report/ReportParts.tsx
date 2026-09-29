@@ -243,7 +243,8 @@ export function Lead({ children }: { children: ReactNode }) {
   return (
     <div className="report-block max-w-[860px] space-y-2">
       {Array.isArray(children) ? (
-        children.map((line, i) => (
+        // 조건에 따라 빠지는 문장이 있다. 거짓값을 그대로 그리면 빈 문단이 자리를 차지한다.
+        children.filter(Boolean).map((line, i) => (
           <p key={i} className="txt-c1-regular text-gray-700">
             {line}
           </p>

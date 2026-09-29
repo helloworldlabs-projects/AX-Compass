@@ -34,9 +34,20 @@ export const LEVEL_LABEL: Record<string, string> = {
   ADVANCED: '고급',
 };
 
-/** 점수는 소수 한 자리로 통일한다. */
+/** 100점 만점 점수는 소수 한 자리로 통일한다. 만족도는 rating() 을 쓴다. */
 export function score(v: number | null): string {
   return v === null ? '—' : v.toFixed(1);
+}
+
+/**
+ * 만족도 점수 표기. 5점 만점이라 소수 **둘째** 자리로 맞춘다.
+ *
+ * 포맷 없이 찍으면 값이 딱 떨어질 때 자리가 사라져 `3` 과 `4.17` 이 한 표에
+ * 섞인다. tabular-nums 를 걸어 둔 자리라 자릿수가 어긋나면 표가 틀어져 보인다.
+ * 100점 만점인 score() 와 만점이 달라 함수를 따로 둔다.
+ */
+export function rating(v: number | null | undefined): string {
+  return v === null || v === undefined ? '—' : v.toFixed(2);
 }
 
 /** 50 / 70 / 90 구간. 평균에 구간을 적용한 값이지 개인 분포가 아니다. */

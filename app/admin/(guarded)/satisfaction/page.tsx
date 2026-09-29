@@ -26,6 +26,7 @@ import {
   cohortLabel,
   hasSatisfaction,
   overallScore,
+  rating,
   responseRate,
   weakestMetric,
 } from '@/lib/admin/metrics';
@@ -108,7 +109,7 @@ function Satisfaction({ cohorts }: { cohorts: Cohort[] }) {
         <StatCard
           label="전체 평균"
           sub={`${SCALE_MAX}점 만점`}
-          value={average ?? '—'}
+          value={rating(average)}
           tone="success"
         />
       </div>
@@ -137,7 +138,7 @@ function Satisfaction({ cohorts }: { cohorts: Cohort[] }) {
                       weak ? 'text-special-pink-600' : 'text-gray-900',
                     )}
                   >
-                    {m.mean ?? '—'}
+                    {rating(m.mean)}
                   </p>
                 </div>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
@@ -249,7 +250,9 @@ function Satisfaction({ cohorts }: { cohorts: Cohort[] }) {
                         <Badge tone="neutral">미수집</Badge>
                       </span>
                     ) : (
-                      <span className="txt-c1-bold text-gray-900 tabular-nums">{score}</span>
+                      <span className="txt-c1-bold text-gray-900 tabular-nums">
+                        {rating(score)}
+                      </span>
                     )}
                   </Td>
 
@@ -265,7 +268,7 @@ function Satisfaction({ cohorts }: { cohorts: Cohort[] }) {
                               weak?.code === m.code ? 'txt-c1-bold text-special-pink-600' : ''
                             }
                           >
-                            {v}
+                            {rating(v)}
                           </span>
                         )}
                       </Td>

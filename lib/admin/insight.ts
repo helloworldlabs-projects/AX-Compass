@@ -1,5 +1,5 @@
 import type { CompanyReport } from '@/lib/admin/report';
-import { levelOf, score } from '@/lib/admin/metrics';
+import { levelOf, rating, score } from '@/lib/admin/metrics';
 import type { Recommendation } from '@/lib/admin/recommend';
 import { with_ } from '@/lib/admin/josa';
 
@@ -46,6 +46,25 @@ export interface ChapterInsight {
 
 /* ── 교육 개요 ───────────────────────────────────────────── */
 
+/**
+ * 회차가 둘 이상인가.
+ *
+ * 대부분의 기업이 한 회차만 연결한다. 그런데 문구는 여러 회차를 전제하고
+ * 쓰여 있어, 회차가 하나일 때 "각 회차가 서로 다른 과정이므로"처럼 사실과
+ * 반대인 문장이 나온다. 교육 개요 장의 본문과 해설이 같은 기준으로 갈리도록
+ * 그 판단을 여기 모아 둔다.
+ *
+ * "하나인가"가 아니라 "둘 이상인가"로 묻는다. 회차가 아예 없을 때도
+ * "이 과정들"이라고 말하지 않아야 한다.
+ *
+ * 만족도 장은 이것을 쓰지 않는다. 그쪽은 집계에 들어간 회차 수
+ * (`satisfaction.cohorts`)로 가른다 — 만족도를 걷지 않은 회차는 평균에
+ * 섞이지 않으므로 세는 대상이 다르다.
+ */
+export function manyCourses(r: CompanyReport): boolean {
+  return r.satisfaction.courses.length > 1;
+}
+
 export function courseInsight(r: CompanyReport): ChapterInsight {
   const list_ = r.satisfaction.courses;
   if (list_.length === 0) {
@@ -59,7 +78,9 @@ export function courseInsight(r: CompanyReport): ChapterInsight {
   const last = [...withDate].sort((a, b) => b.startDate!.localeCompare(a.startDate!))[0];
 
   const p1 = para(
-    `모두 ${list_.length}개 회차에 ${enrolled}명이 수강했습니다.`,
+    list_.length === 1
+      ? `이 교육에 ${enrolled}명이 수강했습니다.`
+      : `모두 ${list_.length}개 회차에 ${enrolled}명이 수강했습니다.`,
     first &&
       last &&
       (first.offeringId === last.offeringId
@@ -69,9 +90,10 @@ export function courseInsight(r: CompanyReport): ChapterInsight {
   );
 
   // 같은 과정이 여러 회차로 열렸는지를 짚는다. 반복 운영은 그 자체로 정보다.
+  // 앞머리 "[1기] " 같은 꼬리표를 떼고 견준다 — 떼지 않으면 차수마다 다른 과정이 된다.
   const byTitle = new Map<string, number>();
   for (const c of list_) {
-    const key = c.title.replace(/^[[^]]*]s*/, '');
+    const key = c.title.replace(/^\[[^\]]*\]\s*/, '').trim();
     byTitle.set(key, (byTitle.get(key) ?? 0) + 1);
   }
   const repeated = [...byTitle].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1]);
@@ -79,7 +101,8 @@ export function courseInsight(r: CompanyReport): ChapterInsight {
   const p2 = para(
     repeated.length > 0
       ? `${repeated[0][0]} 과정은 ${repeated[0][1]}개 회차로 반복 운영되었습니다. 여러 차수에 걸쳐 같은 내용을 다룬 만큼, 아래의 역량 변화는 특정 회차가 아니라 이 과정 전반의 결과로 읽는 것이 맞습니다.`
-      : '각 회차가 서로 다른 과정이므로, 아래의 역량 변화는 특정 과정 하나의 효과가 아니라 이 기간에 받은 교육 전체의 결과입니다.',
+      : list_.length > 1 &&
+          '각 회차가 서로 다른 과정이므로, 아래의 역량 변화는 특정 과정 하나의 효과가 아니라 이 기간에 받은 교육 전체의 결과입니다.',
   );
 
   return { paragraphs: [p1, p2].filter(Boolean) };
@@ -117,7 +140,7 @@ export function overallInsight(r: CompanyReport): ChapterInsight {
       `다만 사전 ${welch.n1}명, 사후 ${welch.n2}명으로 어느 한쪽이 10명에 못 미칩니다. 이 변화가 기업 전체의 것인지, 응답한 사람들이 원래 그런 층이었는지는 이 수만으로 갈라내기 어렵습니다.`,
     paired.usable
       ? para(
-          `이름이 이어진 ${paired.n}명만 따로 보면 ${paired.meanBefore}점에서 ${paired.meanAfter}점으로,`,
+          `이름이 이어진 ${paired.n}명만 따로 보면 ${score(paired.meanBefore)}점에서 ${score(paired.meanAfter)}점으로,`,
           paired.down === 0
             ? `${paired.n}명 모두 올랐습니다.`
             : paired.up === 0
@@ -304,8 +327,9 @@ export function competencyInsight(r: CompanyReport): ChapterInsight {
 
   const third = para(
     strongTags.length === 3 &&
-      `하위 역량 열두 가지 가운데 ${list(strongTags.map((t) => t.name))}이 상대적으로 높게 나타났습니다.`,
-    weakTags.length === 3 && `반면 ${list(weakTags.map((t) => t.name))}은 보완이 필요합니다.`,
+      `하위 역량 열두 가지 가운데 ${with_(list(strongTags.map((t) => t.name)), '이')} 상대적으로 높게 나타났습니다.`,
+    weakTags.length === 3 &&
+      `반면 ${with_(list(weakTags.map((t) => t.name)), '은')} 보완이 필요합니다.`,
     lowest &&
       weakTags[0] &&
       `후속 교육은 ${lowest.short} 역량, 그중에서도 ${with_(weakTags[0].name, '을')} 중심으로 구성하는 것이 적절합니다.`,
@@ -643,10 +667,13 @@ export function satisfactionInsight(r: CompanyReport): ChapterInsight {
   const worst = lowest.mean === best.mean ? null : lowest;
 
   const first = para(
-    overall !== null && `${cohorts}개 회차 ${respondents}명의 전체 만족도는 ${overall}점입니다.`,
+    overall !== null &&
+      (cohorts === 1
+        ? `응답한 ${respondents}명의 전체 만족도는 ${rating(overall)}점입니다.`
+        : `${cohorts}개 회차 ${respondents}명의 전체 만족도는 ${rating(overall)}점입니다.`),
     worst !== null
-      ? `지표 중에서는 ${with_(best.label, '이')} ${best.mean}점으로 가장 높고 ${with_(worst.label, '이')} ${worst.mean}점으로 가장 낮아, 둘 사이가 ${abs(best.mean! - worst.mean!)}점 벌어져 있습니다.`
-      : `여섯 개 지표가 모두 ${best.mean}점으로 같아, 특별히 낮은 지표가 없습니다.`,
+      ? `지표 중에서는 ${with_(best.label, '이')} ${rating(best.mean)}점으로 가장 높고 ${with_(worst.label, '이')} ${rating(worst.mean)}점으로 가장 낮아, 둘 사이가 ${rating(Math.abs(best.mean! - worst.mean!))}점 벌어져 있습니다.`
+      : `여섯 개 지표가 모두 ${rating(best.mean)}점으로 같아, 특별히 낮은 지표가 없습니다.`,
   );
 
   const second = para(
@@ -723,12 +750,13 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
         ? `이번 교육 뒤 구성원의 종합 역량은 ${abs(diff)}점 올라 ${score(r.overall.post)}점(${levelOf(r.overall.post)})이 되었습니다.`
         : `이번 교육 뒤 구성원의 종합 역량은 ${score(r.overall.post)}점(${levelOf(r.overall.post)})으로, 사전보다 ${abs(diff)}점 낮습니다.`,
     up.length > 0 && down.length > 0
-      ? `역량별로는 ${list(up.map((c) => c.short))}이 오르고 ${list(down.map((c) => c.short))}이 내려, 교육 효과가 역량별로 고르지 않게 나타났습니다.`
+      ? `역량별로는 ${with_(list(up.map((c) => c.short)), '이')} 오르고 ${with_(list(down.map((c) => c.short)), '이')} 내려, 교육 효과가 역량별로 고르지 않게 나타났습니다.`
       : null,
     r.coverage.rate !== null && r.coverage.rate < 70
       ? `다만 사후 응답률이 ${r.coverage.rate}%에 머물러, 이 수치를 기업 전체의 변화라고 말하려면 근거가 더 필요합니다.`
       : `사후 응답률이 ${r.coverage.rate}%로 충분해, 이 수치를 기업 전체의 상태로 읽어도 무리가 없습니다.`,
-    picks.length > 0 && `다음 단계로는 ${picks[0].course.shortTitle}을 우선 검토하시기를 권합니다.`,
+    picks.length > 0 &&
+      `다음 단계로는 ${with_(picks[0].course.shortTitle, '을')} 우선 검토하시기를 권합니다.`,
   );
 
   const strengths: string[] = [];
@@ -780,14 +808,15 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
 
   if (picks.length > 0) {
     actions.push(
-      `${picks[0].course.shortTitle}(${picks[0].course.hours}시간)을 다음 과정으로 권합니다. ${picks[0].effect}`,
+      `${with_(`${picks[0].course.shortTitle}(${picks[0].course.hours}시간)`, '을')} 다음 과정으로 권합니다. ${picks[0].effect}`,
     );
   }
   if (picks.length > 1) {
     actions.push(
-      `이어서 ${list(
-        picks.slice(1).map((p) => `${p.course.shortTitle}(${p.course.hours}시간)`),
-      )}을 검토해 보실 수 있습니다.`,
+      `이어서 ${with_(
+        list(picks.slice(1).map((p) => `${p.course.shortTitle}(${p.course.hours}시간)`)),
+        '을',
+      )} 검토해 보실 수 있습니다.`,
     );
   }
   if (r.department.manovaPost.usable && r.department.manovaPost.significant) {
