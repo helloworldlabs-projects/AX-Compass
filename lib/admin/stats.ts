@@ -201,6 +201,20 @@ export function pLabel(p: number | null): string {
  * 표본이 크면 작은 차이도 유의해지고, 작으면 큰 차이도 유의하지 않는다.
  * p 만 보면 "몇 명을 모았는가"를 "얼마나 달라졌는가"로 착각한다.
  */
+/**
+ * 문장에 넣는 형태.
+ *
+ * effectLabel() 이 돌려주는 `큼`·`작음` 은 표와 카드의 **라벨**이다.
+ * 문장에 그대로 넣으면 "크기도 큼 편입니다" 가 된다.
+ */
+export function effectPhrase(d: number): string {
+  const a = Math.abs(d);
+  if (a < 0.2) return '거의 없습니다';
+  if (a < 0.5) return '작은 편입니다';
+  if (a < 0.8) return '중간쯤입니다';
+  return '큰 편입니다';
+}
+
 export function effectLabel(d: number): string {
   const a = Math.abs(d);
   if (a < 0.2) return '미미';
@@ -611,10 +625,21 @@ export function manova(
 
   const lambda = detW / detT;
   const q = k - 1; // 집단 자유도
-  const m = n - 1 - (p + q) / 2;
+
+  /*
+    Wilks' Λ 를 F 로 옮긴다 (Rao 근사).
+
+    Λ 는 두 경우에 **근사가 아니라 정확한** F 분포를 따른다.
+      · 변수가 하나면       자유도 (k−1, n−k)
+      · 집단이 둘이면       자유도 (p,  n−p−1)
+    근사식은 이 두 경우에 정확값으로 떨어져야 한다. 그러려면 전체 인원이 아니라
+    **오차 자유도(n − k)** 에서 출발해야 한다.
+  */
+  const ve = n - k; // 오차 자유도
+  const m = ve - (p - q + 1) / 2;
   const s = p * p + q * q - 5 > 0 ? Math.sqrt((p * p * q * q - 4) / (p * p + q * q - 5)) : 1;
   const df1 = p * q;
-  const df2 = m * s - (p * q) / 2 + 1;
+  const df2 = m * s - (p * q - 2) / 2;
   const root = Math.pow(lambda, 1 / s);
   const f = ((1 - root) / root) * (df2 / df1);
   const pValue = fTailUpper(f, df1, df2);

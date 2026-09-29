@@ -235,6 +235,28 @@ const SECTION_LABEL: Record<'A' | 'B' | 'C', string> = {
 const round1 = (v: number | null): number | null => (v === null ? null : Math.round(v * 10) / 10);
 
 const avg = (xs: number[]): number | null => (xs.length === 0 ? null : round1(mean(xs)));
+
+/**
+ * 화면에 적히는 변화량.
+ *
+ * 사전·사후는 소수 한 자리로 반올림해 보여 준다. 변화를 반올림 전 값으로 내면
+ * 표에 적힌 두 수를 빼도 답이 맞지 않는다 — `64.5 → 84.0` 인데 변화가 `+19.6`
+ * 으로 찍히는 식이다. 읽는 사람은 보이는 숫자로 검산하지 숨은 자릿수를 모른다.
+ * 그래서 **보여 주는 값끼리** 뺀다.
+ */
+const delta = (post: number | null, pre: number | null): number | null =>
+  post === null || pre === null ? null : round1(post - pre);
+
+/**
+ * 역량을 사후 점수로 줄 세울 때 쓰는 값.
+ *
+ * `post` 는 소수 한 자리로 반올림한 **표시값**이다. 88.32 와 88.34 가 똑같이
+ * 88.3 이 되어 동점이 되고, 그대로 정렬하면 배열에 먼저 있는 쪽이 "가장 높은
+ * 역량"으로 뽑힌다. 기업에 나가는 제언이 그 이름으로 쓰이므로 가려야 한다.
+ * 검정에 쓰인 두 자리 평균으로 가른다.
+ */
+export const rankByPost = (c: CompetencyChange): number =>
+  c.welch.usable || c.post !== null ? c.welch.mean2 : Number.NEGATIVE_INFINITY;
 /** computeCompanyReport 입력. 조회는 hooks/useCompanyReport 가 모아 넘긴다. */
 export interface CompanyReportInputs {
   link: ExamLink;
@@ -282,7 +304,7 @@ export function computeCompanyReport({
   const overall = {
     pre: avg(preTotals),
     post: avg(postTotals),
-    diff: round1(preTotals.length && postTotals.length ? mean(postTotals) - mean(preTotals) : null),
+    diff: delta(avg(postTotals), avg(preTotals)),
     welch: welchTTest(preTotals, postTotals),
     paired: pairedTTest(matched.map((r) => ({ before: r.pre!.total, after: r.post.total }))),
   };
@@ -297,7 +319,7 @@ export function computeCompanyReport({
       label: SECTION_LABEL[code],
       pre: avg(preXs),
       post: avg(postXs),
-      diff: round1(preXs.length && postXs.length ? mean(postXs) - mean(preXs) : null),
+      diff: delta(avg(postXs), avg(preXs)),
       welch: welchTTest(preXs, postXs),
     };
   });
@@ -315,7 +337,7 @@ export function computeCompanyReport({
       short: c.short,
       pre: avg(preXs),
       post: avg(postXs),
-      diff: round1(preXs.length && postXs.length ? mean(postXs) - mean(preXs) : null),
+      diff: delta(avg(postXs), avg(preXs)),
       welch: welchTTest(preXs, postXs),
       paired: pairedTTest(
         matched.map((r) => ({
@@ -412,7 +434,7 @@ export function computeCompanyReport({
         postN: postXs.length,
         pre: avg(preXs),
         post: avg(postXs),
-        diff: round1(preXs.length && postXs.length ? mean(postXs) - mean(preXs) : null),
+        diff: delta(avg(postXs), avg(preXs)),
       };
     })
     .sort((a, b) => b.preN + b.postN - (a.preN + a.postN));
@@ -603,14 +625,14 @@ export function computeCompanyReport({
       sr: {
         pre: avg(sr.pre),
         post: avg(sr.post),
-        diff: round1(sr.pre.length && sr.post.length ? mean(sr.post) - mean(sr.pre) : null),
+        diff: delta(avg(sr.post), avg(sr.pre)),
         welch: welchTTest(sr.pre, sr.post),
         paired: pairedTTest(gapPairs((se, sj) => se - sj)),
       },
       sb: {
         pre: avg(sb.pre),
         post: avg(sb.post),
-        diff: round1(sb.pre.length && sb.post.length ? mean(sb.post) - mean(sb.pre) : null),
+        diff: delta(avg(sb.post), avg(sb.pre)),
         welch: welchTTest(sb.pre, sb.post),
         paired: pairedTTest(gapPairs((_se, sj, bh) => sj - bh)),
       },

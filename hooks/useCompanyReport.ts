@@ -90,6 +90,25 @@ export const useCompanyReport = (linkId: number) => {
   const isLoading =
     postLoading || pre.isLoading || preMembers.isLoading || optional.some((q) => q.isLoading);
 
+  /*
+    만족도 쪽 조회의 상태를 따로 알린다.
+
+    이 조회들은 실패해도 빈 값으로 채우고 넘어간다 — 보고서를 **열어 보는**
+    데에는 그 편이 낫다. 수치가 조금 비어도 나머지는 읽을 수 있기 때문이다.
+
+    그런데 **발행**은 다르다. 그때 담긴 것이 기업에 건네는 문서로 굳는다.
+    만족도가 빠진 채로 굳으면 "0개 회차"라고 적힌 보고서가 나가는데, 화면은
+    멀쩡해 보여서 아무도 모른다.
+
+    기다리면 되는 것과 다시 눌러야 하는 것을 갈라 둔다. isLoading 은 아직
+    시작하지 않은 조회를 잡지 못해서(키가 막 정해진 참이면 pending 이되
+    fetching 은 아니다) 값이 비어 있는 것을 따로 본다.
+  */
+  // 아직 받아오는 중이면 기다린다.
+  const sourcesPending = optional.some((q) => q.isFetching);
+  // 끝났는데 값이 없으면 실패로 본다 — 오류로 잡히지 않은 채 비는 경우가 있다.
+  const sourcesFailed = optional.some((q) => !q.isFetching && (q.isError || q.data === undefined));
+
   const data = useMemo<CompanyReport | null | undefined>(() => {
     if (isLoading || !link || !responses || !tagAverages || pre.data === undefined)
       return undefined;
@@ -122,5 +141,11 @@ export const useCompanyReport = (linkId: number) => {
     choices.data,
   ]);
 
-  return { data, isLoading, error: error ?? pre.error ?? preMembers.error };
+  return {
+    data,
+    isLoading,
+    error: error ?? pre.error ?? preMembers.error,
+    sourcesPending,
+    sourcesFailed,
+  };
 };

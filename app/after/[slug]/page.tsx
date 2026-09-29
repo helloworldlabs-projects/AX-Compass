@@ -105,11 +105,11 @@ function Shell({ preview = false, children }: { preview?: boolean; children: Rea
             preload
             className="h-[22px] w-auto"
           />
-          <span className="txt-c2-bold bg-adm-track-fill ml-2 rounded-full px-2.5 py-1 text-gray-500">
+          <span className="txt-c1-bold bg-adm-track-fill ml-2 rounded-full px-2.5 py-1 text-gray-500">
             사후검사
           </span>
           {preview && (
-            <span className="txt-c2-bold bg-special-pink-100 text-special-pink-600 ml-2 rounded-full px-2.5 py-1">
+            <span className="txt-c1-bold bg-special-pink-100 text-special-pink-600 ml-2 rounded-full px-2.5 py-1">
               미리보기 · 저장되지 않음
             </span>
           )}

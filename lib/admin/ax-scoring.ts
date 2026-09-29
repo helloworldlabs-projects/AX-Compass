@@ -74,11 +74,19 @@ export const LIKERT_SCORE: Record<number, number> = {
   5: 100,
 };
 
-const LEVEL_BANDS: { level: Level; min: number; max: number }[] = [
-  { level: '입문', min: 0, max: 49 },
-  { level: '초급', min: 50, max: 69 },
-  { level: '중급', min: 70, max: 89 },
-  { level: '고급', min: 90, max: 100 },
+/**
+ * 등급 구간. 높은 쪽부터 본다.
+ *
+ * 예전에는 `min`·`max` 를 정수로 두고 `min <= x <= max` 로 찾았다. 점수는
+ * 소수 한 자리라 69.5 나 89.5 처럼 구간 사이에 떨어지는 값이 생겼고, 찾지
+ * 못해 기본값인 **입문**으로 떨어졌다 — 89.9점이 입문으로 기록됐다.
+ * 경계만 두고 "그 이상"으로 찾는다.
+ */
+const LEVEL_BANDS: { level: Level; min: number }[] = [
+  { level: '고급', min: 90 },
+  { level: '중급', min: 70 },
+  { level: '초급', min: 50 },
+  { level: '입문', min: 0 },
 ];
 
 const LEVEL_ORDER: Level[] = ['입문', '초급', '중급', '고급'];
@@ -270,8 +278,7 @@ export function score(items: Item[], answers: Answers): ScoreResult {
 }
 
 export function levelOf(overall: number): Level {
-  const band = LEVEL_BANDS.find((b) => overall >= b.min && overall <= b.max);
-  return band?.level ?? '입문';
+  return LEVEL_BANDS.find((b) => overall >= b.min)?.level ?? '입문';
 }
 
 /**
