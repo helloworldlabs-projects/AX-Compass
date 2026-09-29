@@ -145,7 +145,11 @@ function Detail({ detail }: { detail: PreOrgDetail }) {
             </div>
           </Card>
 
-          <Card title="역량별 평균" padded={false}>
+          <Card
+            title="역량별 평균"
+            description="역량 점수는 영역 가중치를 적용한 값이고, 하위 역량은 문항 단순 평균입니다. 두 값이 서로 다른 계산이라 하위 역량을 평균해도 역량 점수와 같아지지 않습니다."
+            padded={false}
+          >
             <Table columns={['역량', '평균', '수준']} minWidth={560} columnWidths={[null, 110, 90]}>
               {competencies.map((c) => (
                 <Fragment key={c.code}>
@@ -157,15 +161,16 @@ function Detail({ detail }: { detail: PreOrgDetail }) {
                     <Td className="txt-c1-bold text-adm-brand">{levelOf(c.avg) ?? '—'}</Td>
                   </tr>
 
-                  {/* 하위 역량은 역량 아래에 들여 붙인다. 수준은 역량 단위로만 매긴다. */}
+                  {/*
+                    하위 역량은 역량 아래에 들여 붙인다. 수준은 역량 단위로만 매긴다.
+
+                    예전에는 앞에 "└" 를 달았는데, 부모–자식처럼 보여 더해서 맞추려는
+                    사람이 생겼다. 두 점수는 계산이 달라 맞지 않는다. 들여쓰기로만
+                    묶고 위계를 나타내는 기호는 두지 않는다.
+                  */}
                   {c.tags.map((t) => (
                     <tr key={t.code} className={ROW_CLASS}>
-                      <Td className="pl-10 text-gray-500">
-                        <span aria-hidden="true" className="text-gray-400">
-                          └
-                        </span>{' '}
-                        {t.name}
-                      </Td>
+                      <Td className="pl-10 text-gray-500">{t.name}</Td>
                       <Td className="text-gray-700 tabular-nums">
                         {t.avg === null ? '—' : `${score(t.avg)}점`}
                       </Td>

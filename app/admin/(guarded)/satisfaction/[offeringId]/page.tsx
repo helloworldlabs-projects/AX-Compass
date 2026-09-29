@@ -21,6 +21,7 @@ import {
   SCALE_MAX,
   cohortLabel,
   overallScore,
+  rating,
   responseRate,
   weakestMetric,
 } from '@/lib/admin/metrics';
@@ -169,7 +170,7 @@ function Detail({ cohort, bundle }: { cohort: Cohort; bundle: QuestionBundle }) 
                         isWeak ? 'text-special-pink-600' : 'text-gray-900',
                       )}
                     >
-                      {v}
+                      {rating(v)}
                     </p>
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
                       <div
@@ -216,7 +217,7 @@ function Detail({ cohort, bundle }: { cohort: Cohort; bundle: QuestionBundle }) 
                     </Td>
                     <Td className="w-full min-w-[320px] text-gray-700">{q.content}</Td>
                     <Td className="txt-c1-bold whitespace-nowrap text-gray-900 tabular-nums">
-                      {q.mean}
+                      {rating(q.mean)}
                     </Td>
                     <Td className="whitespace-nowrap text-gray-500 tabular-nums">{q.answers}건</Td>
                     <Td>

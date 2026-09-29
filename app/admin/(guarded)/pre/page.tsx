@@ -76,6 +76,9 @@ function PreOrgs({ orgs }: { orgs: PreOrg[] }) {
   const totalRespondents = orgs.reduce((a, o) => a + o.respondents, 0);
   const totalExecutives = orgs.reduce((a, o) => a + o.executives, 0);
 
+  // 기업 평균을 다시 평균 낸 값이다. 사람 수로 가중하지 않으므로 3명짜리 기업과
+  // 22명짜리 기업이 같은 무게를 갖는다. 바로 옆 카드가 응시 인원이라 그 인원의
+  // 평균으로 읽히기 쉬워, 무엇을 몇 개 평균했는지 화면에 적는다.
   const average = mean(withRegular.map((o) => o.avgScore));
   const withExec = orgs.filter((o) => o.executives > 0);
   const maturity = mean(withExec.map((o) => o.maturityCurrent));
@@ -93,7 +96,9 @@ function PreOrgs({ orgs }: { orgs: PreOrg[] }) {
         <StatCard label="역량 검사" sub="구성원 응시" value={totalRespondents} unit="명" />
         <StatCard
           label="종합 역량 수준"
-          sub={average === null ? '응시 없음' : `평균 ${score(average)}점`}
+          sub={
+            average === null ? '응시 없음' : `기업 ${withRegular.length}곳 평균 ${score(average)}점`
+          }
           value={levelOf(average) ?? '—'}
         />
         <StatCard label="성숙도 검사" sub="임원 응시" value={totalExecutives} unit="명" />
@@ -102,7 +107,7 @@ function PreOrgs({ orgs }: { orgs: PreOrg[] }) {
           sub={
             maturity === null
               ? '평균 없음'
-              : `현재 ${score(maturity)}점 → 목표 ${score(maturityTarget)}점`
+              : `기업 ${withExec.length}곳 · 현재 ${score(maturity)}점 → 목표 ${score(maturityTarget)}점`
           }
           value={`${stageOf(maturity) ?? '—'} → ${stageOf(maturityTarget) ?? '—'}`}
         />
@@ -182,6 +187,11 @@ function PreOrgs({ orgs }: { orgs: PreOrg[] }) {
       <Card title="읽는 범위">
         <ul className="txt-c1-regular space-y-2 text-gray-500">
           <li>
+            · 위 카드의 평균은 <b className="text-gray-900">기업별 평균을 다시 평균 낸 값</b>
+            입니다. 응시 인원으로 가중하지 않으므로, 인원이 적은 기업과 많은 기업이 같은 무게를
+            가집니다. 아래 표에서 기업별 숫자를 함께 봐 주세요.
+          </li>
+          <li>
             · 수준 옆의 숫자가 평균 점수입니다.{' '}
             <b className="text-gray-900">50 미만 입문 · 70 미만 초급 · 90 미만 중급</b> 으로
             나뉘며, 성숙도는 같은 구간을 도입·활용·통합·혁신이라 부릅니다.
@@ -195,8 +205,8 @@ function PreOrgs({ orgs }: { orgs: PreOrg[] }) {
             같은 기업으로 이어집니다.
           </li>
           <li>
-            · 사후검사와의 매칭은 <b className="text-gray-900">이름</b>으로 합니다. 이름은 맞출
-            때만 쓰고 저장하지 않으며, 보고서에는 개인이 등장하지 않습니다.
+            · 사후검사와의 매칭은 <b className="text-gray-900">이름</b>으로 합니다. 이름은 두 결과를
+            맞추는 데만 쓰고, 보고서에는 개인이 등장하지 않습니다.
           </li>
           <li>
             · 교육은 차수를 나눠 운영하지만 사전·사후검사는 모두{' '}

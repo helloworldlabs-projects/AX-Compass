@@ -258,7 +258,12 @@ export function InlineBars({
 
 /**
  * 0 을 기준으로 좌우로 뻗는다. 부호가 뜻을 가진 값에 쓴다.
- * 0 선은 한가운데가 아니라 양쪽이 필요한 만큼 나눠 갖는 자리에 둔다(눈금은 좌우 같다).
+ *
+ * **0 선은 한가운데에 둔다.** 값에 따라 옮기면 오른 쪽과 내린 쪽의 폭이 달라져,
+ * 어느 쪽이 큰지 눈으로 가늠할 기준이 사라진다. 한가운데에 두면 좌우가 거울처럼
+ * 맞아 부호가 먼저 읽힌다.
+ *
+ * 좌우 눈금은 같다 — 절댓값이 가장 큰 값이 절반을 꽉 채우고, 나머지는 그에 견준다.
  */
 export function DivergingBars({
   rows,
@@ -268,26 +273,28 @@ export function DivergingBars({
   unit?: string;
 }) {
   const values = rows.map((r) => r.value ?? 0);
-  const up = Math.max(0, ...values);
-  const down = Math.max(0, ...values.map((v) => -v));
-  const span = Math.max(1, up + down);
-  /** 0 선의 자리(왼쪽에서 %). 내림이 없으면 맨 왼쪽에 붙는다. */
-  const zero = (down / span) * 100;
+  /** 한쪽이 쓸 수 있는 폭은 절반이다. 그 안에서 가장 큰 값이 꽉 찬다. */
+  const widest = Math.max(1, ...values.map(Math.abs));
+  const ZERO = 50;
 
   return (
     <div className="space-y-2">
       {rows.map((row) => {
         const v = row.value ?? 0;
-        const width = (Math.abs(v) / span) * 100;
+        const width = (Math.abs(v) / widest) * ZERO;
         return (
           <div key={row.label} className="flex items-center gap-3">
             <span className="txt-c2-regular w-[72px] shrink-0 text-right text-gray-500">
               {row.label}
             </span>
             <span className="relative block h-4 flex-1">
+              {/*
+                0 선. 줄 사이 틈(space-y-2 = 8px)까지 위아래로 4px 씩 넘겨,
+                칸마다 끊기지 않고 한 줄로 이어 보이게 한다.
+              */}
               <span
-                className="absolute inset-y-0 w-px"
-                style={{ background: GRID, left: `${zero}%` }}
+                className="absolute -inset-y-1 w-px"
+                style={{ background: GRID, left: `${ZERO}%` }}
                 aria-hidden="true"
               />
               {row.value !== null && (
@@ -296,7 +303,7 @@ export function DivergingBars({
                   style={{
                     background: v >= 0 ? UP : DOWN,
                     width: `${width}%`,
-                    left: v >= 0 ? `${zero}%` : `${zero - width}%`,
+                    left: v >= 0 ? `${ZERO}%` : `${ZERO - width}%`,
                   }}
                 />
               )}

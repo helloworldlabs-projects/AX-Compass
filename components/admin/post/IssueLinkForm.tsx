@@ -6,8 +6,13 @@ import { AdminDialog } from '@/components/admin/Dialog';
 import { Button, FormError, INPUT_CLASS } from '@/components/admin/ui';
 import { useIssuePostLink } from '@/hooks/usePostLink';
 import { copyText } from '@/lib/admin/copy-text';
-import type { IssueCompany, IssueOptions } from '@/lib/admin/issue-options';
-import { todayKST } from '@/lib/admin/metrics';
+import type {
+  IssueCompany,
+  IssueOffering,
+  IssueOperator,
+  IssueOptions,
+} from '@/lib/admin/issue-options';
+import { rating, todayKST } from '@/lib/admin/metrics';
 import { notify } from '@/lib/admin/notify';
 import { cn } from '@/lib/utils';
 import { examUrlOf } from './CopyLinkButton';
@@ -30,7 +35,41 @@ interface Issued {
 }
 
 /**
+ * 고른 운영 건들에 연결된 학습 기업. **겹치는 것만 보지 않고 합친다.**
+ *
+ * 회차마다 참여 기업이 다를 수 있다. 겹치는 것만 두면 회차를 하나 더 고를 때
+ * 후보가 조용히 사라져, 담당자가 왜 안 나오는지 알 수 없다.
+ */
+function companiesOf(operator: IssueOperator | null, ids: string[]): IssueCompany[] {
+  if (!operator) return [];
+  const seen = new Map<number, IssueCompany>();
+  for (const o of operator.offerings) {
+    if (!ids.includes(o.offeringId)) continue;
+    for (const c of o.companies) if (!seen.has(c.institutionId)) seen.set(c.institutionId, c);
+  }
+  return [...seen.values()];
+}
+
+/**
+ * 링크에 적을 과정 이름.
+ *
+ * 여러 건을 묶으면 첫 이름에 "외 N건"을 붙인다. 전부 이어 붙이면 목록에서
+ * 잘려 읽을 수 없고, 저장할 수 있는 길이도 255자까지다.
+ */
+function courseTitleOf(chosen: IssueOffering[]): string {
+  const [first, ...rest] = chosen;
+  if (first === undefined) return '';
+  if (rest.length === 0) return first.title.slice(0, 255);
+  const suffix = ` 외 ${rest.length}건`;
+  return `${first.title.slice(0, 255 - suffix.length)}${suffix}`;
+}
+
+/**
  * 링크 발급. 운영 기관 → 교육 운영 건 → 학습 기업 순으로 좁힌다.
+ *
+ * 운영 건은 **여러 개를 고를 수 있다.** 한 기업이 같은 기간에 여러 과정을 들었으면
+ * 하나의 링크로 묶어야 사전·사후·만족도가 같은 범위를 가리킨다. 사전검사는 기업
+ * 단위라 어차피 같은 것을 보기 때문이다.
  *
  * 운영 건에 학습 기업이 연결되어 있으면 그 안에서만 고르고, 하나뿐이면 골라 둔다.
  * 연결이 없으면 사전검사를 치른 기업 가운데 직접 고른다. 한 번 쓴 운영 건도 계속
@@ -41,7 +80,7 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
 
   const [open, setOpen] = useState(false);
   const [operatorId, setOperatorId] = useState<number | null>(null);
-  const [offeringId, setOfferingId] = useState<string | null>(null);
+  const [offeringIds, setOfferingIds] = useState<string[]>([]);
   const [institutionId, setInstitutionId] = useState<number | null>(null);
   /** 기업을 직접 고를 때의 검색어. */
   const [query, setQuery] = useState('');
@@ -51,9 +90,10 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
   const [copyFailed, setCopyFailed] = useState(false);
 
   const operator = options.operators.find((o) => o.institutionId === operatorId) ?? null;
-  const offering = operator?.offerings.find((o) => o.offeringId === offeringId) ?? null;
+  // 고른 차례가 아니라 목록에 놓인 차례로 둔다. 이름을 만들 때 순서가 흔들리지 않아야 한다.
+  const chosen = operator?.offerings.filter((o) => offeringIds.includes(o.offeringId)) ?? [];
 
-  const linked = offering?.companies ?? [];
+  const linked = companiesOf(operator, offeringIds);
   const fromLink = linked.length > 0;
   const q = query.trim().toLowerCase();
   const pool: IssueCompany[] = fromLink
@@ -63,11 +103,11 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
       );
 
   const company = pool.find((c) => c.institutionId === institutionId) ?? null;
-  const canSubmit = offering !== null && company !== null && company.eligible && !issue.isPending;
+  const canSubmit = chosen.length > 0 && company !== null && company.eligible && !issue.isPending;
 
   function openDialog() {
     setOperatorId(null);
-    setOfferingId(null);
+    setOfferingIds([]);
     setInstitutionId(null);
     setQuery('');
     setDueOn(defaultDueOn());
@@ -81,40 +121,65 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
   function pickOperator(id: number) {
     setOperatorId(id);
     // 기관이 바뀌면 앞서 고른 것들은 뜻이 없다.
-    setOfferingId(null);
+    setOfferingIds([]);
     setInstitutionId(null);
     setQuery('');
   }
 
-  /** 운영 건을 고르면, 연결된 기업이 하나뿐일 때 그것으로 정해 둔다. */
-  function pickOffering(id: string) {
-    setOfferingId(id);
+  /**
+   * 운영 건을 켜고 끈다.
+   *
+   * 고른 것이 바뀌면 학습 기업 후보도 바뀐다. 후보가 하나뿐이면 골라 두고,
+   * 이미 고른 기업이 후보에서 빠졌으면 고른 것을 푼다 — 화면에 보이지 않는
+   * 기업에 링크가 나가면 안 된다.
+   */
+  function toggleOffering(id: string) {
+    const next = offeringIds.includes(id)
+      ? offeringIds.filter((x) => x !== id)
+      : [...offeringIds, id];
+    setOfferingIds(next);
     setQuery('');
-    const only = operator?.offerings.find((o) => o.offeringId === id)?.companies ?? [];
-    setInstitutionId(only.length === 1 ? only[0].institutionId : null);
+
+    if (next.length === 0) {
+      // 고른 운영 건이 없으면 학습 기업도 고른 것이 아니다. 3단계가 닫히면서
+      // 화면에서 사라지므로, 고른 채로 남겨 두면 보이지 않는 것이 골라져 있게 된다.
+      setInstitutionId(null);
+      return;
+    }
+
+    const companies = companiesOf(operator, next);
+    if (companies.length === 1) {
+      setInstitutionId(companies[0].institutionId);
+    } else if (
+      institutionId !== null &&
+      companies.length > 0 &&
+      !companies.some((c) => c.institutionId === institutionId)
+    ) {
+      setInstitutionId(null);
+    }
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit || !operator || !offering || !company) return;
+    if (!canSubmit || !operator || chosen.length === 0 || !company) return;
+    const courseTitle = courseTitleOf(chosen);
     issue.mutate(
       {
         institutionId: company.institutionId,
-        // 고른 운영 건의 이름을 손대지 않고 그대로 쓴다 (원본과 같다).
-        courseTitle: offering.title.slice(0, 255),
+        courseTitle,
         dueOn,
-        offeringIds: [offering.offeringId],
+        offeringIds: chosen.map((o) => o.offeringId),
       },
       {
         onSuccess: (link) =>
           setIssued({
             org: link.org,
-            course: link.course ?? offering.title,
+            course: link.course ?? courseTitle,
             dueOn: link.dueOn,
             target: company.preRespondents,
             slug: link.slug,
             operator: operator.name,
-            offering: offering.title,
+            offering: courseTitle,
           }),
       },
     );
@@ -216,24 +281,24 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
               {operator && (
                 <Step
                   no="2"
-                  label="교육 운영 건"
-                  hint="이번 사후검사가 다루는 교육입니다. 보고서의 교육 개요와 만족도를 이 건에서 가져옵니다."
+                  label={`교육 운영 건${chosen.length > 0 ? ` · ${chosen.length}건 고름` : ''}`}
+                  hint="이번 사후검사가 다루는 교육입니다. 보고서의 교육 개요와 만족도를 이 건에서 가져옵니다. 같은 기업이 여러 과정을 들었으면 함께 고르면 됩니다."
                 >
                   <ScrollList>
                     {operator.offerings.map((o) => {
-                      const on = o.offeringId === offeringId;
+                      const on = offeringIds.includes(o.offeringId);
                       return (
                         <li key={o.offeringId}>
                           <button
                             type="button"
                             aria-pressed={on}
-                            onClick={() => pickOffering(o.offeringId)}
+                            onClick={() => toggleOffering(o.offeringId)}
                             className={cn(
                               'flex w-full items-start gap-3 px-4 py-3 text-left transition-colors duration-200',
                               on ? 'bg-special-blue-100' : 'hover:bg-adm-line-soft',
                             )}
                           >
-                            <Dot on={on} />
+                            <Check on={on} />
                             <span className="min-w-0 flex-1">
                               <span className="txt-c1-bold block text-gray-900">
                                 {o.title}
@@ -246,7 +311,7 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
                               <span className="txt-c2-regular mt-0.5 block text-gray-500">
                                 {o.startDate ?? '기간 미정'}
                                 {o.endDate ? ` ~ ${o.endDate}` : ''} · 수강 {o.enrolled}명 · 만족도{' '}
-                                {o.respondents}명{o.mean !== null && ` · ${o.mean}점`}
+                                {o.respondents}명{o.mean !== null && ` · ${rating(o.mean)}점`}
                                 {o.companies.length > 0 && ` · 학습 기업 ${o.companies.length}곳`}
                               </span>
                             </span>
@@ -258,14 +323,16 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
                 </Step>
               )}
 
-              {offering && (
+              {chosen.length > 0 && (
                 <Step
                   no="3"
                   label="학습 기업"
                   hint={
                     fromLink
-                      ? '이 교육에 연결된 기업입니다. 링크는 이 기업 앞으로 나갑니다.'
-                      : '이 교육에는 학습 기업이 연결되어 있지 않습니다. 사전검사를 치른 기업 가운데 직접 고릅니다.'
+                      ? chosen.length > 1
+                        ? '고른 교육들에 연결된 기업을 모두 모았습니다. 링크는 고른 기업 하나 앞으로 나갑니다.'
+                        : '이 교육에 연결된 기업입니다. 링크는 이 기업 앞으로 나갑니다.'
+                      : '고른 교육에는 학습 기업이 연결되어 있지 않습니다. 사전검사를 치른 기업 가운데 직접 고릅니다.'
                   }
                 >
                   {!fromLink && (
@@ -326,7 +393,7 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
                 </Step>
               )}
 
-              {company?.eligible && (
+              {chosen.length > 0 && company?.eligible && (
                 <>
                   {/* 과정명은 받지 않는다. 2단계의 운영 건이 곧 이 검사가 다루는 교육이다. */}
                   <div>
@@ -349,7 +416,7 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
                   <div className="bg-gray-0 rounded-[16px] px-5 py-4">
                     <p className="txt-c1-regular text-gray-500">
                       <b className="text-gray-900">{operator?.name}</b>이(가) 운영한{' '}
-                      <b className="text-gray-900">{offering?.title}</b>의 사후검사를{' '}
+                      <b className="text-gray-900">{courseTitleOf(chosen)}</b>의 사후검사를{' '}
                       <b className="text-gray-900">{company.name}</b>에 보냅니다. 대상 인원은{' '}
                       <b className="text-gray-900">{company.preRespondents}명</b>으로, 그 기업에서
                       사전검사를 치른 사람 수이자 응답률의 분모입니다.
@@ -410,6 +477,30 @@ function ScrollList({ children }: { children: ReactNode }) {
     <div className="max-h-[240px] overflow-y-auto rounded-[16px] border border-gray-100">
       <ul className="divide-adm-line-soft divide-y">{children}</ul>
     </div>
+  );
+}
+
+/** 여러 개를 고르는 자리의 표시. 체크박스 자리다. */
+function Check({ on }: { on: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'mt-1 flex size-4 shrink-0 items-center justify-center rounded-[5px] border',
+        on ? 'border-adm-brand bg-adm-brand' : 'border-gray-200 bg-white',
+      )}
+    >
+      {on && (
+        <svg viewBox="0 0 12 12" className="size-3 text-white" fill="none" stroke="currentColor">
+          <path
+            d="M2.5 6.2 4.9 8.5 9.5 3.6"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </span>
   );
 }
 

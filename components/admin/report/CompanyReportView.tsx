@@ -6,6 +6,7 @@ import {
   courseInsight,
   departmentInsight,
   levelInsight,
+  manyCourses,
   overallInsight,
   profileInsight,
   satisfactionInsight,
@@ -18,6 +19,7 @@ import {
   SCALE_MAX,
   educationTypeName,
   levelOf,
+  rating,
   score,
   stageOf,
 } from '@/lib/admin/metrics';
@@ -142,7 +144,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
           />
           <Figure
             label="교육 만족도"
-            value={r.satisfaction.overall ?? '—'}
+            value={rating(r.satisfaction.overall)}
             unit={`/ ${SCALE_MAX}`}
             sub={
               r.satisfaction.respondents > 0
@@ -161,7 +163,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
                 '프로필 유형',
                 r.profile.rows.length === 0
                   ? '—'
-                  : `${r.profile.rows[0].name}이 가장 많습니다 (사후 ${r.profile.rows[0].postShare}%)`,
+                  : `${with_(r.profile.rows[0].name, '이')} 가장 많습니다 (사후 ${r.profile.rows[0].postShare}%)`,
               ],
               [
                 '응답 범위',
@@ -186,7 +188,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
               <div className="grid gap-3 lg:grid-cols-4 print:grid-cols-4">
                 <Figure
                   label="전체 만족도"
-                  value={r.satisfaction.overall ?? '—'}
+                  value={rating(r.satisfaction.overall)}
                   unit={`/ ${SCALE_MAX}`}
                 />
                 <Figure label="교육 회차" value={r.satisfaction.cohorts} unit="개" />
@@ -215,7 +217,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
                         />
                       </span>
                       <span className="txt-c1-bold w-[46px] shrink-0 text-right text-gray-900 tabular-nums">
-                        {m.mean}
+                        {rating(m.mean)}
                       </span>
                     </div>
                   ))}
@@ -240,13 +242,15 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
       <Chapter
         no="02"
         title="교육 개요"
-        description="이 보고서가 다루는 교육이 무엇인지 먼저 밝힙니다. 아래의 모든 수치는 이 과정들을 거친 뒤에 측정한 것입니다."
+        description={`이 보고서가 다루는 교육이 무엇인지 먼저 밝힙니다. 아래의 모든 수치는 ${
+          manyCourses(r) ? '이 과정들을' : '이 과정을'
+        } 거친 뒤에 측정한 것입니다.`}
       >
         <Lead>
           {[
             // 보고서를 받는 기업은 교육을 받은 쪽이다. "진행했습니다"는 운영 기관의 말이다.
             `${with_(r.link.org, '은')} 아래 ${r.satisfaction.courses.length}개 회차의 교육을 받았습니다. 회차 정보와 수강 인원은 SafariOn 운영 기록에서 그대로 가져왔습니다.`,
-            '교육 만족도와 사후검사는 이 과정들을 마친 구성원을 대상으로 수집하였습니다.',
+            `교육 만족도와 사후검사는 ${manyCourses(r) ? '이 과정들을' : '이 과정을'} 마친 구성원을 대상으로 수집하였습니다.`,
           ]}
         </Lead>
 
@@ -299,7 +303,8 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
           {[
             '교육이 끝난 직후 수강생에게 받은 설문입니다. 뒤에 나오는 역량 변화가 "무엇이 달라졌는가"를 말한다면, 만족도는 "교육을 어떻게 받아들였는가"를 말합니다. 둘을 나란히 두어야 점수가 오르지 않은 이유나 오른 이유를 교육 쪽에서 찾을 수 있습니다.',
             '지표는 여섯입니다. 콘텐츠는 다룬 내용이 맞았는지, 강사는 설명이 닿았는지, 실습은 직접 해 볼 수 있었는지, 운영은 진행과 자료가 받쳐 주었는지, 학습 경험은 배우는 동안의 느낌이 어땠는지, 현업 적용은 배운 것을 자기 업무로 가져갈 수 있겠는지를 묻습니다.',
-            '회차가 여럿이면 회차 평균을 다시 평균 내지 않고 응답 하나하나를 모아 계산합니다. 응답이 적은 회차가 많은 회차와 같은 무게를 갖지 않도록 하기 위해서입니다.',
+            r.satisfaction.cohorts > 1 &&
+              '회차가 여럿이면 회차 평균을 다시 평균 내지 않고 응답 하나하나를 모아 계산합니다. 응답이 적은 회차가 많은 회차와 같은 무게를 갖지 않도록 하기 위해서입니다.',
           ]}
         </Lead>
 
@@ -320,7 +325,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
               {r.satisfaction.metrics.map((m) => (
                 <tr key={m.code} className={ROW_CLASS}>
                   <Td className="txt-c1-bold">{m.label}</Td>
-                  <Td className="txt-c1-bold tabular-nums">{m.mean ?? '—'}</Td>
+                  <Td className="txt-c1-bold tabular-nums">{rating(m.mean)}</Td>
                   <Td className="text-gray-500 tabular-nums">{m.answers}건</Td>
                 </tr>
               ))}
@@ -347,7 +352,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
                 <tr key={q.questionId} className={ROW_CLASS}>
                   <Td>{q.content}</Td>
                   <Td className="text-gray-500">{metricLabel(q.metric)}</Td>
-                  <Td className="txt-c1-bold tabular-nums">{q.mean}</Td>
+                  <Td className="txt-c1-bold tabular-nums">{rating(q.mean)}</Td>
                   <Td className="text-gray-500 tabular-nums">{q.answers}건</Td>
                 </tr>
               ))}
@@ -515,7 +520,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
           result={r.overall.paired}
           extra={
             r.overall.paired.usable
-              ? `${r.overall.paired.meanBefore} → ${r.overall.paired.meanAfter}, t = ${r.overall.paired.t}, dz = ${r.overall.paired.dz} · 오름 ${r.overall.paired.up}명 / 내림 ${r.overall.paired.down}명`
+              ? `${score(r.overall.paired.meanBefore)} → ${score(r.overall.paired.meanAfter)}, t = ${r.overall.paired.t}, dz = ${r.overall.paired.dz} · 오름 ${r.overall.paired.up}명 / 내림 ${r.overall.paired.down}명`
               : undefined
           }
         />
@@ -804,7 +809,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
           result={r.gaps.sr.paired}
           extra={
             r.gaps.sr.paired.usable
-              ? `${r.gaps.sr.paired.meanBefore} → ${r.gaps.sr.paired.meanAfter}`
+              ? `${score(r.gaps.sr.paired.meanBefore)} → ${score(r.gaps.sr.paired.meanAfter)}`
               : undefined
           }
         />
@@ -813,7 +818,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
           result={r.gaps.sb.paired}
           extra={
             r.gaps.sb.paired.usable
-              ? `${r.gaps.sb.paired.meanBefore} → ${r.gaps.sb.paired.meanAfter}`
+              ? `${score(r.gaps.sb.paired.meanBefore)} → ${score(r.gaps.sb.paired.meanAfter)}`
               : undefined
           }
         />
@@ -1302,7 +1307,9 @@ function CourseTable({ courses }: { courses: CompanyReport['satisfaction']['cour
           <Td className="tabular-nums">{c.enrolled}명</Td>
           <Td className="text-gray-500 tabular-nums">
             {c.respondents}명
-            {c.mean !== null && <span className="txt-c1-bold ml-1.5 text-gray-900">{c.mean}</span>}
+            {c.mean !== null && (
+              <span className="txt-c1-bold ml-1.5 text-gray-900">{rating(c.mean)}</span>
+            )}
           </Td>
         </tr>
       ))}
@@ -1382,7 +1389,11 @@ function CourseDetail({ course }: { course: CourseOverview }) {
   );
 }
 
-/** 객관식 한 문항. 많이 고른 선택지부터 막대로 편다. */
+/**
+ * 객관식 한 문항. 많이 고른 선택지부터 막대로 편다.
+ *
+ * `share` 는 API 가 0~1 비율로 준다(참조 API 명세). 백분율로 바꿔서 찍는다.
+ */
 function ChoiceBars({ question }: { question: ChoiceQuestion }) {
   return (
     <ul className="space-y-2.5">
@@ -1391,14 +1402,14 @@ function ChoiceBars({ question }: { question: ChoiceQuestion }) {
           <div className="flex items-baseline justify-between gap-3">
             <span className="txt-c1-regular text-gray-900">{o.text}</span>
             <span className="txt-c2-bold shrink-0 text-gray-500 tabular-nums">
-              {o.count}명 · {o.share}%
+              {o.count}명 · {Math.round(o.share * 100)}%
             </span>
           </div>
           <span className="bg-adm-track-fill mt-1 block h-1.5 rounded-full">
             <span
               className="block h-1.5 rounded-full"
               style={{
-                width: `${o.share}%`,
+                width: `${o.share * 100}%`,
                 background: o.count === 0 ? 'transparent' : CHART_COLORS.POST,
               }}
             />

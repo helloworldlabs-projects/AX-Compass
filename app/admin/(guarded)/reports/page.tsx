@@ -24,7 +24,7 @@ import { usePostLinks } from '@/hooks/usePostLink';
 import { useReportRecords } from '@/hooks/usePostReport';
 import { useScoredPostResponsesByLinks } from '@/hooks/usePostResponse';
 import { useInstitutionSatisfactions, usePreOrgs } from '@/hooks/useReference';
-import { score } from '@/lib/admin/metrics';
+import { rating, score } from '@/lib/admin/metrics';
 import { mean } from '@/lib/admin/post-stats';
 import { cn } from '@/lib/utils';
 
@@ -197,7 +197,7 @@ export default function ReportsPage() {
                 <Td className="tabular-nums">
                   {r.sat ? (
                     <>
-                      {r.sat.mean ?? '—'}
+                      {rating(r.sat.mean)}
                       <span className="txt-c2-regular ml-1.5 text-gray-500">
                         {r.sat.respondents}명
                       </span>

@@ -1,5 +1,5 @@
 import { COURSES, type Course, type Level } from '@/lib/admin/courses';
-import { MEMBER_COMPETENCIES, levelOf, type MemberCompetency } from '@/lib/admin/metrics';
+import { MEMBER_COMPETENCIES, levelOf, rating, type MemberCompetency } from '@/lib/admin/metrics';
 import type { CompanyReport } from '@/lib/admin/report';
 import type { ProfileId } from '@/lib/admin/ax-scoring';
 import { with_ } from '@/lib/admin/josa';
@@ -161,7 +161,7 @@ export function recommendCourses(
   if (weakMetric && weakMetric.label.includes('현업')) {
     signals.push({
       weight: 3,
-      reason: `만족도에서 '${weakMetric.label}'이 ${weakMetric.mean}점으로 가장 낮습니다. 현업에 바로 쓰는 실습이 더 필요합니다`,
+      reason: `만족도에서 '${weakMetric.label}'이 ${rating(weakMetric.mean)}점으로 가장 낮습니다. 현업에 바로 쓰는 실습이 더 필요합니다`,
       match: (c) => c.family === '직무별 키트' || c.family === '주제별 레시피',
     });
   }

@@ -76,6 +76,10 @@ export default function PostPage() {
       return typeof pre === 'number' ? [pre] : [];
     }),
   );
+  // 두 값의 집계 방식이 다르다. 사후는 응답 한 건씩 모은 평균이라 인원이 많은
+  // 기업이 더 끌어당기고, 사전은 기업 평균을 다시 평균 낸 값이라 기업마다 무게가
+  // 같다. 그래서 이 향상도가 아래 기업별 향상도와 방향이 어긋날 수 있다.
+  // 계산을 바꾸면 이미 이 숫자를 본 사람과 어긋나므로, 기준을 화면에 적는다.
   const delta = diff(preMean, postMean);
 
   return (
@@ -106,7 +110,7 @@ export default function PostPage() {
           sub={
             delta === null
               ? '비교할 사전 기록 없음'
-              : `사전 ${score(preMean)} → 사후 ${score(postMean)}`
+              : `기업 평균 사전 ${score(preMean)} → 응답자 사후 ${score(postMean)}`
           }
           value={deltaText(delta)}
           unit={delta === null ? undefined : '점'}
@@ -183,6 +187,12 @@ export default function PostPage() {
           사전은 그 기업에서 사전검사를 치른 사람 전부, 사후는 응답한 사람 전부입니다. 같은 사람끼리
           짝지은 수가 아니므로, 변화의 일부는 응답한 사람이 달라 생긴 차이입니다. 응답률이 낮을수록
           이 차이가 커집니다.
+        </p>
+        <p className="txt-c1-regular mt-1.5 text-gray-500">
+          위 요약의 향상도는 <b className="text-gray-900">기업별 사전 평균을 다시 평균 낸 값</b>과{' '}
+          <b className="text-gray-900">응답자 전체의 사후 평균</b>을 견준 것입니다. 아래 기업별
+          향상도와 기준이 달라 방향이 어긋날 수 있습니다. 기업 단위로 판단할 때는 아래 표를 봐
+          주세요.
         </p>
       </div>
     </>
