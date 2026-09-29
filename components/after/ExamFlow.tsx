@@ -174,23 +174,43 @@ export function ExamFlow({
         ? SECTIONS.find((s) => s.id === step.section)
         : null;
 
+  /*
+    상단 바가 지금 어느 화면인지를 말한다.
+
+    예전에는 카드 안에도 같은 제목을 큰 글씨로 한 번 더 적었다. 같은 말이 두 번
+    나오면서 세로 자리를 빼앗아, 과정명이 긴 기업에서는 아래가 잘렸다.
+    제목은 상단 바에만 두고 카드는 내용으로 시작한다.
+
+    안내 화면에서는 "Step 1. 자기평가" 처럼 몇 번째인지까지 적는다 — 문항 화면으로
+    넘어가면 영역 이름만 남는다.
+  */
   const barLabel =
     step.kind === 'identify'
       ? '응시자 확인'
       : step.kind === 'intro'
         ? '검사 시작 전 안내'
-        : sectionMeta
-          ? `${sectionMeta.label}(${sectionMeta.english})`
-          : '검사 완료';
+        : step.kind === 'section-intro' && sectionMeta
+          ? sectionMeta.intro.title
+          : sectionMeta
+            ? `${sectionMeta.label}(${sectionMeta.english})`
+            : '검사 완료';
 
   return (
     <div className="mx-auto w-full max-w-[1000px] px-4 pt-8 pb-32 lg:px-6 lg:pb-20">
-      {/* 상단 바 — 왼쪽에 섹션 이름, 오른쪽에 진행 게이지 */}
-      <div className="flex flex-col gap-3 rounded-[16px] bg-white px-4 py-3 shadow-sm lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:px-6">
-        <span className="txt-c1-bold text-gray-900">❋ {barLabel}</span>
+      {/*
+        상단 바 — 왼쪽에 섹션 이름, 오른쪽에 진행 게이지.
 
-        <div className="flex shrink-0 items-center gap-3 self-stretch lg:self-auto">
-          <span className="txt-c2-bold shrink-0 whitespace-nowrap text-gray-500">진행 현황</span>
+        좁은 화면에서도 한 줄에 둔다. 아래로 내리면 게이지가 화면 너비를 다 차지해
+        남은 분량이 실제보다 길어 보인다. 대신 게이지를 줄이고 "진행 현황" 글자는
+        감춘다 — 게이지 안에 퍼센트가 찍혀 있어 무엇인지 알 수 있다.
+      */}
+      <div className="flex items-center justify-between gap-3 rounded-[16px] bg-white px-4 py-3 shadow-sm lg:gap-4 lg:px-6">
+        <span className="txt-b-bold min-w-0 truncate text-gray-900">{barLabel}</span>
+
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="txt-c2-bold hidden shrink-0 whitespace-nowrap text-gray-500 lg:inline">
+            진행 현황
+          </span>
 
           {/* 빈 알약(트랙) 안에서 안쪽 알약이 응답률만큼 차오른다. 숫자가 잘리지 않게 최소 너비를 준다. */}
           <div
@@ -199,10 +219,10 @@ export function ExamFlow({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label="진행 현황"
-            className="bg-special-dark-blue-100 h-9 w-full rounded-full p-1 lg:h-10 lg:w-[200px]"
+            className="bg-special-dark-blue-100 h-7 w-[92px] rounded-full p-1 lg:h-10 lg:w-[200px]"
           >
             <div
-              className="bg-special-dark-blue-500 flex h-full min-w-[52px] items-center justify-center rounded-full px-2.5 transition-[width] duration-300 ease-out lg:min-w-[60px] lg:px-3"
+              className="bg-special-dark-blue-500 flex h-full min-w-[42px] items-center justify-center rounded-full px-2 transition-[width] duration-300 ease-out lg:min-w-[60px] lg:px-3"
               style={{ width: `${progress}%` }}
             >
               <span className="txt-c2-bold text-white tabular-nums lg:text-[14px]">
@@ -257,10 +277,10 @@ export function ExamFlow({
               role="alert"
               className="border-special-pink-200 bg-special-pink-0 mb-3 rounded-[16px] border px-4 py-3 lg:max-w-[640px]"
             >
-              <p className="txt-c1-bold text-special-pink-600">
+              <p className="txt-b-bold text-special-pink-600">
                 {submitErrorText(submitMutation.error, cohort.dueOn)}
               </p>
-              <p className="txt-c1-regular mt-1 text-gray-500">
+              <p className="txt-b-regular mt-1 text-gray-500">
                 지금 창을 닫으면 응답이 사라집니다. 이 화면을 열어 둔 채 다시 제출해 주세요.
               </p>
             </div>
@@ -270,7 +290,7 @@ export function ExamFlow({
               type="button"
               disabled={!canAdvance || submitting || checkingName}
               onClick={primary}
-              className="txt-b-bold bg-adm-brand h-14 w-full rounded-[10px] px-10 text-white transition disabled:cursor-not-allowed disabled:bg-gray-200 lg:w-auto"
+              className="bg-adm-brand h-14 w-full rounded-[10px] px-10 text-[16px] leading-[150%] font-bold text-white transition disabled:cursor-not-allowed disabled:bg-gray-200 lg:w-auto"
             >
               {isLastItem
                 ? submitting
@@ -298,15 +318,22 @@ const SCREEN_CLASS =
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-gray-0 rounded-[16px] px-4 py-4 lg:px-6 lg:py-5">
-      <p className="txt-b-bold text-gray-900">❋ {title}</p>
+      <p className="txt-st2-bold text-gray-900">{title}</p>
       <ul className="mt-3 space-y-2">{children}</ul>
     </div>
   );
 }
 
+/*
+  안내 한 줄.
+
+  txt-c1 은 캡션용이라 좁은 화면에서 12px 에 줄간격 130% 다. 한 줄짜리 꼬리표에는
+  맞지만 여러 줄로 감기는 한글 문단에는 빡빡하고 작다. 응시자가 휴대폰으로 읽는
+  글이므로 본문 크기(txt-b, 줄간격 150%)로 둔다.
+*/
 function Bullet({ children }: { children: React.ReactNode }) {
   return (
-    <li className="txt-c1-regular flex gap-2 text-gray-500">
+    <li className="txt-b-regular flex gap-2 text-gray-500">
       <span aria-hidden="true" className="text-gray-400">
         ·
       </span>
@@ -332,18 +359,24 @@ function Identify({
 }) {
   return (
     <section className={SCREEN_CLASS}>
-      <h1 className="txt-t3 text-center text-gray-900">❋ 응시자 확인</h1>
-
-      <div className="mx-auto mt-6 w-full max-w-[560px]">
+      <div className="mx-auto w-full max-w-[560px]">
         {/* 링크를 잘못 받은 사람이 스스로 알아챌 수 있도록 소속을 먼저 보여준다. */}
         <div className="bg-special-blue-100 rounded-[16px] px-5 py-6 text-center lg:px-8">
           <p className="txt-c1-bold text-special-blue-500">아래 교육의 사후검사입니다</p>
 
           <p className="txt-t3 text-adm-brand mt-3">{cohort.org}</p>
 
-          {/* 과정 알약 옆 구분은 미리보기일 때만 — 실제 응시가 아니라는 사실이 화면 안에 붙어 있어야 한다. */}
+          {/*
+            과정 이름 옆 구분은 미리보기일 때만 — 실제 응시가 아니라는 사실이 화면 안에
+            붙어 있어야 한다.
+
+            실제 과정명은 "[메인비즈 아산지회] [역량강화 : n8n] 에이전틱 워크플로우를…"
+            처럼 길다. 좁은 화면에서 서너 줄로 감기므로 알약(rounded-full) 대신 상자로
+            둔다 — 여러 줄이 되면 알약 모양이 무너진다. break-keep 으로 낱말 가운데서
+            줄이 갈리지 않게 한다.
+          */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <span className="txt-b-bold rounded-full bg-white px-4 py-2 text-gray-900">
+            <span className="txt-b-bold max-w-full rounded-[16px] bg-white px-4 py-2 break-keep text-gray-900">
               {cohort.title}
             </span>
             {preview && (
@@ -385,7 +418,7 @@ function Identify({
               {error}
             </p>
           ) : (
-            <p id="respondent-name-help" className="txt-c1-regular text-special-pink-600 mt-2.5">
+            <p id="respondent-name-help" className="txt-b-regular text-special-pink-600 mt-2.5">
               사전검사 때 입력하신 이름과 <b>똑같이</b> 적어 주세요. 다르게 적으면 이전 결과와
               비교할 수 없습니다.
             </p>
@@ -393,7 +426,7 @@ function Identify({
         </div>
 
         <div className="bg-gray-0 mt-6 rounded-[16px] px-5 py-4">
-          <p className="txt-c1-regular text-gray-500">
+          <p className="txt-b-regular text-gray-500">
             입력하신 이름은 사전검사 결과와 대조하는 용도로만 사용됩니다.
             <br />
             기업에 전달되는 보고서에는{' '}
@@ -409,9 +442,7 @@ function Identify({
 function Intro() {
   return (
     <section className={cn(SCREEN_CLASS, 'lg:py-10')}>
-      <h1 className="txt-t3 text-center text-gray-900">❋ 검사 시작 전 안내</h1>
-
-      <div className="mt-8 space-y-4">
+      <div className="space-y-4">
         <Panel title="검사 구성 안내">
           <Bullet>
             <b className="text-gray-900">자기 평가</b> — 현재 나의 AI 이해 수준과 활용 자신감을
@@ -452,10 +483,8 @@ function Intro() {
 function SectionIntro({ meta }: { meta: (typeof SECTIONS)[number] }) {
   return (
     <section className={cn(SCREEN_CLASS, 'lg:py-10')}>
-      <h1 className="txt-t3 text-adm-brand text-center">❋ {meta.intro.title}</h1>
-
       {/* 왼쪽에 안내, 오른쪽에 문항 예시. 좁은 화면에서는 안내가 먼저 온다. */}
-      <div className="mt-8 grid items-start gap-4 md:grid-cols-2 md:gap-6">
+      <div className="grid items-start gap-4 md:grid-cols-2 md:gap-6">
         <div className="space-y-4">
           <Panel title="평가 안내">
             {meta.intro.guide.map((g) => (
@@ -599,14 +628,18 @@ function StarScale({
   );
 }
 
+/*
+  별 하나.
+
+  크기를 화면에 맞춘다. 42px 고정이면 좁은 화면에서는 손가락으로 누르기에 빠듯하고,
+  넓은 화면에서는 남는 자리에 비해 작아 보인다.
+*/
 function Star({ filled }: { filled: boolean }) {
   return (
     <svg
-      width="42"
-      height="42"
       viewBox="0 0 24 24"
       aria-hidden="true"
-      className="text-special-orange-500"
+      className="text-special-orange-500 size-[44px] lg:size-[56px]"
     >
       <path
         d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"
@@ -662,7 +695,7 @@ function OptionChoice({
                 <span className="txt-b-bold w-6 shrink-0 text-center text-gray-900 lg:w-9 lg:text-[20px]">
                   {o.code})
                 </span>
-                <span className="txt-c1-regular min-w-0 flex-1 rounded-[10px] bg-white px-3 py-2.5 text-gray-700 shadow-sm lg:px-5 lg:py-3.5">
+                <span className="txt-b-regular min-w-0 flex-1 rounded-[10px] bg-white px-3 py-2.5 text-gray-700 shadow-sm lg:px-5 lg:py-3.5">
                   {o.text}
                 </span>
               </span>
@@ -692,12 +725,12 @@ function Done({ answered, total }: { answered: number; total: number }) {
         </svg>
       </div>
       <h1 className="txt-t3 mt-6 text-gray-900">검사가 완료되었습니다</h1>
-      <p className="txt-c1-regular mt-3 text-gray-500">
+      <p className="txt-b-regular mt-3 text-gray-500">
         {total}문항 중 {answered}문항에 응답하셨습니다.
         <br />
         결과는 교육 담당자를 통해 기업 단위 보고서로 전달됩니다.
       </p>
-      <p className="txt-c1-regular mt-8 text-gray-500">이제 창을 닫으셔도 됩니다.</p>
+      <p className="txt-b-regular mt-8 text-gray-500">이제 창을 닫으셔도 됩니다.</p>
     </section>
   );
 }
