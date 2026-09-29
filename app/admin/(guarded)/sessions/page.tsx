@@ -101,7 +101,14 @@ export default function SessionsPage() {
                 <tr key={l.id} className={ROW_CLASS}>
                   <Td className="txt-c1-bold text-gray-900">{l.org}</Td>
                   <Td className="text-gray-500 tabular-nums">{l.code}</Td>
-                  <Td className="text-gray-500">{l.course ?? '—'}</Td>
+                  <Td className="text-gray-500">
+                    {l.course ?? '—'}
+                    {l.offerings.length > 1 && (
+                      <span className="txt-c2-regular mt-0.5 block text-gray-400">
+                        {l.offerings.map((o) => o.title).join(' · ')}
+                      </span>
+                    )}
+                  </Td>
                   <Td className="tabular-nums">{target > 0 ? `${target}명` : '—'}</Td>
                   <Td className="txt-c1-bold tabular-nums">
                     {countOf(l.id)}명
@@ -154,6 +161,12 @@ export default function SessionsPage() {
             · 교육은 차수를 나눠 운영하지만 사후검사는{' '}
             <b className="text-gray-900">기업 단위로 한 번</b> 실시합니다. 사전검사도 같은 방식이라
             두 결과가 기업에서 그대로 맞물립니다.
+          </li>
+          <li>
+            · 한 기업이 여러 과정을 들었다면 발급할 때{' '}
+            <b className="text-gray-900">과정을 여러 개 고를 수 있습니다</b>. 고른 과정들의 만족도가
+            한 보고서에 함께 실립니다. 과정 이름은 첫 과정에 &quot;외 N건&quot;을 붙여 적고, 묶인
+            과정은 위 표의 과정 칸에 모두 나옵니다.
           </li>
         </ul>
       </Card>
