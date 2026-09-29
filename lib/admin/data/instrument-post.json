@@ -1,0 +1,1159 @@
+{
+  "meta": {
+    "phase": "post",
+    "source": "AX Compass 인공지능 역량 개요 — 사후 문항 ITEM BANK",
+    "parsedAt": "2026-09-18"
+  },
+  "config": {
+    "scoring.weight.A": "0.3",
+    "scoring.weight.B": "0.5",
+    "scoring.weight.C": "0.2",
+    "scale.likert.min": "1",
+    "scale.likert.max": "5",
+    "scale.score.min": "0",
+    "scale.score.max": "100",
+    "normalize.likert.method": "map",
+    "normalize.sjt.method": "lookup",
+    "normalize.sjt.lookup_table": "SJT_KEY",
+    "profile.metric.SE": "Self-Estimate",
+    "profile.metric.SJ": "Situational Judgment",
+    "profile.metric.BH": "Behavior Habit",
+    "gap.SR": "SE - SJ",
+    "gap.SB": "SJ - BH"
+  },
+  "likertMap": [
+    {
+      "likert": 1,
+      "score": 0
+    },
+    {
+      "likert": 2,
+      "score": 25
+    },
+    {
+      "likert": 3,
+      "score": 50
+    },
+    {
+      "likert": 4,
+      "score": 75
+    },
+    {
+      "likert": 5,
+      "score": 100
+    }
+  ],
+  "competencies": [
+    {
+      "id": "U",
+      "name": "이해(Understand)",
+      "weight": 0.2
+    },
+    {
+      "id": "P",
+      "name": "활용(Use & Apply)",
+      "weight": 0.3
+    },
+    {
+      "id": "E",
+      "name": "평가·개선(Evaluate & Improve)",
+      "weight": 0.3
+    },
+    {
+      "id": "R",
+      "name": "책임·거버넌스(Responsible Use)",
+      "weight": 0.2
+    }
+  ],
+  "components": [
+    {
+      "section": "A",
+      "name": "자기평가(SE)",
+      "weight": 0.3
+    },
+    {
+      "section": "B",
+      "name": "상황판단(SJ)",
+      "weight": 0.5
+    },
+    {
+      "section": "C",
+      "name": "행동빈도(BH)",
+      "weight": 0.2
+    }
+  ],
+  "subCompetencies": [
+    {
+      "tag": "a",
+      "parent": "이해(Understand)",
+      "name": "AI/LLM 작동 원리 이해 역량",
+      "definition": "AI/LLM의 기본 구조와 동작 흐름(입력 → 추론 → 출력)을 이해하고, 어떤 과업에 강한지와 약한지를 설명합니다."
+    },
+    {
+      "tag": "b",
+      "parent": "이해(Understand)",
+      "name": "생성형 AI 오류·리스크 이해 역량",
+      "definition": "환각, 편향, 최신성 한계를 이해하고, 사실·법무·대외문서 등에서 위험이 커지는 상황을 구분합니다."
+    },
+    {
+      "tag": "c",
+      "parent": "이해(Understand)",
+      "name": "컨텍스트·제약에 따른 결과 변동 이해 역량",
+      "definition": "프롬프트, 컨텍스트, 제약 조건 변화가 결과에 미치는 영향을 이해하고, 변동 원인을 설명하거나 예측합니다."
+    },
+    {
+      "tag": "d",
+      "parent": "활용(Use & Apply)",
+      "name": "프롬프트·요구사항 명세화 역량",
+      "definition": "목표, 입력, 제약, 출력 형식을 명확히 정의해 요청을 구성하고, 재현 가능한 형태로 정리합니다."
+    },
+    {
+      "tag": "e",
+      "parent": "활용(Use & Apply)",
+      "name": "업무 유스케이스 선정·적용 설계 역량",
+      "definition": "업무 과제를 AI 적용 대상으로 선별하고, 적용 위치, 산출물, 검증 방식까지 포함해 업무 흐름에 맞게 설계합니다."
+    },
+    {
+      "tag": "f",
+      "parent": "활용(Use & Apply)",
+      "name": "워크플로우·도구 조합 운영 역량",
+      "definition": "템플릿과 도구 조합으로 반복 사용을 표준화하고, 자동화(단계화·연결) 수준을 점진적으로 높입니다."
+    },
+    {
+      "tag": "g",
+      "parent": "평가·개선(Evaluate & Improve)",
+      "name": "AI 출력 사실·근거 검증 역량",
+      "definition": "핵심 주장, 수치, 정책 등 검증 포인트를 식별하고, 근거 확인과 교차 검증으로 신뢰도를 확보합니다."
+    },
+    {
+      "tag": "h",
+      "parent": "평가·개선(Evaluate & Improve)",
+      "name": "AI 결과 품질 기준 평가 역량",
+      "definition": "정확성, 누락, 논리, 형식, 톤 기준으로 결과를 평가하고, 사용 가능 여부와 수정 범위를 판단합니다."
+    },
+    {
+      "tag": "i",
+      "parent": "평가·개선(Evaluate & Improve)",
+      "name": "실험·피드백 기반 반복 개선 역량",
+      "definition": "비교 생성(A/B), 조건 조정, 실패 케이스 반영 등으로 결과를 개선하고, 재사용 가능한 규칙으로 축적합니다."
+    },
+    {
+      "tag": "j",
+      "parent": "책임·거버넌스(Responsible Use)",
+      "name": "AI 데이터 보안·개인정보 처리 역량",
+      "definition": "개인정보와 기밀을 익명화·최소화하고, 도구 사용 범위와 권한 경계를 지켜 안전하게 처리합니다."
+    },
+    {
+      "tag": "k",
+      "parent": "책임·거버넌스(Responsible Use)",
+      "name": "AI 저작권·윤리 리스크 대응 역량",
+      "definition": "저작권, 표절, 편향, 책임 이슈를 인지하고, 출처 표기, 검토, 대체 방식으로 리스크를 예방합니다."
+    },
+    {
+      "tag": "l",
+      "parent": "책임·거버넌스(Responsible Use)",
+      "name": "AI 운영 거버넌스 준수 역량",
+      "definition": "조직의 정책, 승인된 도구, 데이터 경계, 로그·감사 기준을 준수하고, 운영 관점에서 통제 가능하게 적용합니다."
+    }
+  ],
+  "levels": [
+    {
+      "level": "입문",
+      "min": 0,
+      "max": 49
+    },
+    {
+      "level": "초급",
+      "min": 50,
+      "max": 69
+    },
+    {
+      "level": "중급",
+      "min": 70,
+      "max": 89
+    },
+    {
+      "level": "고급",
+      "min": 90,
+      "max": 100
+    }
+  ],
+  "caps": [
+    {
+      "condition": "(E < 50) OR (R < 50)",
+      "capLevel": "초급",
+      "note": "사고(품질/보안) 리스크가 커 상한을 초급으로 제한"
+    },
+    {
+      "condition": "(E < 70) OR (R < 70)",
+      "capLevel": "중급",
+      "note": "검증/안전 역량이 충분치 않으면 고급 제한"
+    },
+    {
+      "condition": "else",
+      "capLevel": "제한 없음",
+      "note": "제한 없이 종합 점수대로"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "BALANCED",
+      "name": "균형형",
+      "description": "판단과 실행이 고르게 나타나며, AX를 이해하는 과정과 실제 활용하는 과정이 비교적 안정적으로 균형을 이루는 타입.",
+      "condition": "(SJ >= 70) AND (BH >= 70) AND abs(Gap_SR) < 12 AND abs(Gap_SB) < 12"
+    },
+    {
+      "id": "OVERCONFIDENT",
+      "name": "과신형",
+      "description": "자신감을 바탕으로 새로운 도구나 방식을 빠르게 시도하는 편이며, 판단과 검증보다 확신이 먼저 형성되는 경향이 비교적 뚜렷하게 나타나는 타입.",
+      "condition": "(Gap_SR >= 15) AND ((SJ < 70) OR (BH < 70))"
+    },
+    {
+      "id": "DOER",
+      "name": "실행형",
+      "description": "실행 전환이 빠르고 새로운 도구를 실제로 활용해보는 데 적극적이며, 직접 써보는 경험을 통해 활용 감각과 적용 범위를 넓혀가는 타입.",
+      "condition": "(BH >= 75) AND ((SJ < 65) OR (BH - SJ >= 15))"
+    },
+    {
+      "id": "ANALYST",
+      "name": "판단형",
+      "description": "위험 요소와 활용 맥락을 신중하게 살피는 편이며, 충분한 검토와 판단을 바탕으로 실행 방향과 활용 가능성을 정리해 나가는 타입.",
+      "condition": "(SJ >= 75) AND ((BH < 60) OR (SJ - BH >= 15))"
+    },
+    {
+      "id": "CAUTIOUS",
+      "name": "조심형",
+      "description": "안정성과 익숙함을 우선해 새로운 활용에 천천히 접근하는 편이며, 부담이 낮고 익숙한 방식부터 활용 범위를 점차 넓혀가는 타입.",
+      "condition": "(SE < 55) AND (BH < 55) AND (SJ < 65)"
+    },
+    {
+      "id": "LEARNER",
+      "name": "이해형",
+      "description": "개념과 원리를 먼저 이해하는 데 강점이 있으며, 이해한 내용을 바탕으로 실제 적용 가능성과 활용 방법을 차근차근 연결해 나가는 타입.",
+      "condition": "default"
+    }
+  ],
+  "groups": [
+    {
+      "id": "EXPAND",
+      "name": "이해·확장형",
+      "description": "개념 이해 후 사례 연결과 적용 확장을 중심으로 학습하는 그룹"
+    },
+    {
+      "id": "VERIFY",
+      "name": "검증·점검형",
+      "description": "기준 확인과 점검, 검토·보완을 중심으로 학습하는 그룹"
+    },
+    {
+      "id": "ACTIVATE",
+      "name": "실행 유도형",
+      "description": "예시 제시와 따라하기, 즉시 적용을 중심으로 학습하는 그룹"
+    }
+  ],
+  "profileGroup": [
+    {
+      "profile": "BALANCED",
+      "group": "EXPAND"
+    },
+    {
+      "profile": "LEARNER",
+      "group": "EXPAND"
+    },
+    {
+      "profile": "OVERCONFIDENT",
+      "group": "VERIFY"
+    },
+    {
+      "profile": "DOER",
+      "group": "VERIFY"
+    },
+    {
+      "profile": "ANALYST",
+      "group": "ACTIVATE"
+    },
+    {
+      "profile": "CAUTIOUS",
+      "group": "ACTIVATE"
+    }
+  ],
+  "items": [
+    {
+      "id": "A1",
+      "section": "A",
+      "tag": "a",
+      "type": "LIKERT",
+      "prompt": "업무를 처리할 때 AI에 맡기기 적합한 부분과 AI가 잘 처리하기 어려운 부분을 구분해 설명할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A2",
+      "section": "A",
+      "tag": "b",
+      "type": "LIKERT",
+      "prompt": "AI가 확신에 찬 표현으로 답하더라도 실제로는 잘못된 내용일 수 있다는 점을 이해하고 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A3",
+      "section": "A",
+      "tag": "c",
+      "type": "LIKERT",
+      "prompt": "AI에 제공한 정보나 요청 조건이 달라지면 결과가 어떻게 달라질 수 있는지 설명할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A4",
+      "section": "A",
+      "tag": "d",
+      "type": "LIKERT",
+      "prompt": "AI에 업무를 요청할 때 목적, 필요한 자료, 지켜야 할 조건, 원하는 결과 형태를 구체적으로 정리할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A5",
+      "section": "A",
+      "tag": "e",
+      "type": "LIKERT",
+      "prompt": "내 업무에서 AI를 활용해 시간이나 결과물의 품질을 개선할 수 있는 사례를 1개 이상 설명할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A6",
+      "section": "A",
+      "tag": "f",
+      "type": "LIKERT",
+      "prompt": "반복되는 AI 요청을 필요한 내용만 바꿔 다시 사용할 수 있는 공통 양식으로 만들 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A7",
+      "section": "A",
+      "tag": "g",
+      "type": "LIKERT",
+      "prompt": "AI 결과의 중요한 내용이 믿을 만한지 다른 자료나 대안 결과와 대조해 확인한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A8",
+      "section": "A",
+      "tag": "h",
+      "type": "LIKERT",
+      "prompt": "AI 결과를 평가하기 위한 정확성, 근거, 빠진 내용, 형식, 표현 기준을 스스로 정할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A9",
+      "section": "A",
+      "tag": "i",
+      "type": "LIKERT",
+      "prompt": "AI 결과가 요구한 수준에 미치지 못할 때 가능한 원인과 보완할 방향을 제시할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A10",
+      "section": "A",
+      "tag": "j",
+      "type": "LIKERT",
+      "prompt": "업무 자료 중 AI에 제공해도 되는 정보와 제공하면 안 되는 정보를 구분할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A11",
+      "section": "A",
+      "tag": "k",
+      "type": "LIKERT",
+      "prompt": "AI 생성물을 사용할 때 출처, 저작권, 표절 문제를 고려한 사용 기준을 가지고 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "A12",
+      "section": "A",
+      "tag": "l",
+      "type": "LIKERT",
+      "prompt": "업무에 AI를 활용할 때 조직의 사용 지침이나 기본 보안 원칙에 맞게 사용할 수 있다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B1",
+      "section": "B",
+      "tag": "a",
+      "type": "SJT",
+      "prompt": "AI가 고객 문의의 일반 안내는 잘하지만 예외 사항은 놓칩니다. 가장 적절한 활용 방식은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B2",
+      "section": "B",
+      "tag": "b",
+      "type": "SJT",
+      "prompt": "AI가 요약한 시장 동향에 실제 발표 여부가 의심되는 조사 결과가 있습니다. 가장 적절한 대응은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B3",
+      "section": "B",
+      "tag": "c",
+      "type": "SJT",
+      "prompt": "AI가 같은 제품을 소개할 때마다 강조점과 설명 범위가 달라집니다. 일정한 기준의 결과를 얻으려면 어떻게 해야 하나요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B4",
+      "section": "B",
+      "tag": "d",
+      "type": "SJT",
+      "prompt": "AI의 고객 상담 요약에서 요청 사항과 후속 조치가 빠집니다. 가장 적절한 대응은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B5",
+      "section": "B",
+      "tag": "e",
+      "type": "SJT",
+      "prompt": "부서에서 여러 업무 중 AI를 처음 적용할 업무를 정하려 합니다. 가장 적절한 선정 방식은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B6",
+      "section": "B",
+      "tag": "f",
+      "type": "SJT",
+      "prompt": "AI로 요청을 분류·전달하는 자동화 과정에서 비슷한 요청의 처리 결과가 달라집니다. 가장 적절한 대응은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B7",
+      "section": "B",
+      "tag": "g",
+      "type": "SJT",
+      "prompt": "의사결정에 사용할 AI의 협력사 비교 자료에 오류가 있을 수 있습니다. 가장 적절한 대응은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B8",
+      "section": "B",
+      "tag": "h",
+      "type": "SJT",
+      "prompt": "AI가 작성한 고객 안내문 두 개가 각각 간결함과 상세함에서 장점이 있습니다. 가장 적절한 비교 방식은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B9",
+      "section": "B",
+      "tag": "i",
+      "type": "SJT",
+      "prompt": "AI가 제안한 행사 계획이 현재 인력과 준비 기간에 맞지 않습니다. 가장 적절한 대응은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B10",
+      "section": "B",
+      "tag": "j",
+      "type": "SJT",
+      "prompt": "이름과 연락처가 포함된 설문을 AI로 요약하려 합니다. 개인 식별 정보가 불필요할 때 가장 적절한 처리 방식은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B11",
+      "section": "B",
+      "tag": "k",
+      "type": "SJT",
+      "prompt": "AI가 만든 그림과 문구를 공개 채용 홍보물에 사용하려 합니다. 가장 적절한 대응은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "B12",
+      "section": "B",
+      "tag": "l",
+      "type": "SJT",
+      "prompt": "동료가 입력 허용 여부를 확인하지 않은 비공개 사업 자료를 AI에 넣으려 합니다. 가장 적절한 대응은 무엇인가요?",
+      "scaleMin": null,
+      "scaleMax": null,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C1",
+      "section": "C",
+      "tag": "a",
+      "type": "LIKERT_FREQ",
+      "prompt": "정확한 사실이나 최신 정보처럼 AI가 잘 처리하기 어려운 부분을 구분해 활용 범위를 정한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C2",
+      "section": "C",
+      "tag": "b",
+      "type": "LIKERT_FREQ",
+      "prompt": "AI가 자신 있게 답한 내용도 오류가 있을 수 있다고 보고 확인한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C3",
+      "section": "C",
+      "tag": "c",
+      "type": "LIKERT_FREQ",
+      "prompt": "AI 답변이 의도와 다르면 목표, 지켜야 할 조건, 결과 형식을 명확히 고정해 다시 요청한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C4",
+      "section": "C",
+      "tag": "d",
+      "type": "LIKERT_FREQ",
+      "prompt": "AI에 작업을 맡길 때 참고할 예시, 피해야 할 내용, 결과 형식을 구체적으로 제시한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C5",
+      "section": "C",
+      "tag": "e",
+      "type": "LIKERT_FREQ",
+      "prompt": "AI로 처리할 업무를 선택할 때 활용 목적과 필요한 결과물의 형태를 먼저 정한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C6",
+      "section": "C",
+      "tag": "f",
+      "type": "LIKERT_FREQ",
+      "prompt": "반복해서 사용하는 AI 요청을 공통 양식으로 저장하고, 필요한 내용을 바꿔 재사용한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C7",
+      "section": "C",
+      "tag": "g",
+      "type": "LIKERT_FREQ",
+      "prompt": "AI 결과에 포함된 주요 사실, 수치, 정책을 구분해 두고 확인할 수 있는 항목부터 점검한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C8",
+      "section": "C",
+      "tag": "h",
+      "type": "LIKERT_FREQ",
+      "prompt": "AI 결과물을 전달하기 전에 빠진 내용, 논리의 흐름, 형식과 표현을 다시 살펴본다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C9",
+      "section": "C",
+      "tag": "i",
+      "type": "LIKERT_FREQ",
+      "prompt": "같은 작업에 대해 AI 결과를 두 가지 버전으로 만들어 차이를 비교한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C10",
+      "section": "C",
+      "tag": "j",
+      "type": "LIKERT_FREQ",
+      "prompt": "업무 자료를 AI에 입력하기 전에 개인정보나 기밀을 제거하거나 알아볼 수 없게 처리한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C11",
+      "section": "C",
+      "tag": "k",
+      "type": "LIKERT_FREQ",
+      "prompt": "AI 생성물을 외부에 전달하거나 공개하기 전에 출처, 저작권과 표절 가능성을 확인한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    },
+    {
+      "id": "C12",
+      "section": "C",
+      "tag": "l",
+      "type": "LIKERT_FREQ",
+      "prompt": "업무에 AI를 사용할 때 조직이나 프로젝트의 보안 기준에 부합하는 도구와 환경을 이용한다.",
+      "scaleMin": 1,
+      "scaleMax": 5,
+      "scope": "BOTH"
+    }
+  ],
+  "options": {
+    "B1": [
+      {
+        "code": "A",
+        "text": "작성된 답변을 우선 고객에게 전달하고, 문제가 제기되면 해당 내용을 수정한다."
+      },
+      {
+        "code": "B",
+        "text": "일반 안내와 예외 판단을 구분하고, AI가 잘 처리하는 부분에 한정해 활용한다."
+      },
+      {
+        "code": "C",
+        "text": "AI에게 답변을 작성한 이유를 설명하게 하고, 그 설명을 판단에 참고한다."
+      },
+      {
+        "code": "D",
+        "text": "예외가 포함될 가능성이 있는 문의에서는 AI가 작성한 내용을 모두 제외한다."
+      }
+    ],
+    "B2": [
+      {
+        "code": "A",
+        "text": "문맥에 잘 맞는 내용이므로 보고서 초안에 넣고, 별도 확인 없이 작성 작업을 이어간다."
+      },
+      {
+        "code": "B",
+        "text": "같은 내용을 다른 표현으로 다시 질문하고, 답이 비슷하면 보고서에 반영한다."
+      },
+      {
+        "code": "C",
+        "text": "의심되는 주요 조사 결과를 원자료와 대조하고, 확인된 내용만 보고서에 반영한다."
+      },
+      {
+        "code": "D",
+        "text": "의심되는 조사 결과는 빼고, 추가 확인 없이 일반적인 동향 설명으로 바꿔 작성한다."
+      }
+    ],
+    "B3": [
+      {
+        "code": "A",
+        "text": "여러 결과에서 반복해서 등장하는 장점을 모아 하나의 소개문으로 정리한다."
+      },
+      {
+        "code": "B",
+        "text": "제품의 개발 배경과 특징을 더 자세히 설명한 뒤 소개문을 다시 요청한다."
+      },
+      {
+        "code": "C",
+        "text": "소개 대상, 사용할 정보, 작성 조건과 형식을 고정해 같은 기준으로 요청한다."
+      },
+      {
+        "code": "D",
+        "text": "요청 내용은 그대로 두고 다른 AI 도구로 바꿔 소개문을 작성하게 한다."
+      }
+    ],
+    "B4": [
+      {
+        "code": "A",
+        "text": "이번 결과에서 빠진 요청 사항과 후속 조치를 짚어 추가로 정리하게 한다."
+      },
+      {
+        "code": "B",
+        "text": "고객 요청, 처리 내용, 후속 조치, 담당자를 필수 항목으로 정해 표로 작성하게 한다."
+      },
+      {
+        "code": "C",
+        "text": "상담 내용은 빠짐없이 정리해야 하므로 AI 활용을 멈추고 사람이 직접 작성한다."
+      },
+      {
+        "code": "D",
+        "text": "AI가 정리한 내용에 상담 원문을 함께 첨부해 필요한 사람이 직접 확인하게 한다."
+      }
+    ],
+    "B5": [
+      {
+        "code": "A",
+        "text": "담당자가 쉽게 시작할 수 있고 부담이 적은 업무부터 선택한다."
+      },
+      {
+        "code": "B",
+        "text": "업무별 기대 효과와 오류 발생 시 위험을 비교해 우선순위를 정한다."
+      },
+      {
+        "code": "C",
+        "text": "다른 부서에서 성과를 낸 활용 사례와 비슷한 업무를 먼저 선택한다."
+      },
+      {
+        "code": "D",
+        "text": "선정 기준을 정하기 전에 모든 후보 업무에서 소규모 시범 운영을 시작한다."
+      }
+    ],
+    "B6": [
+      {
+        "code": "A",
+        "text": "접수부터 전달까지 어느 단계에서 차이가 생기는지 찾아 해당 구간을 점검한다."
+      },
+      {
+        "code": "B",
+        "text": "입력 항목과 분류·전달 결과 형식을 표준화해 같은 조건으로 처리되도록 구성한다."
+      },
+      {
+        "code": "C",
+        "text": "자주 잘못 분류되는 사례를 모아 해당 사례만 별도 경로로 처리하게 한다."
+      },
+      {
+        "code": "D",
+        "text": "잘 작동하는 일부 단계만 그대로 두고, 나머지는 매번 사람이 수정해 전달한다."
+      }
+    ],
+    "B7": [
+      {
+        "code": "A",
+        "text": "핵심 결론만 간단히 확인하고, 나머지는 참고 자료 수준으로 활용한다."
+      },
+      {
+        "code": "B",
+        "text": "확인할 주요 항목을 목록으로 정리하고, 판단에 영향을 주는 내용은 근거 자료와 대조한다."
+      },
+      {
+        "code": "C",
+        "text": "정확하게 작성해 달라는 조건을 추가해 AI가 자료를 다시 작성하도록 한다."
+      },
+      {
+        "code": "D",
+        "text": "오류가 있을 수 있으므로 AI가 작성한 자료는 이번 업무에서 사용하지 않는다."
+      }
+    ],
+    "B8": [
+      {
+        "code": "A",
+        "text": "고객이 바로 행동에 옮기기 쉬워 보이는 안내문을 우선 선택한다."
+      },
+      {
+        "code": "B",
+        "text": "전체적으로 읽었을 때 더 마음에 드는 안내문을 선택한다."
+      },
+      {
+        "code": "C",
+        "text": "내용의 정확성, 필수 정보 누락, 안내 형식을 기준으로 두 결과를 비교한다."
+      },
+      {
+        "code": "D",
+        "text": "별도의 비교 기준 없이 동료에게 읽어보게 하고 추천하는 안내문을 선택한다."
+      }
+    ],
+    "B9": [
+      {
+        "code": "A",
+        "text": "실행할 수 있는 부분부터 시작하고, 어려운 부분은 진행하면서 수정한다."
+      },
+      {
+        "code": "B",
+        "text": "가용 인력, 준비 기간과 반드시 지켜야 할 조건을 제시해 계획을 다시 구성하게 한다."
+      },
+      {
+        "code": "C",
+        "text": "실제 운영 상황은 사람이 더 잘 알기 때문에 담당자가 계획을 새로 작성한다."
+      },
+      {
+        "code": "D",
+        "text": "실행 조건은 추가하지 않고, 각 작업을 더 세부적인 단계로 풀어 달라고 요청한다."
+      }
+    ],
+    "B10": [
+      {
+        "code": "A",
+        "text": "설문 원본을 그대로 입력하고, 요약 결과를 담당자만 열람하도록 한다."
+      },
+      {
+        "code": "B",
+        "text": "이름과 연락처 등 식별 정보를 제거하고, 의견에 포함된 개인정보도 익명화해 입력한다."
+      },
+      {
+        "code": "C",
+        "text": "분석 목적을 명시하고, 이름과 연락처가 남아 있는 응답 일부만 골라 입력한다."
+      },
+      {
+        "code": "D",
+        "text": "개인정보가 포함된 자료이므로 AI 요약을 하지 않고 다른 방식으로 정리한다."
+      }
+    ],
+    "B11": [
+      {
+        "code": "A",
+        "text": "사내 구성원에게 먼저 보여주고, 특별한 의견이 없으면 공개한다."
+      },
+      {
+        "code": "B",
+        "text": "이용 조건과 라이선스, 기존 저작물과의 유사성을 확인한 뒤 사용 여부를 결정한다."
+      },
+      {
+        "code": "C",
+        "text": "저작권 문제가 생길 가능성을 피하기 위해 이번 홍보물에는 AI 생성물을 사용하지 않는다."
+      },
+      {
+        "code": "D",
+        "text": "홍보물을 우선 공개하고, 문제가 제기되면 해당 이미지나 문구를 교체한다."
+      }
+    ],
+    "B12": [
+      {
+        "code": "A",
+        "text": "필요한 페이지만 추려 자료의 양을 줄인 뒤 입력하도록 한다."
+      },
+      {
+        "code": "B",
+        "text": "자료 취급 기준을 확인·공유하고, 허용된 처리 방식이나 대체 방법으로 진행한다."
+      },
+      {
+        "code": "C",
+        "text": "결과를 외부에 공개하지 않을 예정이므로 그대로 진행해도 된다고 본다."
+      },
+      {
+        "code": "D",
+        "text": "허용 기준을 확인할 수 없다면 해당 자료를 이용한 AI 작업을 중단한다."
+      }
+    ]
+  },
+  "sjtKey": {
+    "B1": [
+      {
+        "code": "A",
+        "score": 0,
+        "reason": "무비판 사용으로 한계 통제 없음"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "강·약점 구분 후 활용 범위 조절"
+      },
+      {
+        "code": "C",
+        "score": 60,
+        "reason": "추가 설명으로 판단 보조"
+      },
+      {
+        "code": "D",
+        "score": 20,
+        "reason": "리스크 회피로 정보 손실"
+      }
+    ],
+    "B2": [
+      {
+        "code": "A",
+        "score": 0,
+        "reason": "초안 반영은 오판 위험"
+      },
+      {
+        "code": "B",
+        "score": 20,
+        "reason": "일관성 확인은 보조적 확인"
+      },
+      {
+        "code": "C",
+        "score": 100,
+        "reason": "의심 주장 최소 검증 수행"
+      },
+      {
+        "code": "D",
+        "score": 20,
+        "reason": "부분 제외·대체로 근본 검증 없음"
+      }
+    ],
+    "B3": [
+      {
+        "code": "A",
+        "score": 20,
+        "reason": "공통 결론 취합은 임시 정리"
+      },
+      {
+        "code": "B",
+        "score": 60,
+        "reason": "맥락 추가로 품질 개선 가능"
+      },
+      {
+        "code": "C",
+        "score": 100,
+        "reason": "조건·형식 고정으로 재현성 확보"
+      },
+      {
+        "code": "D",
+        "score": 0,
+        "reason": "도구 변경만으로 원인 미해결"
+      }
+    ],
+    "B4": [
+      {
+        "code": "A",
+        "score": 60,
+        "reason": "누락 항목 지정해 재요청"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "고정 포맷으로 필수항목 추출"
+      },
+      {
+        "code": "C",
+        "score": 0,
+        "reason": "사람 정리로 AI 활용 관점 회피"
+      },
+      {
+        "code": "D",
+        "score": 20,
+        "reason": "원문 병행은 보조책"
+      }
+    ],
+    "B5": [
+      {
+        "code": "A",
+        "score": 20,
+        "reason": "쉬운 과제부터 시작은 제한적"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "효과·리스크 기준으로 우선순위 결정"
+      },
+      {
+        "code": "C",
+        "score": 60,
+        "reason": "사례 참고는 차선 전략"
+      },
+      {
+        "code": "D",
+        "score": 0,
+        "reason": "기준 없이 파일럿 확대 위험"
+      }
+    ],
+    "B6": [
+      {
+        "code": "A",
+        "score": 60,
+        "reason": "문제 구간을 좁혀 원인 탐색"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "조건·형식 정렬로 재현성 확보"
+      },
+      {
+        "code": "C",
+        "score": 20,
+        "reason": "예외 흐름은 보조 설계"
+      },
+      {
+        "code": "D",
+        "score": 0,
+        "reason": "부분 고정+수동 보완은 근본 해결 아님"
+      }
+    ],
+    "B7": [
+      {
+        "code": "A",
+        "score": 60,
+        "reason": "핵심만 확인해 제한적 검증"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "체크리스트·근거확인으로 검증"
+      },
+      {
+        "code": "C",
+        "score": 20,
+        "reason": "재생성은 보조적 개선"
+      },
+      {
+        "code": "D",
+        "score": 0,
+        "reason": "사용 제외는 개선 회피"
+      }
+    ],
+    "B8": [
+      {
+        "code": "A",
+        "score": 20,
+        "reason": "실행 가능성 기준은 제한적"
+      },
+      {
+        "code": "B",
+        "score": 0,
+        "reason": "직관 선택은 기준 부재"
+      },
+      {
+        "code": "C",
+        "score": 100,
+        "reason": "평가기준으로 체계 비교"
+      },
+      {
+        "code": "D",
+        "score": 20,
+        "reason": "동료 리뷰는 기준 외주"
+      }
+    ],
+    "B9": [
+      {
+        "code": "A",
+        "score": 20,
+        "reason": "적용 후 수정은 리스크"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "현실 제약 명시해 재설계 요청"
+      },
+      {
+        "code": "C",
+        "score": 20,
+        "reason": "사람 재설계는 AI 개선 관점 제한"
+      },
+      {
+        "code": "D",
+        "score": 0,
+        "reason": "상세 요청만으로 현실 반영 불충분"
+      }
+    ],
+    "B10": [
+      {
+        "code": "A",
+        "score": 0,
+        "reason": "원문 투입은 개인정보 위험"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "익명화/제거로 안전 처리"
+      },
+      {
+        "code": "C",
+        "score": 20,
+        "reason": "목적 명시+최소화는 보조"
+      },
+      {
+        "code": "D",
+        "score": 20,
+        "reason": "AI 회피는 안전하지만 역량 판단 제한"
+      }
+    ],
+    "B11": [
+      {
+        "code": "A",
+        "score": 20,
+        "reason": "내부 테스트는 제한적 검토"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "라이선스·유사성 확인 후 적용"
+      },
+      {
+        "code": "C",
+        "score": 20,
+        "reason": "사용 안 함은 안전하나 활용 역량 아님"
+      },
+      {
+        "code": "D",
+        "score": 0,
+        "reason": "사후 교체는 리스크 큼"
+      }
+    ],
+    "B12": [
+      {
+        "code": "A",
+        "score": 20,
+        "reason": "범위 축소만으로 통제 불충분"
+      },
+      {
+        "code": "B",
+        "score": 100,
+        "reason": "기준+대체안으로 안전 전환"
+      },
+      {
+        "code": "C",
+        "score": 0,
+        "reason": "유출만 아니면 진행은 위험"
+      },
+      {
+        "code": "D",
+        "score": 60,
+        "reason": "기준 없으면 중단은 안전 조치"
+      }
+    ]
+  },
+  "summary": {
+    "문항수": 36,
+    "섹션별": [
+      {
+        "section": "A",
+        "수": 12
+      },
+      {
+        "section": "B",
+        "수": 12
+      },
+      {
+        "section": "C",
+        "수": 12
+      }
+    ],
+    "태그별": {
+      "a": 3,
+      "b": 3,
+      "c": 3,
+      "d": 3,
+      "e": 3,
+      "f": 3,
+      "g": 3,
+      "h": 3,
+      "i": 3,
+      "j": 3,
+      "k": 3,
+      "l": 3
+    },
+    "SJT문항": 12,
+    "SJT채점표": 12,
+    "검증": "이상 없음"
+  }
+}
