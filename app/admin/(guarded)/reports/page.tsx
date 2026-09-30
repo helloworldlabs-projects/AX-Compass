@@ -1,5 +1,6 @@
 'use client';
 
+import { CourseCell } from '@/components/admin/common/CourseCell';
 import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 
@@ -116,8 +117,7 @@ export default function ReportsPage() {
   const found = keyword
     ? rows.filter(
         (r) =>
-          r.link.org.includes(keyword) ||
-          r.link.code.toLowerCase().includes(keyword.toLowerCase()),
+          r.link.org.includes(keyword) || r.link.code.toLowerCase().includes(keyword.toLowerCase()),
       )
     : rows;
   const view = paginate(found, page);
@@ -161,7 +161,17 @@ export default function ReportsPage() {
           />
         ) : (
           <Table
-            columns={['기업', '과정', '사전검사', '사후검사', '만족도', '사전 → 사후', '변화', '발행', '']}
+            columns={[
+              '기업',
+              '과정',
+              '사전검사',
+              '사후검사',
+              '만족도',
+              '사전 → 사후',
+              '변화',
+              '발행',
+              '',
+            ]}
             // 1100 을 넘기지 않는다. 사이드바를 뺀 본문이 그만큼이라, 더 벌리면 오른쪽 버튼이 화면 밖으로 나간다.
             // 맨 끝 칸은 버튼 두 개가 나란히 들어갈 만큼 준다.
             minWidth={1100}
@@ -174,12 +184,7 @@ export default function ReportsPage() {
 
                 {/* 같은 기업이 두 줄로 뜰 수 있어 과정명으로 가린다. 한 줄로 자르고 전체 이름은 title 로. */}
                 <Td className="text-gray-500">
-                  <span
-                    className="block truncate"
-                    title={r.link.offerings[0]?.title ?? r.link.course ?? undefined}
-                  >
-                    {r.link.offerings[0]?.title ?? r.link.course ?? '과정 미지정'}
-                  </span>
+                  <CourseCell offerings={r.link.offerings} fallback={r.link.course} />
                 </Td>
 
                 <Td className="tabular-nums">
@@ -284,12 +289,12 @@ export default function ReportsPage() {
             발행일이 오늘로 바뀝니다. 몇 번째 판인지 함께 적힙니다.
           </li>
           <li>
-            · 사후 응답률이 낮으면 향상도를 기업 전체의 변화라고 말할 수 없습니다. 보고서에
-            응답률을 함께 싣습니다.
+            · 사후 응답률이 낮으면 향상도를 기업 전체의 변화라고 말할 수 없습니다. 보고서에 응답률을
+            함께 싣습니다.
           </li>
           <li>
-            · 기업에 전달하는 문서에는 개인 이름과 개인 점수가 들어가지 않습니다. 인원이 적은
-            부서는 이름을 가립니다.
+            · 기업에 전달하는 문서에는 개인 이름과 개인 점수가 들어가지 않습니다. 인원이 적은 부서는
+            이름을 가립니다.
           </li>
         </ul>
       </Card>

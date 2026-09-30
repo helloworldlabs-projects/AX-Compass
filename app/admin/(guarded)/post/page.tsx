@@ -1,5 +1,6 @@
 'use client';
 
+import { CourseCell } from '@/components/admin/common/CourseCell';
 import { useSearchParams } from 'next/navigation';
 
 import { deltaClass, deltaText } from '@/components/admin/post/ChangeTable';
@@ -154,7 +155,9 @@ export default function PostPage() {
               return (
                 <tr key={l.id} className={ROW_CLASS}>
                   <Td className="txt-c1-bold text-gray-900">{l.org}</Td>
-                  <Td className="text-gray-500">{l.course ?? '—'}</Td>
+                  <Td className="text-gray-500">
+                    <CourseCell offerings={l.offerings} fallback={l.course} />
+                  </Td>
                   <Td className="tabular-nums">{org?.respondents ?? 0}명</Td>
                   <Td className="tabular-nums">{r.length}명</Td>
                   <Td className="tabular-nums">{m.length}명</Td>

@@ -1,5 +1,6 @@
 'use client';
 
+import { CourseCell } from '@/components/admin/common/CourseCell';
 import { CopyLinkButton } from '@/components/admin/post/CopyLinkButton';
 import { DeleteLinkButton } from '@/components/admin/post/DeleteLinkButton';
 import { IssueLinkForm } from '@/components/admin/post/IssueLinkForm';
@@ -102,7 +103,7 @@ export default function SessionsPage() {
                   <Td className="txt-c1-bold text-gray-900">{l.org}</Td>
                   <Td className="text-gray-500 tabular-nums">{l.code}</Td>
                   <Td className="text-gray-500">
-                    {l.course ?? '—'}
+                    <CourseCell offerings={l.offerings} fallback={l.course} />
                     {l.offerings.length > 1 && (
                       <span className="txt-c2-regular mt-0.5 block text-gray-400">
                         {l.offerings.map((o) => o.title).join(' · ')}
@@ -149,9 +150,9 @@ export default function SessionsPage() {
             상대가 없습니다.
           </li>
           <li>
-            · 발급은{' '}
-            <b className="text-gray-900">사전검사와 교육 만족도가 모두 연동된 기업</b>에만 합니다.
-            사전이 없으면 향상도를 낼 수 없고, 만족도가 없으면 교육이 어땠는지 물을 자리가 없습니다.
+            · 발급은 <b className="text-gray-900">사전검사와 교육 만족도가 모두 연동된 기업</b>에만
+            합니다. 사전이 없으면 향상도를 낼 수 없고, 만족도가 없으면 교육이 어땠는지 물을 자리가
+            없습니다.
           </li>
           <li>
             · 잘못 보냈다면 <b className="text-gray-900">마감</b>합니다. 그 주소로는 응시할 수 없게

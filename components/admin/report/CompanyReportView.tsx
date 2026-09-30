@@ -1,3 +1,5 @@
+import { Fragment, type ReactNode } from 'react';
+
 import { Badge, EmptyState, ROW_CLASS, Table, Td } from '@/components/admin/ui';
 import { SECTION_WEIGHT } from '@/lib/admin/ax-scoring';
 import {
@@ -10,6 +12,7 @@ import {
   overallInsight,
   profileInsight,
   satisfactionInsight,
+  satisfactionMetricsInsight,
   sectionInsight,
 } from '@/lib/admin/insight';
 import { with_ } from '@/lib/admin/josa';
@@ -108,6 +111,13 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
   const { org } = r.pre;
   const lowCoverage = r.coverage.rate !== null && r.coverage.rate < 50;
   const { picks } = recommendCourses(r);
+  /*
+    회차가 둘 이상일 때만 채워진다. 한 회차를 한 세트로 내는 근거다.
+    
+    이미 발행된 보고서는 이 칸이 생기기 전에 만들어져 비어 있다. 그때는
+    예전처럼 합쳐서 낸다 — 다시 발행하면 세트로 갈린다.
+  */
+  const byCourse = r.satisfaction.byCourse ?? [];
   const summary = conclusion(r, picks);
   // 프로필 해설은 두 지면에 나눠 싣는다. 한 번만 계산해 둔다.
   const profileIns = profileInsight(r);
@@ -261,7 +271,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
             <EmptyState message="연결된 교육 회차가 없습니다." />
           </Block>
         ) : (
-          r.satisfaction.courses.length > 1 && (
+          (r.satisfaction.courses.length > 1 || byCourse.length > 1) && (
             <Block>
               <TableCaption>교육 회차 현황</TableCaption>
               <CourseTable courses={r.satisfaction.courses.slice(0, COURSES_PER_SHEET)} />
@@ -269,9 +279,9 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
           )
         )}
 
-        {r.satisfaction.courses.length === 1 && r.satisfaction.overviews[0] && (
-          <CourseDetail course={r.satisfaction.overviews[0]} />
-        )}
+        {byCourse.length === 0 &&
+          r.satisfaction.courses.length === 1 &&
+          r.satisfaction.overviews[0] && <CourseDetail course={r.satisfaction.overviews[0]} />}
 
         <Insight insight={courseInsight(r)} />
       </Chapter>
@@ -285,106 +295,73 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         </Chapter>
       ))}
 
-      {/* 과정마다 한 쪽씩 내용을 편다. 소개 글과 모듈은 SafariOn 에 적힌 것을 그대로 옮긴다. */}
-      {r.satisfaction.courses.length > 1 &&
-        r.satisfaction.overviews.map((c) => (
-          <Chapter key={c.offeringId} no="02" title="교육 개요" cont>
-            <CourseDetail course={c} />
+      {/*
+        회차가 여럿이면 **한 회차를 한 세트로** 낸다.
+
+        그 회차의 내용(02장)을 펴고 바로 그 회차의 만족도(03장)를 잇는다. 장을
+        기준으로 묶으면 과정 둘의 내용을 본 뒤에야 만족도가 나와, 읽는 사람이
+        어느 과정의 수치인지 되짚어야 한다.
+
+        역량 변화(05장부터)는 나누지 않는다. 사후검사 응답에 회차가 남지 않아
+        갈라낼 근거가 없고, 갈라도 인원이 반으로 줄어 검정이 서지 않는다.
+      */}
+      {byCourse.map((set) => (
+        <Fragment key={set.offeringId}>
+          {set.overview && (
+            <Chapter
+              no="02"
+              title="교육 개요"
+              description={<b className="text-gray-900">{set.overview.title}</b>}
+              cont
+            >
+              <CourseDetail course={set.overview} hideTitle />
+              <Insight insight={{ paragraphs: courseNote(set) }} />
+            </Chapter>
+          )}
+          <SatisfactionSet set={set} />
+        </Fragment>
+      ))}
+
+      {/* 회차가 하나면 지금까지처럼 합쳐서 낸다. */}
+      {byCourse.length > 0 ? null : (
+        <>
+          {r.satisfaction.courses.length > 1 &&
+            r.satisfaction.overviews.map((c) => (
+              <Chapter key={c.offeringId} no="02" title="교육 개요" cont>
+                <CourseDetail course={c} />
+              </Chapter>
+            ))}
+
+          <Chapter
+            no="03"
+            title="교육 만족도"
+            description="SafariOn 설문 결과입니다. 이 보고서가 다루는 교육의 응답을 모아 지표별로 냅니다."
+          >
+            <Lead>
+              {[
+                '교육이 끝난 직후 수강생에게 받은 설문입니다. 뒤에 나오는 역량 변화가 "무엇이 달라졌는가"를 말한다면, 만족도는 "교육을 어떻게 받아들였는가"를 말합니다.',
+                '지표는 여섯입니다. 콘텐츠는 다룬 내용이 맞았는지, 강사는 설명이 닿았는지, 실습은 직접 해 볼 수 있었는지, 운영은 진행과 자료가 받쳐 주었는지, 현업 적용은 업무로 이어질 만했는지, 학습 경험은 전반이 어땠는지입니다.',
+                r.satisfaction.cohorts > 1 &&
+                  '회차가 여럿이면 회차 평균을 다시 평균 내지 않고 응답 하나하나를 모아 계산합니다. 응답이 적은 회차가 많은 회차와 같은 무게를 갖지 않도록 하기 위해서입니다.',
+              ]}
+            </Lead>
+
+            <MetricTable
+              metrics={r.satisfaction.metrics}
+              cohorts={r.satisfaction.cohorts}
+              respondents={r.satisfaction.respondents}
+            />
+
+            <Insight insight={satisfactionInsight(r)} />
           </Chapter>
-        ))}
 
-      {/* ── 03 교육 만족도 ───────────────────────────────── */}
-      <Chapter
-        no="03"
-        title="교육 만족도"
-        description="SafariOn 설문 결과입니다. 이 보고서가 다루는 교육의 응답을 모아 지표별로 봅니다."
-      >
-        <Lead>
-          {[
-            '교육이 끝난 직후 수강생에게 받은 설문입니다. 뒤에 나오는 역량 변화가 "무엇이 달라졌는가"를 말한다면, 만족도는 "교육을 어떻게 받아들였는가"를 말합니다. 둘을 나란히 두어야 점수가 오르지 않은 이유나 오른 이유를 교육 쪽에서 찾을 수 있습니다.',
-            '지표는 여섯입니다. 콘텐츠는 다룬 내용이 맞았는지, 강사는 설명이 닿았는지, 실습은 직접 해 볼 수 있었는지, 운영은 진행과 자료가 받쳐 주었는지, 학습 경험은 배우는 동안의 느낌이 어땠는지, 현업 적용은 배운 것을 자기 업무로 가져갈 수 있겠는지를 묻습니다.',
-            r.satisfaction.cohorts > 1 &&
-              '회차가 여럿이면 회차 평균을 다시 평균 내지 않고 응답 하나하나를 모아 계산합니다. 응답이 적은 회차가 많은 회차와 같은 무게를 갖지 않도록 하기 위해서입니다.',
-          ]}
-        </Lead>
-
-        {r.satisfaction.metrics.length === 0 ? (
-          <Block>
-            <EmptyState message="수집된 만족도 응답이 없습니다." />
-          </Block>
-        ) : (
-          <Block
-            title="지표별 평균"
-            description={`${r.satisfaction.cohorts}개 회차 · ${r.satisfaction.respondents}명 · ${SCALE_MAX}점 만점`}
-          >
-            <Table
-              columns={['지표', '평균', '응답 수']}
-              minWidth={560}
-              columnWidths={[null, 90, 90]}
-            >
-              {r.satisfaction.metrics.map((m) => (
-                <tr key={m.code} className={ROW_CLASS}>
-                  <Td className="txt-c1-bold">{m.label}</Td>
-                  <Td className="txt-c1-bold tabular-nums">{rating(m.mean)}</Td>
-                  <Td className="text-gray-500 tabular-nums">{m.answers}건</Td>
-                </tr>
-              ))}
-            </Table>
-          </Block>
-        )}
-
-        <Insight insight={satisfactionInsight(r)} />
-      </Chapter>
-
-      {/* 문항별 결과. 어느 문항이 낮았는지 보여야 다음 회차에서 무엇을 고칠지 정해진다. */}
-      {r.satisfaction.questions.length > 0 && (
-        <Chapter no="03" title="교육 만족도" cont>
-          <Block
-            title="문항별 평균"
-            description={`별점 문항 ${r.satisfaction.questions.length}개 · ${SCALE_MAX}점 만점`}
-          >
-            <Table
-              columns={['문항', '지표', '평균', '응답']}
-              minWidth={640}
-              columnWidths={[null, 88, 72, 64]}
-            >
-              {r.satisfaction.questions.map((q) => (
-                <tr key={q.questionId} className={ROW_CLASS}>
-                  <Td>{q.content}</Td>
-                  <Td className="text-gray-500">{metricLabel(q.metric)}</Td>
-                  <Td className="txt-c1-bold tabular-nums">{rating(q.mean)}</Td>
-                  <Td className="text-gray-500 tabular-nums">{q.answers}건</Td>
-                </tr>
-              ))}
-            </Table>
-            <TableNote>평균이 낮은 문항이 다음 회차에서 먼저 보완할 항목입니다.</TableNote>
-          </Block>
-        </Chapter>
+          <SatisfactionDetail
+            questions={r.satisfaction.questions}
+            choices={r.satisfaction.choices}
+            freeText={r.satisfaction.freeText}
+          />
+        </>
       )}
-
-      {/* 객관식 문항. 무엇을 더 바라는지가 여기서 나온다. */}
-      {chunk(r.satisfaction.choices, 3).map((group, i) => (
-        <Chapter key={`choice-${i}`} no="03" title="교육 만족도" cont>
-          {group.map((q) => (
-            <Block
-              key={q.questionId}
-              title={q.content}
-              description={`응답 ${q.respondents}명 · 하나 선택`}
-            >
-              <ChoiceBars question={q} />
-            </Block>
-          ))}
-        </Chapter>
-      ))}
-
-      {/* 서술형 응답. 내용이 있는 응답을 골라 그대로 싣고, 나머지는 건수로만 남긴다. */}
-      {chunk(r.satisfaction.freeText, 3).map((group, i) => (
-        <Chapter key={`free-${i}`} no="03" title="교육 만족도" cont>
-          {group.map((q) => (
-            <FreeTextBlock key={q.questionId} question={q} />
-          ))}
-        </Chapter>
-      ))}
 
       {/* ── 04 읽는 기준 ─────────────────────────────────── */}
       <Chapter
@@ -1304,24 +1281,214 @@ function RecommendationCard({ rec, rank }: { rec: Recommendation; rank: number }
   );
 }
 
+/** 지표별 평균 표. 합계와 회차별이 같은 모양이어야 견주기 쉽다. */
+function MetricTable({
+  metrics,
+  cohorts,
+  respondents,
+}: {
+  metrics: CompanyReport['satisfaction']['metrics'];
+  cohorts: number;
+  respondents: number;
+}) {
+  if (metrics.length === 0) {
+    return (
+      <Block>
+        <EmptyState message="수집된 만족도 응답이 없습니다." />
+      </Block>
+    );
+  }
+  return (
+    <Block
+      title="지표별 평균"
+      description={`${cohorts}개 회차 · ${respondents}명 · ${SCALE_MAX}점 만점`}
+    >
+      <Table columns={['지표', '평균', '응답 수']} minWidth={560} columnWidths={[null, 90, 90]}>
+        {metrics.map((m) => (
+          <tr key={m.code} className={ROW_CLASS}>
+            <Td className="txt-c1-bold">{m.label}</Td>
+            <Td className="txt-c1-bold tabular-nums">{rating(m.mean)}</Td>
+            <Td className="text-gray-500 tabular-nums">{m.answers}건</Td>
+          </tr>
+        ))}
+      </Table>
+    </Block>
+  );
+}
+
+/**
+ * 만족도의 뒷부분 — 문항별 평균, 객관식, 서술형.
+ *
+ * 지표 평균은 "콘텐츠 4.9"까지밖에 말하지 못한다. 어느 문항이 낮았는지 보여야
+ * 다음 회차에서 무엇을 고칠지 정해진다. 객관식은 무엇을 더 바라는지를, 서술형은
+ * 수치가 말하지 못하는 것을 담는다.
+ */
+function SatisfactionDetail({
+  questions,
+  choices,
+  freeText,
+  note,
+}: {
+  questions: CompanyReport['satisfaction']['questions'];
+  choices: CompanyReport['satisfaction']['choices'];
+  freeText: CompanyReport['satisfaction']['freeText'];
+  /** 회차별로 낼 때 지면마다 어느 과정인지 밝힌다. */
+  note?: ReactNode;
+}) {
+  return (
+    <>
+      {questions.length > 0 && (
+        <Chapter no="03" title="교육 만족도" description={note} cont>
+          <Block
+            title="문항별 평균"
+            description={`별점 문항 ${questions.length}개 · ${SCALE_MAX}점 만점`}
+          >
+            <Table
+              columns={['문항', '지표', '평균', '응답']}
+              minWidth={640}
+              columnWidths={[null, 88, 72, 64]}
+            >
+              {questions.map((q) => (
+                <tr key={q.questionId} className={ROW_CLASS}>
+                  <Td>{q.content}</Td>
+                  <Td className="text-gray-500">{metricLabel(q.metric)}</Td>
+                  <Td className="txt-c1-bold tabular-nums">{rating(q.mean)}</Td>
+                  <Td className="text-gray-500 tabular-nums">{q.answers}건</Td>
+                </tr>
+              ))}
+            </Table>
+            <TableNote>평균이 낮은 문항이 다음 회차에서 먼저 보완할 항목입니다.</TableNote>
+          </Block>
+        </Chapter>
+      )}
+
+      {chunk(choices, 3).map((group, i) => (
+        <Chapter key={`choice-${i}`} no="03" title="교육 만족도" description={note} cont>
+          {group.map((q) => (
+            <Block
+              key={q.questionId}
+              title={q.content}
+              description={`응답 ${q.respondents}명 · 하나 선택`}
+            >
+              <ChoiceBars question={q} />
+            </Block>
+          ))}
+        </Chapter>
+      ))}
+
+      {/* 서술형은 내용이 있는 응답을 골라 그대로 싣고, 나머지는 건수로만 남긴다. */}
+      {chunk(freeText, 3).map((group, i) => (
+        <Chapter key={`free-${i}`} no="03" title="교육 만족도" description={note} cont>
+          {group.map((q) => (
+            <FreeTextBlock key={q.questionId} question={q} />
+          ))}
+        </Chapter>
+      ))}
+    </>
+  );
+}
+
+type CourseSet = NonNullable<CompanyReport['satisfaction']['byCourse']>[number];
+
+/**
+ * 회차 지면의 마무리.
+ *
+ * 커리큘럼만 적어 두고 끝내면 지면이 잘린 것처럼 읽힌다. 합쳐서 낼 때는
+ * courseInsight 가 그 자리를 맡았는데, 그 문장은 회차 전체를 근거로 쓰이므로
+ * 회차 하나에는 맞지 않는다. 여기서는 이 과정의 사실만 한 문장으로 적는다.
+ */
+function courseNote(set: CourseSet): string[] {
+  const o = set.overview;
+  const c = set.course;
+  const parts: string[] = [];
+
+  if (o?.startDate) {
+    const period =
+      o.endDate && o.endDate !== o.startDate ? `${o.startDate} ~ ${o.endDate}` : o.startDate;
+    const span = [
+      o.trainingDays === null ? null : `${o.trainingDays}일`,
+      o.trainingHours === null ? null : `${o.trainingHours}시간`,
+    ].filter(Boolean);
+    parts.push(
+      span.length > 0
+        ? `${period}에 걸쳐 ${span.join(' · ')} 진행했습니다.`
+        : `${period}에 진행했습니다.`,
+    );
+  }
+
+  if (c) {
+    parts.push(
+      c.respondents === 0
+        ? `${c.enrolled}명이 수강했고, 만족도 응답은 아직 없습니다.`
+        : `${c.enrolled}명이 수강했고 그 가운데 ${c.respondents}명이 만족도 설문에 응답했습니다.`,
+    );
+  }
+
+  if (parts.length === 0) return ['이 회차의 운영 기록이 없습니다.'];
+  return [parts.join(' ') + ' 아래 만족도는 이 회차의 응답만 모은 것입니다.'];
+}
+
+/**
+ * 회차 하나의 만족도 한 벌.
+ *
+ * 합계와 같은 구성으로 낸다 — 앞의 안내, 지표별 평균, 해설, 그리고 문항별·
+ * 객관식·서술형까지. 해설은 합계용 satisfactionInsight 의 앞 두 문단과 같은
+ * 규칙을 쓰되(satisfactionMetricsInsight), 이 회차의 수치로 낸다.
+ */
+function SatisfactionSet({ set }: { set: CourseSet }) {
+  const name = <b className="text-gray-900">{set.title}</b>;
+  return (
+    <>
+      <Chapter no="03" title="교육 만족도" description={name}>
+        <Lead>
+          {[
+            '교육이 끝난 직후 수강생에게 받은 설문입니다. 뒤에 나오는 역량 변화가 "무엇이 달라졌는가"를 말한다면, 만족도는 "교육을 어떻게 받아들였는가"를 말합니다.',
+            '지표는 여섯입니다. 콘텐츠는 다룬 내용이 맞았는지, 강사는 설명이 닿았는지, 실습은 직접 해 볼 수 있었는지, 운영은 진행과 자료가 받쳐 주었는지, 현업 적용은 업무로 이어질 만했는지, 학습 경험은 전반이 어땠는지입니다.',
+            '이 지면은 위 과정 하나의 응답만 모은 것입니다. 회차를 묶은 평균은 01장 요약에 있습니다.',
+          ]}
+        </Lead>
+
+        <MetricTable metrics={set.metrics} cohorts={1} respondents={set.respondents} />
+
+        <Insight
+          insight={{
+            paragraphs: satisfactionMetricsInsight({
+              metrics: set.metrics,
+              overall: set.overall,
+              respondents: set.respondents,
+              cohorts: 1,
+            }),
+          }}
+        />
+      </Chapter>
+
+      <SatisfactionDetail
+        questions={set.questions}
+        choices={set.choices}
+        freeText={set.freeText}
+        note={name}
+      />
+    </>
+  );
+}
+
 /** 회차 표. 지면을 나눠 싣기 때문에 한 곳에 모은다. */
 function CourseTable({ courses }: { courses: CompanyReport['satisfaction']['courses'] }) {
   return (
     <Table
-      columns={['과정', '기간', '구분', '수강', '만족도 응답']}
+      columns={['과정', '기간', '수강', '만족도 응답']}
       minWidth={640}
-      columnWidths={[null, 110, 70, 56, 84]}
+      columnWidths={[null, 124, 70, 104]}
     >
       {courses.map((c) => (
         <tr key={c.offeringId} className={ROW_CLASS}>
           <Td className="text-gray-900">{c.title}</Td>
-          <Td className="text-gray-500 tabular-nums">
+          <Td className="whitespace-nowrap text-gray-500 tabular-nums">
             {c.startDate ?? '—'}
             <br />~ {c.endDate ?? '—'}
           </Td>
-          <Td className="txt-c2-regular text-gray-500">{c.role}</Td>
-          <Td className="tabular-nums">{c.enrolled}명</Td>
-          <Td className="text-gray-500 tabular-nums">
+          <Td className="whitespace-nowrap tabular-nums">{c.enrolled}명</Td>
+          <Td className="whitespace-nowrap text-gray-500 tabular-nums">
             {c.respondents}명
             {c.mean !== null && (
               <span className="txt-c1-bold ml-1.5 text-gray-900">{rating(c.mean)}</span>
@@ -1334,7 +1501,14 @@ function CourseTable({ courses }: { courses: CompanyReport['satisfaction']['cour
 }
 
 /** 과정 한 건의 내용. 소개 글과 커리큘럼 모듈을 SafariOn 에 적힌 그대로 옮긴다. */
-function CourseDetail({ course }: { course: CourseOverview }) {
+function CourseDetail({
+  course,
+  hideTitle = false,
+}: {
+  course: CourseOverview;
+  /** 지면 제목 아래에 이미 과정 이름을 적었을 때. 두 줄로 겹치지 않게 한다. */
+  hideTitle?: boolean;
+}) {
   const period =
     course.startDate === null
       ? '기간 미정'
@@ -1342,7 +1516,7 @@ function CourseDetail({ course }: { course: CourseOverview }) {
 
   return (
     <>
-      <Block title={course.title}>
+      <Block title={hideTitle ? undefined : course.title}>
         {/* 과정 사실은 곁들이는 수라 한 단계 작게 둔다. */}
         <div className="grid grid-cols-4 gap-2.5">
           <Figure label="교육 방식" value={educationTypeName(course.educationType)} size="sm" />
