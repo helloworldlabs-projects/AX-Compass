@@ -84,6 +84,37 @@ export const useOfferingsChoices = (offeringIds: string[]) =>
     queryFn: () => referenceService.fetchOfferingsChoices(offeringIds),
   });
 
+/**
+ * 회차 하나씩의 만족도.
+ *
+ * 운영 건을 여러 개 묶은 링크에서는 회차마다 만족도가 다르다. 합쳐 놓으면
+ * 어느 과정이 어땠는지가 지워지므로, 회차를 하나씩 따로 부른다.
+ *
+ * 합쳐 부르는 훅(useOfferingsMetrics 등)과 **캐시 키가 다르다** — 한 건짜리
+ * 배열로 부르므로 회차를 바꿔 묶어도 이미 받아 둔 것을 다시 쓴다.
+ */
+export const usePerOfferingSatisfaction = (offeringIds: string[]) => {
+  const metrics = useQueries({
+    queries: offeringIds.map((id) => ({
+      queryKey: referenceKeys.offeringsMetrics([id]),
+      queryFn: () => referenceService.fetchOfferingsMetrics([id]),
+    })),
+  });
+  const questions = useQueries({
+    queries: offeringIds.map((id) => ({
+      queryKey: referenceKeys.offeringsQuestions([id]),
+      queryFn: () => referenceService.fetchOfferingsQuestions([id]),
+    })),
+  });
+  const choices = useQueries({
+    queries: offeringIds.map((id) => ({
+      queryKey: referenceKeys.offeringsChoices([id]),
+      queryFn: () => referenceService.fetchOfferingsChoices([id]),
+    })),
+  });
+  return { metrics, questions, choices };
+};
+
 export const usePreOrgs = () =>
   useQuery({ queryKey: referenceKeys.preOrgs(), queryFn: referenceService.fetchPreOrgs });
 

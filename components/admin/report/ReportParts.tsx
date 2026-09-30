@@ -28,7 +28,7 @@ export function Chapter({
 }: {
   no: string;
   title: string;
-  description?: string;
+  description?: ReactNode;
   /** 앞 지면에서 이어지는 장인가. 번호와 제목을 다시 적어 "(계속)"을 붙인다. */
   cont?: boolean;
   children: ReactNode;

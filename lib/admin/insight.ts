@@ -698,15 +698,31 @@ export function profileInsight(r: CompanyReport): ChapterInsight {
 
 /* ── 09 교육 만족도 ──────────────────────────────────────── */
 
-export function satisfactionInsight(r: CompanyReport): ChapterInsight {
-  const { metrics, overall, respondents, cohorts } = r.satisfaction;
+/**
+ * 만족도 해설 가운데 **지표 수치만으로 쓰는** 부분.
+ *
+ * 합계와 회차별이 같은 규칙을 쓰게 한다. 전체 만족도, 가장 높은·낮은 지표,
+ * 먼저 손볼 곳, 후속 과정을 붙일 만한지까지다.
+ */
+export function satisfactionMetricsInsight({
+  metrics,
+  overall,
+  respondents,
+  cohorts,
+}: {
+  metrics: CompanyReport['satisfaction']['metrics'];
+  overall: number | null;
+  respondents: number;
+  /** 몇 개 회차를 합친 것인가. 1 이면 회차 수를 적지 않는다. */
+  cohorts: number;
+}): string[] {
   if (metrics.length === 0) {
-    return { paragraphs: ['수집된 만족도 응답이 없습니다.'] };
+    return ['수집된 만족도 응답이 없습니다.'];
   }
 
   const sorted = metrics.filter((m) => m.mean !== null).sort((a, b) => b.mean! - a.mean!);
   if (sorted.length === 0) {
-    return { paragraphs: ['수집된 만족도 응답이 없습니다.'] };
+    return ['수집된 만족도 응답이 없습니다.'];
   }
 
   const best = sorted[0];
@@ -746,6 +762,15 @@ export function satisfactionInsight(r: CompanyReport): ChapterInsight {
         : null,
   );
 
+  return [first, second].filter(Boolean) as string[];
+}
+
+export function satisfactionInsight(r: CompanyReport): ChapterInsight {
+  const base = satisfactionMetricsInsight(r.satisfaction);
+  if (base.length === 1 && base[0] === '수집된 만족도 응답이 없습니다.') {
+    return { paragraphs: base };
+  }
+  const overall = r.satisfaction.overall;
   /*
     만족도와 역량 변화는 다른 것을 잰다.
 
@@ -774,7 +799,7 @@ export function satisfactionInsight(r: CompanyReport): ChapterInsight {
             : '이번 회차는 만족도와 역량 변화 모두 뚜렷하게 나타나지 않았습니다. 과정 내용과 운영 방식을 함께 점검할 필요가 있습니다.',
   );
 
-  return { paragraphs: [first, second, third].filter(Boolean) };
+  return { paragraphs: [...base, third].filter(Boolean) as string[] };
 }
 
 /* ── 종합 제언 ───────────────────────────────────────────── */

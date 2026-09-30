@@ -223,6 +223,27 @@ export interface CompanyReport {
     choices: ChoiceQuestion[];
     /** 서술형 응답. 수치가 말하지 못하는 것이 여기 있다. */
     freeText: FreeTextQuestion[];
+    /**
+     * 회차별 만족도 한 벌.
+     *
+     * 운영 건을 여러 개 묶은 링크에서는 회차마다 만족도가 다르다. 합쳐 놓으면
+     * 어느 과정이 어땠는지가 지워지므로, 회차 하나를 한 세트로 묶어 따로 낸다.
+     * 회차가 하나뿐이면 위의 합계와 같아 비워 둔다.
+     *
+     * **선택 항목이다.** 이 칸이 생기기 전에 발행한 보고서에는 없다.
+     */
+    byCourse?: {
+      offeringId: string;
+      title: string;
+      overview: CourseOverview | null;
+      course: InstitutionCohort | null;
+      metrics: { code: string; label: string; mean: number | null; answers: number }[];
+      overall: number | null;
+      respondents: number;
+      questions: QuestionResult[];
+      choices: ChoiceQuestion[];
+      freeText: FreeTextQuestion[];
+    }[];
   };
 }
 
@@ -273,6 +294,17 @@ export interface CompanyReportInputs {
   overviews: CourseOverview[];
   questionResults: QuestionBundle;
   choices: ChoiceQuestion[];
+  /**
+   * 회차 하나씩의 만족도. 운영 건이 둘 이상일 때만 넘어온다.
+   * 조회는 hooks/useCompanyReport 가 맡는다(hooks/useReference 의
+   * usePerOfferingSatisfaction).
+   */
+  perOffering?: {
+    offeringId: string;
+    metrics: MetricAverage[];
+    questionResults: QuestionBundle;
+    choices: ChoiceQuestion[];
+  }[];
 }
 
 /**
@@ -291,6 +323,7 @@ export function computeCompanyReport({
   overviews,
   questionResults,
   choices,
+  perOffering,
 }: CompanyReportInputs): CompanyReport {
   const institutionId = link.institutionId;
 
@@ -652,6 +685,22 @@ export function computeCompanyReport({
       questions: questionResults.stars,
       choices,
       freeText: questionResults.freeText,
+      byCourse: (perOffering ?? []).map((one) => {
+        const cohort = courses.find((c) => c.offeringId === one.offeringId) ?? null;
+        const overview = overviews.find((v) => v.offeringId === one.offeringId) ?? null;
+        return {
+          offeringId: one.offeringId,
+          title: overview?.title ?? cohort?.title ?? '',
+          overview,
+          course: cohort,
+          metrics: one.metrics,
+          overall: cohort?.mean ?? null,
+          respondents: cohort?.respondents ?? 0,
+          questions: one.questionResults.stars,
+          choices: one.choices,
+          freeText: one.questionResults.freeText,
+        };
+      }),
     },
   };
 }

@@ -15,6 +15,7 @@ import {
   useInstitutionSatisfactions,
   useOfferingsChoices,
   useOfferingsQuestions,
+  usePerOfferingSatisfaction,
   usePreMembers,
   usePreOrg,
 } from './useReference';
@@ -86,6 +87,25 @@ export const useCompanyReport = (linkId: number) => {
   const questions = useOfferingsQuestions(offeringIds);
   const choices = useOfferingsChoices(offeringIds);
 
+  /*
+    회차별 만족도.
+
+    운영 건이 둘 이상일 때만 부른다. 하나뿐이면 위의 합계와 같은 것을 한 번 더
+    받아 오는 셈이고, 보고서에도 같은 표가 두 번 실린다.
+  */
+  const perIds = useMemo(() => (offeringIds.length > 1 ? offeringIds : []), [offeringIds]);
+  const per = usePerOfferingSatisfaction(perIds);
+  const perOffering = useMemo(
+    () =>
+      perIds.map((offeringId, i) => ({
+        offeringId,
+        metrics: per.metrics[i]?.data ?? [],
+        questionResults: per.questions[i]?.data ?? { stars: [], freeText: [] },
+        choices: per.choices[i]?.data ?? [],
+      })),
+    [perIds, per.metrics, per.questions, per.choices],
+  );
+
   const optional = [metrics, satisfactionList, courses, overviews, questions, choices];
   const isLoading =
     postLoading || pre.isLoading || preMembers.isLoading || optional.some((q) => q.isLoading);
@@ -125,12 +145,14 @@ export const useCompanyReport = (linkId: number) => {
       overviews: overviews.data ?? [],
       questionResults: questions.data ?? { stars: [], freeText: [] },
       choices: choices.data ?? [],
+      perOffering,
     });
   }, [
     isLoading,
     link,
     responses,
     tagAverages,
+    perOffering,
     pre.data,
     preMembers.data,
     metrics.data,
