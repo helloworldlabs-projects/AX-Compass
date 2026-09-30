@@ -357,7 +357,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
                 </tr>
               ))}
             </Table>
-            <TableNote>평균이 낮은 문항이 다음 회차에서 먼저 손볼 자리입니다.</TableNote>
+            <TableNote>평균이 낮은 문항이 다음 회차에서 먼저 보완할 항목입니다.</TableNote>
           </Block>
         </Chapter>
       )}
@@ -403,7 +403,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
             <li>
               · 이름이 사전검사와 이어진 {r.coverage.matchedN}명에 대해서는{' '}
               <b className="text-gray-900">같은 사람끼리의 변화</b>도 따로 냅니다. 두 결과가 크게
-              갈리면, 그 자체가 응답이 한쪽으로 쏠렸다는 신호입니다.
+              다르면, 그 자체가 응답이 한쪽으로 쏠렸다는 신호입니다.
             </li>
             <li>
               · 인원이 적으면 p 값은 나오지만 뜻이 약합니다. 그래서 차이의 크기(효과 크기)를 함께
@@ -420,36 +420,42 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
             columns={['분석', '무엇을 보는가', '권장 기준', '이 보고서']}
             // 분석 이름과 권장 기준은 줄을 넘기지 않을 만큼 준다.
             minWidth={640}
-            columnWidths={[136, null, 148, 84]}
+            columnWidths={[150, null, 148, 84]}
           >
             {[
               {
-                name: '종합·영역 변화',
-                what: '사전·사후 평균과 통계 검정',
+                name: '전체 대 전체 비교',
+                what: '사전 응시자 전원과 사후 응답자 전원 (05·06·08장)',
                 need: '각 5명 이상',
                 ok: r.coverage.preN >= 5 && r.coverage.postN >= 5,
               },
               {
-                name: '같은 사람 변화',
-                what: '이름이 이어진 사람의 전후 차이',
+                name: '같은 사람끼리 비교',
+                what: '두 검사에 모두 응한 사람의 전후 차이 (05·06·08장)',
                 need: '매칭 10명 이상',
                 ok: r.coverage.matchedN >= 10,
               },
               {
-                name: '역량별 변화',
-                what: '이해·활용·평가·책임 네 가지',
+                name: '사전·사후 차이 분석',
+                what: '이해·활용·평가·책임 네 역량 (06장)',
                 need: '각 10명 이상',
                 ok: r.coverage.preN >= 10 && r.coverage.postN >= 10,
               },
               {
-                name: '소속별 다변량 분석',
-                what: '부서에 따라 역량 구성이 다른가',
+                name: 'AX 역량 갭 변화 분석',
+                what: '자기평가·상황판단·행동빈도의 격차 (08장)',
+                need: '각 5명 · 매칭 10명',
+                ok: r.coverage.preN >= 5 && r.coverage.postN >= 5 && r.coverage.matchedN >= 10,
+              },
+              {
+                name: '소속 차이 다변량 분석',
+                what: '부서에 따라 역량 구성이 다른가 (09장)',
                 need: '(인원 − 부서 수) ≥ 4',
                 ok: r.department.manovaPost.usable,
               },
               {
-                name: '프로필 분포 변화',
-                what: '유형 비중이 달라졌는가',
+                name: '프로필 변화 분석',
+                what: '유형 비중이 달라졌는가 (10장)',
                 need: '기대빈도 5 이상',
                 ok: r.profile.chi2.usable && r.profile.chi2.smallCells <= 0.2,
               },
@@ -480,7 +486,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Lead>
           {[
             `종합 역량 점수는 자기평가·상황판단·행동빈도 세 영역의 점수를 ${SECTION_WEIGHT_TEXT} 비중으로 묶고, 다시 이해·활용·평가·책임 네 역량의 가중치를 적용해 100점으로 환산한 값입니다.`,
-            '두 가지로 견줍니다. 전체 대 전체는 사전에 응시한 전원과 사후에 응답한 전원을 맞대어 이 기업이 지금 어디에 서 있는지를 봅니다. 같은 사람끼리는 두 검사에 모두 응한 사람만 짝지어, 그 사람 안에서 얼마나 움직였는지를 봅니다.',
+            '두 가지 방식으로 비교합니다. 전체 대 전체는 사전에 응시한 전원과 사후에 응답한 전원을 비교해 이 기업의 현재 수준을 봅니다. 같은 사람끼리는 두 검사에 모두 응한 사람만 짝지어, 그 사람이 얼마나 변화했는지를 봅니다.',
             '앞의 방식은 사람 구성이 달라 순수한 교육 효과라 말하기 어렵고, 뒤의 방식은 인원이 적어 기업 전체로 넓히기 어렵습니다. 그래서 둘을 나란히 싣고, 두 결과가 같은 방향을 가리키는지를 먼저 봅니다.',
           ]}
         </Lead>
@@ -528,16 +534,16 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Insight insight={overallInsight(r)} />
       </Chapter>
 
-      {/* ── 06 역량별 변화 ───────────────────────────────── */}
+      {/* ── 06 사전·사후 차이 분석 ───────────────────────────────── */}
       <Chapter
         no="06"
-        title="사전·사후 차이 분석 (t검증)"
-        description="교육을 받은 사람들의 AX 역량이 얼마나 달라졌는지, 사전검사와 사후검사를 맞대어 봅니다."
+        title="사전·사후 차이 분석 (t검정)"
+        description="교육을 받은 사람들의 AX 역량이 얼마나 달라졌는지, 사전검사와 사후검사를 비교합니다."
       >
         <Lead>
           {[
             '보는 것은 이해, 활용, 평가·개선, 책임·거버넌스 네 역량입니다. 역량마다 평균이 얼마나 변했는지와, 그 차이를 우연으로 보기 어려운지를 함께 싣습니다.',
-            `표 왼쪽은 사전 ${r.coverage.preN}명과 사후 ${r.coverage.postN}명을 맞댄 것입니다(Welch t검증). 다만 사후 응답자 가운데 ${r.coverage.matchedN}명은 사전에도 응시한 사람이라 두 집단이 서로 무관하다고 보기 어려우므로, 참고로만 읽어 주세요. 교육의 효과는 표 오른쪽으로 판단합니다. 같은 ${r.coverage.matchedN}명 안에서의 변화만 보기 때문에 응답자가 달라 생긴 차이가 섞이지 않습니다.`,
+            `표 왼쪽은 사전 ${r.coverage.preN}명과 사후 ${r.coverage.postN}명을 비교한 것입니다(Welch t검정). 다만 사후 응답자 가운데 ${r.coverage.matchedN}명은 사전에도 응시한 사람이라 두 집단이 서로 무관하다고 보기 어려우므로, 참고로만 읽어 주세요. 교육의 효과는 표 오른쪽으로 판단합니다. 같은 ${r.coverage.matchedN}명 안에서의 변화만 보기 때문에 응답자가 달라 생긴 차이가 섞이지 않습니다.`,
             '표 아래 그림은 같은 수치를 네 역량의 형태로 나타낸 것입니다. 안쪽 선이 사전, 바깥쪽 선이 사후이며, 네 축이 고르게 벌어졌다면 전반적인 향상을, 한 축만 크게 벌어졌다면 해당 역량에 효과가 집중된 것을 뜻합니다.',
           ]}
         </Lead>
@@ -603,7 +609,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         </Block>
       </Chapter>
 
-      <Chapter no="06" title="사전·사후 차이 분석 (t검증)" cont>
+      <Chapter no="06" title="사전·사후 차이 분석 (t검정)" cont>
         <Block>
           <TableCaption>하위 역량 12가지 사전·사후 비교</TableCaption>
           {/* 한 표 안에 막대를 넣어, 숫자는 정확히 읽고 크기는 눈으로 짚게 한다. */}
@@ -638,7 +644,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
       <Chapter
         no="07"
         title="등급 분포"
-        description="평균만 보면 '모두가 조금씩 오른 것'과 '몇 명이 크게 오른 것'이 같아 보입니다. 입문·초급·중급·고급으로 나눠 교육이 어느 층에 닿았는지 봅니다."
+        description="평균만 보면 '모두가 조금씩 오른 것'과 '몇 명이 크게 오른 것'이 같아 보입니다. 입문·초급·중급·고급으로 나눠 교육이 어느 층에 효과가 있었는지 봅니다."
       >
         {r.levels.slice(0, 3).map((l) => (
           <LevelBlock key={l.name} l={l} />
@@ -711,7 +717,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
             ))}
           </Table>
           <TableNote>
-            갭은 두 영역 평균의 차이입니다. 0 에 가까울수록 인식과 실제가 맞물려 있습니다.
+            갭은 두 영역 평균의 차이입니다. 0 에 가까울수록 인식과 실제가 일치합니다.
           </TableNote>
         </Block>
 
@@ -763,7 +769,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Lead>
           {[
             '같은 사람 안에서 세 영역이 얼마나 어긋나 있는지를 봅니다. 점수가 올랐더라도 어긋남이 그대로면, 아는 것과 하는 것 사이의 거리는 줄지 않은 것입니다.',
-            '자기평가에서 상황판단을 뺀 값은 스스로를 어떻게 보는가와 실제 판단력의 거리입니다. 양수가 크면 실제보다 자신을 높게 보는 쪽이고, 음수가 크면 할 줄 알면서도 낮춰 보는 쪽입니다. 상황판단에서 행동빈도를 뺀 값은 판단과 실행의 거리로, 양수가 크면 알면서도 손대지 않는다는 뜻입니다.',
+            '자기평가에서 상황판단을 뺀 값은 스스로를 어떻게 보는가와 실제 판단력의 거리입니다. 양수가 크면 실제보다 자신을 높게 보는 쪽이고, 음수가 크면 할 줄 알면서도 낮춰 보는 쪽입니다. 상황판단에서 행동빈도를 뺀 값은 판단과 실행의 거리로, 양수가 크면 알면서도 실제로 하지 않는다는 뜻입니다.',
             '두 격차가 줄었는지는 같은 사람끼리 짝지어 검정합니다. 사전과 사후의 응답자가 달라 생긴 차이를 격차의 변화로 읽지 않기 위해서입니다.',
           ]}
         </Lead>
@@ -828,7 +834,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
       <Chapter
         no="09"
         title="소속 차이 다변량 분석 (MANOVA)"
-        description="같은 교육을 받아도 부서에 따라 남은 것이 다를 수 있습니다. 네 역량을 한꺼번에 놓고 소속에 따라 갈리는지 봅니다."
+        description="같은 교육을 받아도 부서에 따라 결과가 다를 수 있습니다. 네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 봅니다."
       >
         <Lead>
           {[
@@ -872,22 +878,27 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Lead>
           {r.department.manovaPost.usable
             ? [
-                `네 역량을 한꺼번에 놓고 소속에 따라 갈리는지 본 결과입니다. Wilks' Λ = ${r.department.manovaPost.wilks}, F = ${r.department.manovaPost.f}, p = ${pText(r.department.manovaPost.p)}.`,
+                `네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 본 결과입니다. Wilks' Λ = ${r.department.manovaPost.wilks}, F = ${r.department.manovaPost.f}, p = ${pText(r.department.manovaPost.p)}.`,
                 r.department.manovaPost.significant
-                  ? '소속에 따라 역량 구성이 다르다고 볼 만합니다. 어느 역량에서 갈리는지는 아래 표에서 하나씩 봅니다.'
+                  ? '소속에 따라 역량 구성이 다르다고 볼 만합니다. 어느 역량에서 차이가 나는지는 아래 표에서 하나씩 봅니다.'
                   : '소속에 따른 차이는 뚜렷하지 않습니다. 참고로 역량별 결과를 아래에 싣습니다.',
               ]
             : [
-                `소속별 다변량 분석은 실시하지 못했습니다. ${r.department.manovaPost.note ?? ''}`,
+                `소속 차이 다변량 분석은 실시하지 못했습니다. ${r.department.manovaPost.note ?? ''}`,
                 '아래 역량별 결과를 대신 읽어 주세요.',
               ]}
         </Lead>
       </Chapter>
 
-      <Chapter no="09" title="소속 차이 다변량 분석 (MANOVA)" cont>
+      <Chapter
+        no="09"
+        title="소속 차이 다변량 분석 (MANOVA)"
+        description="역량을 하나씩 나누어 본 분산분석 결과입니다."
+        cont
+      >
         <Lead>
           {[
-            '앞의 다변량 분석이 네 역량을 한 묶음으로 보고 소속 간 차이를 물었다면, 아래 표는 역량을 하나씩 떼어 각각에 대해 같은 질문을 던진 것입니다. 묶어서는 차이가 없어도 특정 역량에서만 갈리는 경우가 있습니다.',
+            '앞의 다변량 분석이 네 역량을 한 묶음으로 보고 소속 간 차이를 확인한 것이라면, 아래 표는 역량을 하나씩 나누어 각각 같은 방식으로 확인한 것입니다. 묶어서는 차이가 없어도 특정 역량에서만 차이가 나는 경우가 있습니다.',
             '제곱합은 흩어진 정도를 부서 간과 부서 안으로 나눈 값이고, F 는 그 둘의 비입니다. 부서 간 흩어짐이 부서 안 흩어짐보다 뚜렷하게 클 때 F 가 커지고 p 가 작아집니다. η² 는 그 역량의 점수 차이 가운데 소속으로 설명되는 몫으로, 0.01 은 작음, 0.06 은 중간, 0.14 이상은 큼으로 봅니다.',
             '아래의 분산분석은 사후 점수를 기준으로 합니다. 이어지는 검정은 점수 자체가 아니라 사전에서 사후로 변한 폭이 소속에 따라 달랐는지를 따로 묻습니다.',
           ]}
@@ -936,7 +947,12 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
       </Chapter>
 
       {/* 소속별 평균은 지면을 따로 쓴다. 부서가 열 곳을 넘으면 표만으로 A4 한 쪽을 채운다. */}
-      <Chapter no="09" title="소속 차이 다변량 분석 (MANOVA)" cont>
+      <Chapter
+        no="09"
+        title="소속 차이 다변량 분석 (MANOVA)"
+        description="부서별 사전·사후 평균과 그 변화입니다."
+        cont
+      >
         <Lead>
           {[
             '부서마다 사전·사후 평균과 그 변화를 나란히 적었습니다. 앞의 검정이 "소속에 따른 차이가 통계적으로 뚜렷한가"를 묻는다면, 이 표는 실제로 어느 부서가 어디에서 어디로 갔는지를 그대로 보여 줍니다.',
@@ -977,12 +993,12 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
       <Chapter
         no="10"
         title="프로필 변화 분석"
-        description="점수만으로는 보이지 않는 것을 봅니다. 사전과 사후의 프로필 유형 분포를 맞대어, 사람들이 AI를 대하는 방식이 달라졌는지 살핍니다."
+        description="점수만으로는 보이지 않는 것을 봅니다. 사전과 사후의 프로필 유형 분포를 비교해, 사람들이 AI를 대하는 방식이 달라졌는지 봅니다."
       >
         <Lead>
           {[
             'AX 역량 프로필은 단순 점수 결과만으로 구분하는 것이 아니라, 자기평가·상황판단·행동빈도 결과를 종합하여 응시자의 AI 활용 특성과 역량 균형 수준을 유형화한 결과입니다.',
-            '유형은 균형형·과신형·실행형·판단형·조심형·이해형 여섯입니다. 사전과 사후의 인원이 달라, 인원이 아니라 비중으로 견줍니다.',
+            '유형은 균형형·과신형·실행형·판단형·조심형·이해형 여섯입니다. 사전과 사후의 인원이 달라, 인원이 아니라 비중으로 비교합니다.',
           ]}
         </Lead>
 
@@ -1038,8 +1054,8 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Lead>
           {[
             '앞 표의 비중을 여섯 축의 모양으로 바꾼 것입니다. 왼쪽이 사전, 오른쪽이 사후이며, 각 축은 그 유형이 차지하는 비중입니다.',
-            '인원이 아니라 비중으로 그립니다. 사전 응시자와 사후 응답자의 수가 달라, 인원으로 그리면 유형이 옮겨 간 것인지 사람이 덜 응답한 것인지 가릴 수 없습니다.',
-            '모양이 한쪽으로 쏠렸다가 고르게 퍼졌다면 구성원의 특성이 다양해진 것이고, 특정 축이 커졌다면 교육이 그 방향으로 사람들을 옮겼다는 뜻입니다.',
+            '인원이 아니라 비중으로 그립니다. 사전 응시자와 사후 응답자의 수가 달라, 인원으로 그리면 유형이 옮겨 간 것인지 사람이 덜 응답한 것인지 구분할 수 없습니다.',
+            '모양이 한쪽으로 쏠렸다가 고르게 퍼졌다면 구성원의 특성이 다양해진 것이고, 특정 축이 커졌다면 교육이 그 방향으로 영향을 주었다는 뜻입니다.',
           ]}
         </Lead>
 
@@ -1176,7 +1192,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
       <Chapter
         no="12"
         title="다음 단계 제안"
-        description="이번 결과를 근거로 다음에 이어서 들을 만한 과정을 고릅니다. 무엇을 보고 골랐는지 함께 적었습니다 — 맞지 않는다고 판단되면 그 근거를 짚어 바꾸시면 됩니다."
+        description="이번 결과를 근거로 다음에 이어서 들을 만한 과정을 고릅니다. 무엇을 보고 골랐는지 함께 적었습니다."
       >
         {picks.length === 0 ? (
           <Block>
@@ -1490,15 +1506,13 @@ function LevelBlock({ l }: { l: CompanyReport['levels'][number] }) {
       {/*
         띠 아래에 한 줄로 적는다. 표를 따로 두면 같은 수를 두 번 싣게 된다.
 
-        **비중을 앞에 둔다.** 사전과 사후의 인원이 달라(22명 → 5명) 인원만 적으면
+        **비중만 적는다.** 사전과 사후의 인원이 달라(22명 → 5명) 인원을 적으면
         모든 등급이 줄어든 것처럼 보인다. 실제로는 중급 이상이 55% → 100% 로
-        늘었다. 인원은 괄호로 남긴다 — 한두 사람으로 비중이 크게 흔들리는 구간을
-        알아볼 수 있어야 한다.
+        늘었다. 인원은 바로 위 띠의 "사전 22명 / 사후 5명" 에 이미 있다.
       */}
       <p className="txt-c2-regular mt-3 text-gray-500">
         {LEVEL_NAMES.map(
-          (name) =>
-            `${name} ${share(l.pre, l.preN, name)}%→${share(l.post, l.postN, name)}% (${l.pre[name]}→${l.post[name]}명)`,
+          (name) => `${name} ${share(l.pre, l.preN, name)}%→${share(l.post, l.postN, name)}%`,
         ).join(' · ')}
       </p>
     </Block>

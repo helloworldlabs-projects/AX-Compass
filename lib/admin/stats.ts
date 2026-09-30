@@ -613,7 +613,7 @@ export function manova(
     return {
       ...base,
       usable: false,
-      note: '역량 점수가 서로 너무 비슷해 다변량 계산이 서지 않습니다. 아래 역량별 결과를 보세요.',
+      note: '역량 점수가 서로 너무 비슷해 다변량 계산이 되지 않습니다. 아래 역량별 결과를 보세요.',
       wilks: null,
       f: null,
       df1: null,
