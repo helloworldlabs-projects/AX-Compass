@@ -145,13 +145,13 @@ export function overallInsight(r: CompanyReport): ChapterInsight {
       ? welch.significant
         ? `이 차이는 우연으로 보기 어렵고, 차이의 크기도 ${effectPhrase(welch.d ?? 0)}(d = ${welch.d}).`
         : `다만 이 정도 차이는 우연으로 보기 어려울 만큼은 아닙니다(d = ${welch.d}).`
-      : '응답이 모자라 통계적으로 따져 보지는 못했습니다.',
+      : '응답이 모자라 통계적으로 검정하지는 못했습니다.',
   );
 
   // 둘째 문단 — 그런데 이걸 그대로 믿어도 되나.
   const second = para(
     small &&
-      `다만 사전 ${welch.n1}명, 사후 ${welch.n2}명으로 어느 한쪽이 10명에 못 미칩니다. 이 변화가 기업 전체의 것인지, 응답한 사람들이 원래 그런 층이었는지는 이 수만으로 갈라내기 어렵습니다.`,
+      `다만 사전 ${welch.n1}명, 사후 ${welch.n2}명으로 어느 한쪽이 10명에 못 미칩니다. 이 변화가 기업 전체의 것인지, 응답한 사람들이 원래 그런 층이었는지는 이 인원만으로는 구분하기 어렵습니다.`,
     paired.usable
       ? para(
           `이름이 이어진 ${paired.n}명만 따로 보면 ${score(paired.meanBefore)}점에서 ${score(paired.meanAfter)}점으로,`,
@@ -162,7 +162,7 @@ export function overallInsight(r: CompanyReport): ChapterInsight {
               : `${paired.up}명이 오르고 ${paired.down}명이 내렸습니다.`,
           welch.significant === paired.significant
             ? '전체 비교와 같은 방향이라, 결과를 그대로 읽어도 무리가 없습니다.'
-            : '전체 비교와 결론이 갈립니다. 응답한 사람들이 한쪽으로 쏠렸을 가능성을 먼저 확인해야 합니다.',
+            : '전체 비교와 결론이 다릅니다. 응답한 사람들이 한쪽으로 쏠렸을 가능성을 먼저 확인해야 합니다.',
         )
       : `이름이 이어진 사람이 ${r.coverage.matchedN}명뿐이라 같은 사람끼리의 비교로는 뒷받침하지 못했습니다.`,
   );
@@ -204,14 +204,14 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
   if (sr.post !== null) {
     if (sr.post > 5) {
       pieces.push(
-        `자기평가가 상황판단보다 ${abs(sr.post)}점 높습니다. 스스로 매긴 점수만큼 실제 판단이 따라오지 못한다는 뜻으로, 결과를 따져 보는 훈련이 먼저 필요합니다.`,
+        `자기평가가 상황판단보다 ${abs(sr.post)}점 높습니다. 스스로 매긴 점수만큼 실제 판단이 따라오지 못한다는 뜻으로, 결과를 검토하는 훈련이 먼저 필요합니다.`,
       );
     } else if (sr.post < -5) {
       pieces.push(
-        `자기평가가 상황판단보다 ${abs(sr.post)}점 낮습니다. 실제 판단력에 비해 스스로를 낮게 보고 있어, 역량 자체보다 자신감을 붙이는 쪽이 급합니다.`,
+        `자기평가가 상황판단보다 ${abs(sr.post)}점 낮습니다. 실제 판단력에 비해 스스로를 낮게 보고 있어, 역량 자체보다 자신감을 높이는 쪽이 급합니다.`,
       );
     } else {
-      pieces.push('자기 인식과 실제 판단력이 거의 맞물려 있습니다.');
+      pieces.push('자기 인식과 실제 판단력이 거의 일치합니다.');
     }
   }
 
@@ -225,13 +225,13 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
       );
     } else if (sb.post < -5) {
       pieces.push(
-        `${prevMatched ? '다만 ' : ''}행동빈도가 상황판단보다 ${abs(sb.post)}점 높습니다. 이미 쓰고는 있는데 판단 기준이 덜 잡혀 있어, 무엇을 어떻게 검토할지를 세우는 과정이 맞습니다.`,
+        `${prevMatched ? '다만 ' : ''}행동빈도가 상황판단보다 ${abs(sb.post)}점 높습니다. 이미 사용하고 있으나 판단 기준이 덜 갖춰져 있어, 무엇을 어떻게 검토할지를 세우는 과정이 적절합니다.`,
       );
     } else {
       pieces.push(
         prevMatched
-          ? '아는 것과 하는 것도 비슷한 수준으로 맞물려 있습니다.'
-          : '아는 것과 하는 것은 비슷한 수준으로 맞물려 있습니다.',
+          ? '아는 것과 하는 것도 비슷한 수준입니다.'
+          : '아는 것과 하는 것은 비슷한 수준입니다.',
       );
     }
   }
@@ -241,7 +241,7 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
     pieces.push(
       closed
         ? '교육 전보다 인식과 판단의 거리가 좁혀졌습니다.'
-        : '교육 전과 견주어 이 거리가 좁혀지지는 않았습니다.',
+        : '교육 전과 비교하면 이 거리가 좁혀지지는 않았습니다.',
     );
   }
 
@@ -262,9 +262,9 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
     if (test.significant) {
       return Math.abs(diff) < 0.001
         ? null
-        : `${label}는 통계적으로도 달라졌습니다. 같은 사람 안에서 움직인 것이라 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.`;
+        : `${label}는 통계적으로도 달라졌습니다. 같은 사람의 변화이므로 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.`;
     }
-    return `${label}는 통계적으로 뚜렷하게 달라지지 않았습니다. 거리가 그대로라는 증명은 아니고, 지금 인원으로는 변화를 가려낼 근거가 모자란다는 뜻입니다.`;
+    return `${label}는 통계적으로 뚜렷하게 달라지지 않았습니다. 거리가 그대로라는 증명은 아니고, 지금 인원으로는 변화를 확인할 근거가 모자란다는 뜻입니다.`;
   };
 
   /*
@@ -278,8 +278,8 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
   if (bothUsable && sameVerdict) {
     pieces.push(
       sr.paired.significant
-        ? '두 거리 모두 통계적으로도 달라졌습니다. 같은 사람 안에서 움직인 것이라 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.'
-        : '두 거리 모두 통계적으로 뚜렷하게 달라지지는 않았습니다. 거리가 그대로라는 증명은 아니고, 지금 인원으로는 변화를 가려낼 근거가 모자란다는 뜻입니다.',
+        ? '두 거리 모두 통계적으로도 달라졌습니다. 같은 사람의 변화이므로 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.'
+        : '두 거리 모두 통계적으로 뚜렷하게 달라지지는 않았습니다. 거리가 그대로라는 증명은 아니고, 지금 인원으로는 변화를 확인할 근거가 모자란다는 뜻입니다.',
     );
   } else {
     const srReading = gapReading('자기평가와 상황판단의 거리', sr.paired, sr.diff);
@@ -294,8 +294,8 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
     r.gaps.spread.diff === null
       ? null
       : r.gaps.spread.diff < 0
-        ? `역량 간 편차는 ${abs(r.gaps.spread.diff)}점 줄었습니다. 특정 역량만 끌어올린 것이 아니라 고르게 올라왔다는 뜻으로, 다음 교육은 전사 공통 과정으로 이어 가도 좋습니다.`
-        : `역량 간 편차가 ${fmt(r.gaps.spread.diff)}점 늘었습니다. 변화한 역량과 그대로인 역량의 거리가 벌어졌으므로, 다음 교육은 뒤처진 역량을 겨냥해 좁혀 잡는 편이 낫습니다.`;
+        ? `역량 간 편차는 ${abs(r.gaps.spread.diff)}점 줄었습니다. 특정 역량만 오른 것이 아니라 고르게 올랐다는 뜻으로, 다음 교육은 전사 공통 과정으로 이어 가도 좋습니다.`
+        : `역량 간 편차가 ${fmt(r.gaps.spread.diff)}점 늘었습니다. 변화한 역량과 그대로인 역량의 거리가 벌어졌으므로, 다음 교육은 뒤처진 역량을 중심으로 좁혀 잡는 편이 낫습니다.`;
 
   return { paragraphs: [first, second, third].filter(Boolean) as string[] };
 }
@@ -374,7 +374,7 @@ export function competencyInsight(r: CompanyReport): ChapterInsight {
       `${strongTags.length === 3 ? '반면 ' : ''}${with_(list(weakTags.map((t) => t.name)), '은')} 보완이 필요합니다.`,
     lowest &&
       weakTags[0] &&
-      `다음 교육은 ${lowest.short} 역량, 그중에서도 ${with_(weakTags[0].name, '을')} 겨냥해 잡는 편이 낫습니다.`,
+      `다음 교육은 ${lowest.short} 역량, 그중에서도 ${with_(weakTags[0].name, '을')} 중심으로 잡는 편이 낫습니다.`,
   );
 
   // 넷째 문단 — 종합. 예시의 "종합하면, …" 자리.
@@ -389,9 +389,9 @@ export function competencyInsight(r: CompanyReport): ChapterInsight {
     `지금 가장 높은 역량은 ${highest.short}(${score(highest.post)}점, ${levelOf(highest.post)}), 가장 낮은 역량은 ${lowest.short}(${score(lowest.post)}점, ${levelOf(lowest.post)})입니다.`,
     allUp
       ? `${lowest.short} 역량도 오르기는 했으므로, 다음 교육은 거기에 초점을 두되 지금 방식을 크게 바꾸지 않아도 됩니다.`
-      : `다음 교육의 목표를 ${lowest.short} 역량에 두고, 이미 올라온 ${highest.short} 역량을 갖춘 인원을 사내 조력자로 세우는 편이 낫습니다.`,
+      : `다음 교육의 목표를 ${lowest.short} 역량에 두고, 이미 높아진 ${highest.short} 역량을 갖춘 인원을 사내 조력자로 세우는 편이 낫습니다.`,
     split.length > 0 &&
-      `다만 ${with_(list(split.map((c) => c.short)), '은')} 전체 비교와 같은 사람끼리의 비교에서 결론이 갈립니다. 이 수치를 인용하기 전에 응답자 구성을 확인해 주세요.`,
+      `다만 ${with_(list(split.map((c) => c.short)), '은')} 전체 비교와 같은 사람끼리의 비교에서 결론이 다릅니다. 이 수치를 인용하기 전에 응답자 구성을 확인해 주세요.`,
   );
 
   return {
@@ -438,13 +438,13 @@ export function levelRowInsight(l: CompanyReport['levels'][number]): string {
       ? `구성원 ${postLow}%가 입문·초급에 몰려 있어, 아직 기초 단계를 벗어나지 못한 상태입니다. 수준을 나누기보다 공통 과정으로 기초를 함께 올리는 편이 낫습니다.`
       : postHigh >= 50
         ? `중급 이상이 ${postHigh}%로 절반을 넘습니다. 공통 교육보다 직무별·주제별 심화로 나누어 운영할 수 있는 단계입니다.`
-        : `입문·초급이 ${postLow}%, 중급 이상이 ${postHigh}%로 갈려 있습니다. 한 과정으로 묶으면 한쪽이 지루하거나 따라오지 못하므로, 수준을 나눠 여는 편이 낫습니다.`;
+        : `입문·초급이 ${postLow}%, 중급 이상이 ${postHigh}%로 나뉘어 있습니다. 한 과정으로 묶으면 한쪽이 지루하거나 따라오지 못하므로, 수준을 나눠 여는 편이 낫습니다.`;
 
   const shift =
     postHigh > preHigh
-      ? `사전의 중급 이상 ${preHigh}%에서 ${postHigh}%로 위쪽 등급이 두터워졌습니다.`
+      ? `사전의 중급 이상 ${preHigh}%에서 ${postHigh}%로 위쪽 등급의 비중이 늘었습니다.`
       : postHigh < preHigh
-        ? `사전의 중급 이상 ${preHigh}%에서 ${postHigh}%로 위쪽 등급이 얇아졌습니다. 사후에 응답한 사람들이 사전과 다른 층일 가능성을 함께 봐야 합니다.`
+        ? `사전의 중급 이상 ${preHigh}%에서 ${postHigh}%로 위쪽 등급의 비중이 줄었습니다. 사후에 응답한 사람들이 사전과 다른 층일 가능성을 함께 봐야 합니다.`
         : `중급 이상의 비중은 사전과 같은 ${postHigh}%입니다.`;
 
   return para(moved, body, shift);
@@ -476,7 +476,7 @@ export function levelInsight(r: CompanyReport): ChapterInsight {
       )}에서 대표 등급이 내려갔습니다.`,
     risen.length === 0 &&
       fallen.length === 0 &&
-      '역량별 대표 등급은 사전과 같습니다. 평균 점수는 변했지만 등급이 갈리는 선을 넘지는 못했습니다.',
+      '역량별 대표 등급은 사전과 같습니다. 평균 점수는 변했지만 등급이 나뉘는 기준선을 넘지는 못했습니다.',
   );
 
   return { paragraphs: [first, second].filter(Boolean) };
@@ -501,7 +501,7 @@ export function departmentInsight(r: CompanyReport): ChapterInsight {
   const first = m.usable
     ? para(
         m.significant
-          ? `소속에 따라 역량 구성이 다릅니다(Wilks' Λ = ${m.wilks}, p = ${m.p}). 같은 교육을 받아도 부서마다 남은 것이 달랐다는 뜻입니다.`
+          ? `소속에 따라 역량 구성이 다릅니다(Wilks' Λ = ${m.wilks}, p = ${m.p}). 같은 교육을 받아도 부서마다 결과가 달랐다는 뜻입니다.`
           : `소속에 따른 역량 구성의 차이는 뚜렷하지 않습니다(Wilks' Λ = ${m.wilks}, p = ${m.p}).`,
         !m.significant
           ? `이는 부서 간 차이가 없다는 증명이 아니라, 모인 응답만으로는 차이를 말할 근거가 모자란다는 뜻입니다.${
@@ -514,14 +514,14 @@ export function departmentInsight(r: CompanyReport): ChapterInsight {
           ? `역량별로 따로 보면 ${list(significantVars.map((v) => v.name))}에서 차이가 두드러집니다.`
           : m.significant
             ? '다만 역량별로 하나씩 보면 어느 것도 단독으로는 뚜렷하지 않아, 차이는 특정 역량보다 전체 구성에서 옵니다.'
-            : '역량을 하나씩 따로 봐도 소속에 따라 갈리는 것은 없습니다. 부서별로 교육을 달리 잡을 근거가 없으므로, 후속 과정은 소속보다 역량 수준이나 프로필 유형으로 나누는 편이 낫습니다.',
+            : '역량을 하나씩 따로 봐도 소속에 따라 차이가 나는 역량은 없습니다. 부서별로 교육을 다르게 설계할 근거가 없으므로, 후속 과정은 소속보다 역량 수준이나 프로필 유형으로 나누는 편이 낫습니다.',
       )
     : // 위 표에 이미 "실시하지 못했습니다 + 까닭 + 대신 볼 것" 이 나간다.
       // 같은 말을 되풀이하지 않고, 표가 말하지 않는 것만 덧붙인다.
       para(
         r.department.rows.length > 1
-          ? '소속이 여럿이지만 응답이 한 곳에 몰려 있어 비교가 서지 않습니다. 아래 소속별 평균을 대신 견주어 주세요.'
-          : '사후 응답이 한 소속에서만 들어와 소속끼리 견줄 수 없습니다.',
+          ? '소속이 여럿이지만 응답이 한 곳에 몰려 있어 비교가 성립하지 않습니다. 아래 소속별 평균을 대신 비교해 주세요.'
+          : '사후 응답이 한 소속에서만 들어와 소속끼리 비교할 수 없습니다.',
       );
 
   const withBoth = r.department.rows.filter((d) => d.diff !== null);
@@ -535,7 +535,7 @@ export function departmentInsight(r: CompanyReport): ChapterInsight {
           return para(
             `소속별로는 ${with_(best.name, '이')} ${fmt(best.diff)}점, ${with_(worst.name, '이')} ${fmt(worst.diff)}점으로 ${abs(spread)}점 벌어져 있습니다.`,
             spread > 10
-              ? '같은 교육을 받았는데도 부서 사이의 결과가 크게 벌어졌습니다. 다음 회차에는 부서마다 목표와 과제를 나눠 잡는 편이 낫습니다.'
+              ? '같은 교육을 받았는데도 부서 사이의 결과가 크게 벌어졌습니다. 다음 회차에는 부서마다 목표와 과제를 따로 잡는 편이 낫습니다.'
               : '부서 사이의 차이가 크지 않아 공통 과제로 묶어 운영할 수 있습니다.',
             !r.department.changeAnova.usable
               ? null
@@ -626,7 +626,7 @@ export function profileInsight(r: CompanyReport): ChapterInsight {
       ? chi.significant
         ? `분포가 달라진 정도는 우연으로 보기 어렵습니다(χ² = ${chi.chi2}, Cramér's V = ${chi.v}). 사람들이 실제로 다른 유형으로 옮겨 갔다는 뜻입니다.`
         : `다만 분포가 달라진 정도는 우연으로 보기 어려울 만큼은 아닙니다(χ² = ${chi.chi2}). 유형 구성이 그대로라는 뜻은 아니며, 여섯 유형으로 나누면 칸마다 인원이 적어져 웬만한 변화로는 뚜렷하게 잡히지 않습니다. 아래의 개인별 이동을 함께 보아 주세요.`
-      : '분포 변화를 통계적으로 따지기에는 응답이 모자랍니다.',
+      : '분포 변화를 통계적으로 검정하기에는 응답이 모자랍니다.',
     // chi.note 는 검정 결과 상자 아래에 따로 찍힌다. 여기서 또 붙이면 같은 말이
     // 한 지면에 두 번 나오고, 위 문장이 이미 같은 사정을 풀어 쓰고 있다.
     r.profile.moved + r.profile.stayed > 0
@@ -675,22 +675,22 @@ export function profileInsight(r: CompanyReport): ChapterInsight {
     balanced === undefined
       ? null
       : balanced.diff > 0
-        ? `교육이 끝내 바라는 자리인 균형형은 ${fmt(balanced.diff)}%p 늘어 ${balanced.postShare}%가 되었습니다. 판단과 실행이 함께 안정된 사람이 늘었다는 뜻이라, 다음 과정에서 사내 확산을 맡길 후보로 먼저 볼 수 있습니다.`
-        : `다만 교육이 끝내 바라는 자리인 균형형은 늘지 않았습니다(${fmt(balanced.diff)}%p, 지금 ${balanced.postShare}%). 판단과 실행 중 한쪽만 올라온 것이므로, 다음 과정은 덜 올라온 쪽을 겨냥해 짜는 편이 낫습니다.`,
+        ? `교육이 최종적으로 지향하는 균형형은 ${fmt(balanced.diff)}%p 늘어 ${balanced.postShare}%가 되었습니다. 판단과 실행이 함께 안정된 사람이 늘었다는 뜻이라, 다음 과정에서 사내 확산을 맡길 후보로 먼저 볼 수 있습니다.`
+        : `다만 교육이 최종적으로 지향하는 균형형은 늘지 않았습니다(${fmt(balanced.diff)}%p, 지금 ${balanced.postShare}%). 판단과 실행 중 한쪽만 올라온 것이므로, 다음 과정은 덜 오른 쪽을 중심으로 짜는 편이 낫습니다.`,
   );
 
   // 유형이 말하는 처방. 이 장이 실제로 쓸모 있으려면 여기까지 가야 한다.
   const advice =
     topPost.id === 'OVERCONFIDENT'
-      ? '과신형이 많다는 것은 결과물을 따져 보지 않고 받아들이는 사람이 많다는 뜻입니다. 검증 절차와 품질 기준을 다루는 과정을 먼저 넣는 편이 낫습니다.'
+      ? '과신형이 많다는 것은 결과물을 검증하지 않고 받아들이는 사람이 많다는 뜻입니다. 검증 절차와 품질 기준을 다루는 과정을 먼저 넣는 편이 낫습니다.'
       : topPost.id === 'CAUTIOUS'
-        ? '조심형이 많다는 것은 쓰는 방법은 알지만 실제로 손대지 못한 사람이 많다는 뜻입니다. 작은 과제를 직접 해 보는 실습형 과정이 맞습니다.'
+        ? '조심형이 많다는 것은 쓰는 방법은 알지만 실제로 사용하지 못한 사람이 많다는 뜻입니다. 작은 과제를 직접 해 보는 실습형 과정이 적절합니다.'
         : topPost.id === 'LEARNER'
-          ? '이해형이 많다는 것은 개념은 잡혔지만 업무로 넘어가지 못했다는 뜻입니다. 담당 업무를 그대로 과제로 다루는 적용형 과정이 맞습니다.'
+          ? '이해형이 많다는 것은 개념은 잡혔지만 업무로 넘어가지 못했다는 뜻입니다. 담당 업무를 그대로 과제로 다루는 적용형 과정이 적절합니다.'
           : topPost.id === 'DOER'
             ? '실행형이 많다는 것은 이미 업무에 쓰고 있다는 뜻입니다. 검증 기준과 운영 규칙을 세우는 과정으로 이어 가면 됩니다.'
             : topPost.id === 'ANALYST'
-              ? '판단형이 많다는 것은 따져 보는 힘은 있으나 실제로 쓰는 일이 적다는 뜻입니다. 도구를 직접 써 보는 실습 중심 과정이 맞습니다.'
+              ? '판단형이 많다는 것은 판단하는 힘은 있으나 실제로 쓰는 일이 적다는 뜻입니다. 도구를 직접 써 보는 실습 중심 과정이 적절합니다.'
               : `${with_(topPost.name, '이')} 가장 많습니다. 특정 역량을 보완하기보다 한 단계 어려운 과정으로 이어 갈 수 있습니다.`;
 
   return { paragraphs: [first, second, direction, advice].filter(Boolean) };
@@ -762,9 +762,9 @@ export function satisfactionInsight(r: CompanyReport): ChapterInsight {
   const grew = paired.usable && paired.significant === true && (r.overall.diff ?? 0) > 0;
 
   const third = para(
-    '만족도는 교육을 어떻게 받아들였는지에 대한 응답이고, 뒤에서 다루는 역량 변화는 실제로 무엇이 달라졌는지에 대한 측정입니다. 두 가지는 함께 움직이기도 하고 어긋나기도 하므로, 만족도가 높다는 사실만으로 역량이 향상되었다고 판단하지 않습니다.',
+    '만족도는 교육을 어떻게 받아들였는지에 대한 응답이고, 뒤에서 다루는 역량 변화는 실제로 무엇이 달라졌는지에 대한 측정입니다. 두 가지는 같은 방향으로 나타나기도 하고 어긋나기도 하므로, 만족도가 높다는 사실만으로 역량이 향상되었다고 판단하지 않습니다.',
     !paired.usable
-      ? '이번 회차는 같은 인원을 대상으로 한 전후 비교가 성립하지 않아, 만족도와 역량 변화를 맞대어 보기 어렵습니다.'
+      ? '이번 회차는 같은 인원을 대상으로 한 전후 비교가 성립하지 않아, 만족도와 역량 변화를 비교하기 어렵습니다.'
       : high && grew
         ? `이번 회차는 만족도가 ${overall}점으로 높고, 같은 인원의 종합 역량도 ${fmt(r.overall.diff)}점 향상되어 통계적으로도 확인되었습니다. 교육에 대한 평가와 실제 역량 변화가 같은 방향으로 나타난 경우로, 후속 과정을 연계하기에 적합한 상태입니다.`
         : high && !grew
@@ -800,7 +800,7 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
 
   const headline = para(
     diff === null
-      ? '사전과 사후를 견줄 점수가 모자라 변화를 단정할 수 없습니다.'
+      ? '사전과 사후를 비교할 점수가 모자라 변화를 단정할 수 없습니다.'
       : diff >= 0
         ? `이번 교육 뒤 구성원의 종합 역량은 ${abs(diff)}점 올라 ${score(r.overall.post)}점(${levelOf(r.overall.post)})이 되었습니다.`
         : `이번 교육 뒤 구성원의 종합 역량은 ${score(r.overall.post)}점(${levelOf(r.overall.post)})으로, 사전보다 ${abs(diff)}점 낮습니다.`,
@@ -821,7 +821,7 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
   if (up.length > 0) {
     const best = [...up].sort((a, b) => b.diff! - a.diff!)[0];
     strengths.push(
-      `${best.short} 역량이 ${fmt(best.diff)}점으로 가장 크게 올랐습니다. 이번 교육이 가장 잘 닿은 자리이므로, 같은 방식을 다른 역량으로 넓혀 볼 수 있습니다.`,
+      `${best.short} 역량이 ${fmt(best.diff)}점으로 가장 크게 올랐습니다. 이번 교육의 효과가 가장 크게 나타난 역량이므로, 같은 방식을 다른 역량으로 넓혀 볼 수 있습니다.`,
     );
   }
   if (highest) {
@@ -831,7 +831,7 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
   }
   if (r.satisfaction.overall !== null && r.satisfaction.overall >= 4.5) {
     strengths.push(
-      `교육 만족도가 ${r.satisfaction.overall}점으로 높습니다. 구성원의 거부감이 낮은 지금이 후속 과정을 붙이기 좋은 시점입니다.`,
+      `교육 만족도가 ${r.satisfaction.overall}점으로 높습니다. 구성원의 거부감이 낮은 지금이 후속 과정을 이어 가기 좋은 시점입니다.`,
     );
   }
   if (r.profile.moved > 0) {
@@ -847,7 +847,7 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
   }
   if (lowest) {
     gaps.push(
-      `가장 낮은 역량은 ${lowest.short}(${score(lowest.post)}점)입니다. 다음 교육의 첫 번째 목표로 두는 것이 맞습니다.`,
+      `가장 낮은 역량은 ${lowest.short}(${score(lowest.post)}점)입니다. 다음 교육의 첫 번째 목표로 두는 것이 적절합니다.`,
     );
   }
   if (r.coverage.rate !== null && r.coverage.rate < 70) {

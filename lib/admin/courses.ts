@@ -83,7 +83,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: [],
     roleKeywords: [],
     maturityViews: ['전략·리더십'],
-    effect: '조직의 현재 위치를 숫자로 맞추고 목표를 합의합니다.',
+    effect: '조직의 현재 수준을 수치로 확인하고 목표를 합의합니다.',
   },
   2: {
     family: '맞춤 처방',
@@ -94,7 +94,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: ['기획', '마케팅', '전략', '신사업'],
     maturityViews: ['전략·리더십', '업무·적용'],
     effect:
-      'AI 작동 원리와 한계를 먼저 잡고, 시장 기회를 찾는 데까지 이어 붙입니다. 이해가 활용으로 넘어가지 못할 때 첫 다리가 됩니다.',
+      'AI의 작동 원리와 한계를 이해한 뒤 시장 기회를 찾는 단계까지 다룹니다. 이해가 활용으로 이어지지 않을 때 그 사이를 메우는 과정입니다.',
   },
   3: {
     family: '맞춤 처방',
@@ -105,7 +105,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: [],
     maturityViews: ['업무·적용'],
     effect:
-      '자기 업무를 잘게 쪼개 AI가 맡을 자리를 찾습니다. 프롬프트와 유스케이스 설계가 약할 때 가장 빠르게 듣습니다.',
+      '자기 업무를 단계별로 나누어 AI가 맡을 수 있는 부분을 찾습니다. 프롬프트와 유스케이스 설계가 약할 때 효과가 가장 빠르게 나타납니다.',
   },
   4: {
     family: '역량 강화',
@@ -116,7 +116,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: ['기획', '마케팅', '전략', '신사업'],
     maturityViews: ['업무·적용', '데이터·시스템 기반'],
     effect:
-      '노코드 도구로 실제 도는 자동화를 만듭니다. 워크플로우 운영이 낮은 조직이 손에 잡히는 결과물을 갖게 됩니다.',
+      '노코드 도구로 실제 동작하는 자동화를 만듭니다. 워크플로우 운영 수준이 낮은 조직이 바로 쓸 수 있는 결과물을 얻습니다.',
   },
   5: {
     family: '역량 강화',
@@ -127,7 +127,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: ['기획', '전략', '경영', '사무'],
     maturityViews: ['업무·적용'],
     effect:
-      '이미 쓰는 오피스 도구 위에서 자동화를 세웁니다. 새 도구를 들이기 어려운 조직에 부담이 적습니다.',
+      '이미 사용 중인 오피스 도구 안에서 자동화를 구성합니다. 새 도구를 도입하기 어려운 조직에 부담이 적습니다.',
   },
   6: {
     family: '역량 강화',
@@ -138,7 +138,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: ['기획', '전략', '신사업'],
     maturityViews: ['업무·적용', '전략·리더십'],
     effect:
-      '복잡한 판단이 섞인 업무를 시뮬레이션합니다. 결과를 평가하고 고쳐 쓰는 힘이 함께 올라갑니다.',
+      '복잡한 판단이 필요한 업무를 시뮬레이션합니다. 결과를 평가하고 수정하는 역량이 함께 향상됩니다.',
   },
   7: {
     family: '역량 강화',
@@ -148,7 +148,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['DOER', 'BALANCED'],
     roleKeywords: [],
     maturityViews: ['업무·적용', '운영체계·확산'],
-    effect: '반복 업무를 에이전트로 넘겨 전사 단위 비용을 줄입니다.',
+    effect: '반복 업무를 에이전트로 전환해 전사 단위의 비용을 줄입니다.',
   },
   8: {
     family: '역량 강화',
@@ -158,7 +158,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['DOER', 'LEARNER'],
     roleKeywords: ['경영', '총무', '인사', '사무', '지원'],
     maturityViews: ['업무·적용'],
-    effect: '문서와 커뮤니케이션이 오가는 자리를 자동화합니다.',
+    effect: '문서 작성과 커뮤니케이션이 반복되는 업무를 자동화합니다.',
   },
   9: {
     family: '역량 강화',
@@ -169,7 +169,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: [],
     maturityViews: ['데이터·시스템 기반', '운영체계·확산'],
     effect:
-      '흩어진 사내 지식을 AI가 읽을 수 있는 형태로 모읍니다. 보안·권한 경계를 함께 다뤄 책임 역량도 같이 올라갑니다.',
+      '분산된 사내 지식을 AI가 활용할 수 있는 형태로 모읍니다. 보안과 권한 기준을 함께 다루어 책임 역량도 향상됩니다.',
   },
   10: {
     family: '조직 확산',
@@ -180,7 +180,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: ['팀장', '관리', '리더'],
     maturityViews: ['운영체계·확산', '전략·리더십'],
     effect:
-      '사람과 AI가 일을 나누는 방식을 조직 규칙으로 만듭니다. 개인의 활용이 부서 단위로 번지지 않을 때 씁니다.',
+      '사람과 AI의 업무 분담 방식을 조직의 규칙으로 정리합니다. 개인의 활용이 부서 단위로 확산되지 않을 때 적합합니다.',
   },
   11: {
     family: '진단',
@@ -191,7 +191,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: ['팀장', '관리', '리더'],
     maturityViews: ['운영체계·확산', '전략·리더십'],
     effect:
-      '개인이 만든 결과물을 회사의 자산으로 올리고, 안전하게 쓰는 규칙을 세웁니다. 활용은 늘었는데 관리가 따라오지 못할 때 필요합니다.',
+      '개인이 만든 결과물을 회사의 자산으로 정리하고, 안전하게 사용하는 규칙을 마련합니다. 활용은 늘었으나 관리 체계가 부족할 때 필요합니다.',
   },
   12: {
     family: '직무별 키트',
@@ -201,7 +201,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['LEARNER', 'CAUTIOUS'],
     roleKeywords: ['마케팅', '브랜드', '홍보', '콘텐츠'],
     maturityViews: ['업무·적용'],
-    effect: '고객 반응 데이터를 콘텐츠와 캠페인 성과로 잇습니다.',
+    effect: '고객 반응 데이터를 콘텐츠와 캠페인 성과로 연결합니다.',
   },
   13: {
     family: '직무별 키트',
@@ -211,7 +211,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['LEARNER', 'CAUTIOUS'],
     roleKeywords: ['경영', '총무', '인사', '사무', '지원', '운영'],
     maturityViews: ['업무·적용'],
-    effect: '반복되는 문서·자료 처리를 AI에 넘깁니다.',
+    effect: '반복되는 문서·자료 처리를 AI로 전환합니다.',
   },
   14: {
     family: '직무별 키트',
@@ -221,7 +221,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['LEARNER', 'CAUTIOUS'],
     roleKeywords: ['영업', '고객', 'CS', '세일즈'],
     maturityViews: ['업무·적용'],
-    effect: '고객의 말을 구조화해 제안서와 대응안으로 만듭니다.',
+    effect: '고객 의견을 구조화해 제안서와 대응안으로 정리합니다.',
   },
   15: {
     family: '직무별 키트',
@@ -231,7 +231,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['LEARNER', 'CAUTIOUS'],
     roleKeywords: ['생산', '품질', '공정', '설비', '제조'],
     maturityViews: ['업무·적용', '데이터·시스템 기반'],
-    effect: '현장 데이터에서 원인 가설과 개선 대책을 뽑습니다.',
+    effect: '현장 데이터에서 원인 가설과 개선 대책을 도출합니다.',
   },
   16: {
     family: '직무별 키트',
@@ -241,7 +241,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['DOER', 'BALANCED'],
     roleKeywords: ['개발', '엔지니어', 'QA', 'IT', '기술', 'lxp'],
     maturityViews: ['업무·적용', '데이터·시스템 기반'],
-    effect: '코딩·테스트·리뷰의 반복을 에이전트로 넘깁니다.',
+    effect: '코딩·테스트·리뷰의 반복 작업을 에이전트로 전환합니다.',
   },
   17: {
     family: '직무별 키트',
@@ -251,7 +251,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['ANALYST', 'OVERCONFIDENT'],
     roleKeywords: ['팀장', '관리', '리더', '부서'],
     maturityViews: ['운영체계·확산', '전략·리더십'],
-    effect: '팀의 병목을 찾아 도입 과제와 순서를 정합니다.',
+    effect: '팀의 병목 구간을 파악해 도입 과제와 우선순위를 정합니다.',
   },
   18: {
     family: '주제별 레시피',
@@ -261,7 +261,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['BALANCED', 'ANALYST'],
     roleKeywords: ['데이터', 'DX', '기획'],
     maturityViews: ['데이터·시스템 기반'],
-    effect: '흩어진 업무 자료를 AI가 쓸 수 있는 기준으로 정리합니다.',
+    effect: '분산된 업무 자료를 AI가 활용할 수 있는 기준으로 정리합니다.',
   },
   19: {
     family: '주제별 레시피',
@@ -272,7 +272,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: [],
     maturityViews: ['업무·적용'],
     effect:
-      '자기 업무를 돕는 작은 AI 앱을 직접 만들어 봅니다. 배운 것을 실제로 쓰지 않는 조직에 첫 경험을 줍니다.',
+      '자기 업무에 쓸 작은 AI 앱을 직접 만들어 봅니다. 배운 내용이 실제 사용으로 이어지지 않는 조직에 첫 적용 경험을 제공합니다.',
   },
   20: {
     family: '주제별 레시피',
@@ -282,7 +282,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     profiles: ['DOER', 'BALANCED'],
     roleKeywords: [],
     maturityViews: ['업무·적용', '운영체계·확산'],
-    effect: '한 사람의 요령을 팀이 함께 쓰는 흐름으로 바꿉니다.',
+    effect: '개인의 활용 방식을 팀이 공유하는 업무 절차로 정착시킵니다.',
   },
   21: {
     family: '주제별 레시피',
@@ -293,7 +293,7 @@ const TAGS: Record<number, Omit<Course, keyof RawCourse | 'shortTitle'>> = {
     roleKeywords: ['데이터', '개발', 'DX', '기술'],
     maturityViews: ['데이터·시스템 기반', '운영체계·확산'],
     effect:
-      '스스로 도는 에이전트를 세우고 권한·보안까지 묶습니다. 자동화를 만들되 관리가 빠졌을 때 이어서 듣습니다.',
+      '자율적으로 동작하는 에이전트를 구축하고 권한·보안 기준까지 함께 정합니다. 자동화는 갖췄으나 관리 체계가 없을 때 이어서 수강하기에 적합합니다.',
   },
 };
 
