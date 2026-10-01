@@ -6,7 +6,14 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/institution', '/result', '/assessment/member', '/assessment/executive', '/api'],
+        disallow: [
+          '/institution',
+          '/result',
+          '/assessment/member',
+          '/assessment/executive',
+          '/api',
+          '/admin',
+        ],
       },
     ],
     sitemap: 'https://ax-compass.helloworldlabs.kr/sitemap.xml',
