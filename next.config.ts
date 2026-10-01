@@ -20,6 +20,16 @@ const nextConfig: NextConfig = {
         hostname: 'hwl-safarion-dev-bucket.s3.ap-northeast-2.amazonaws.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'axcanvas-dev-bucket.s3.ap-northeast-2.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'axcanvas-prod-bucket.s3.ap-northeast-2.amazonaws.com',
+        pathname: '/**',
+      },
     ],
   },
 };

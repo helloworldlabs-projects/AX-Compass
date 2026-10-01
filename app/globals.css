@@ -119,6 +119,12 @@
   --color-special-navy-800: #16161d;
   --color-special-navy-900: #0b0916;
 
+  /* 운영 관리자(/admin) 전용 — AX_Compass_after 원본 값 */
+  --color-adm-brand: #001c51;
+  --color-adm-point: #02c1a5;
+  --color-adm-line-soft: #f0f3f8;
+  --color-adm-track-fill: #edf1f7;
+
   /* Special Colors - Sky Blue (Sblue) */
   --color-special-blue-0: #fafcff;
   --color-special-blue-100: #d5e3f5;

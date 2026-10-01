@@ -1,0 +1,119 @@
+/*
+  운영 관리자(/admin) 전용 스타일. app/admin/layout.tsx 에서만 import 한다.
+  클라이언트 이동 뒤에도 스타일시트가 남을 수 있으므로 모든 규칙은 .admin-root 아래로 묶는다.
+  토큰(색·반경)은 app/globals.css 의 @theme 에 있다(adm-* 접두사). 여기서는 유틸리티로
+  표현하기 어려운 인쇄·지면 규칙만 둔다. 사용 안 된 테마 변수는 출력되지 않을 수 있어 값은 직접 적는다.
+*/
+
+.admin-root {
+  /* 호스트 html 의 자간(-0.03em)을 원본 관리자 화면 기준으로 되돌린다. */
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 호스트는 스크롤바를 전역으로 감춘다. 관리자 표는 가로 스크롤이 있어 보이게 되돌린다. */
+.admin-root,
+.admin-root * {
+  scrollbar-width: auto;
+}
+
+/* ── 보고서 지면 — 화면에서도 A4 처럼 보이게 한다 ─────────── */
+.admin-root .report-pages {
+  counter-reset: sheet;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  background: #f6f6f6; /* gray-0 */
+}
+
+.admin-root .report-sheet {
+  counter-increment: sheet;
+  width: 210mm;
+  min-height: 296mm;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 11mm 12mm;
+  background: #fff;
+  box-shadow: 0 2px 16px rgb(0 0 0 / 8%);
+}
+
+.admin-root .sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #151515; /* gray-900 */
+}
+
+.admin-root .sheet-page-no::after {
+  content: counter(sheet);
+}
+
+.admin-root .sheet-foot {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #e1e1e1; /* gray-100 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── 인쇄 ──────────────────────────────────────────────────
+   @page 는 전역이라 이름 붙인 쪽(admin-page)으로 가둔다. .admin-root 가 이 쪽을 쓴다.
+   print-color-adjust, body 흰 배경은 호스트 globals.css 가 이미 준다. */
+@page admin-page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  .admin-root {
+    page: admin-page;
+    min-height: 0;
+    background: #fff;
+  }
+
+  .admin-root .no-print {
+    display: none !important;
+  }
+
+  .admin-root .print-flat {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .admin-root .report-chapter {
+    break-before: page;
+  }
+  .admin-root .report-chapter:first-of-type {
+    break-before: auto;
+  }
+
+  .admin-root .report-block,
+  .admin-root table,
+  .admin-root tr {
+    break-inside: avoid;
+  }
+
+  .admin-root .report-pages {
+    display: block;
+    gap: 0;
+    background: #fff;
+  }
+
+  .admin-root .report-sheet {
+    width: 100%;
+    min-height: 296mm;
+    max-width: none;
+    padding: 11mm 12mm;
+    box-shadow: none;
+    break-after: page;
+  }
+
+  .admin-root .report-sheet:last-child {
+    break-after: auto;
+  }
+}
