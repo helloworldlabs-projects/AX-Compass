@@ -10,7 +10,17 @@ import type { NameHit } from '@/types/reference';
  * 아래로 이어지는 표들의 첫 열 너비. 영역·역량·유형·부서가 같은 자리에서 시작해야
  * 화면을 내릴 때 눈이 흔들리지 않는다.
  */
-export const FIRST_COL = 380;
+export const FIRST_COL = 400;
+
+/*
+  사전·사후·변화 칼럼의 너비.
+
+  네 표(영역·역량·유형·부서)는 칼럼 수가 제각각이다. 첫 열만 맞추고 나머지를
+  균등 분배하면, 칼럼이 넷인 표와 다섯인 표에서 "사후"와 "변화"가 서로 다른
+  자리에 선다. 같은 뜻의 칼럼은 같은 자리에서 시작해야 위아래로 훑으며 읽을 수
+  있으므로, 너비를 고정값으로 공유하고 마지막 칼럼만 남는 자리를 쓴다.
+*/
+export const VALUE_COL = 300;
 
 export function deltaText(v: number | null): string {
   if (v === null) return '—';
@@ -129,8 +139,12 @@ export function ChangeTable({
           '변화',
           ...(showLevel ? ['수준'] : []),
         ]}
-        minWidth={showLevel ? 880 : 780}
-        firstColumnWidth={FIRST_COL}
+        minWidth={showLevel ? 1400 : 1100}
+        columnWidths={
+          showLevel
+            ? [FIRST_COL, VALUE_COL, VALUE_COL, VALUE_COL, null]
+            : [FIRST_COL, VALUE_COL, VALUE_COL, null]
+        }
       >
         {rows.map((r) => {
           const base = preAll ? (preAll.values[r.key] ?? null) : r.pre;

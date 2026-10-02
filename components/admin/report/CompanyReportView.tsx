@@ -107,7 +107,21 @@ const PRINT_TYPE =
  * 화면이 곧 인쇄본이다 — 장마다 쪽이 나뉘고 표는 쪽 경계에서 잘리지 않는다(admin.css).
  * 수치를 꾸미지 않는다. 응답이 적으면 적다고 적고, 검정이 서지 않으면 왜인지를 그 자리에 적는다.
  */
-export function CompanyReportView({ r, date }: { r: CompanyReport; date: string }) {
+export function CompanyReportView({
+  r,
+  date,
+  /**
+   * 소속 차이 분석(09장)을 실을지.
+   *
+   * 부서가 적거나 인원이 모자라면 그 장은 "분석하지 못했습니다"와 빈 표만
+   * 남는다. 빼기로 하면 뒤 장 번호가 당겨져 처음부터 없던 장처럼 읽힌다.
+   */
+  showManova = true,
+}: {
+  r: CompanyReport;
+  date: string;
+  showManova?: boolean;
+}) {
   const { org } = r.pre;
   const lowCoverage = r.coverage.rate !== null && r.coverage.rate < 50;
   const { picks } = recommendCourses(r);
@@ -118,6 +132,36 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
     예전처럼 합쳐서 낸다 — 다시 발행하면 세트로 갈린다.
   */
   const byCourse = r.satisfaction.byCourse ?? [];
+
+  /*
+    장 번호는 실리는 장만 세어 매긴다. 빼기로 한 장이 번호만 남아 08 다음이
+    10 이 되면, 받는 쪽은 한 장이 빠졌다고 읽는다.
+  */
+  const CHAPTERS = [
+    'summary',
+    'course',
+    'satisfaction',
+    'criteria',
+    'overall',
+    'diff',
+    'levels',
+    'gaps',
+    'department',
+    'profile',
+    'exec',
+    'next',
+  ] as const;
+  const numbers = new Map<string, string>();
+  CHAPTERS.filter((k) => k !== 'department' || showManova).forEach((k, i) =>
+    numbers.set(k, String(i + 1).padStart(2, '0')),
+  );
+  const no = (key: (typeof CHAPTERS)[number]) => numbers.get(key) ?? '';
+  /*
+    만족도 장은 아래 보조 컴포넌트(SatisfactionDetail·SatisfactionSet)에서도
+    그린다. 그쪽은 번호를 "03" 으로 적어 두었다 — 만족도는 빼고 넣고 하는
+    09장보다 앞이라 번호가 밀리지 않는다. 앞쪽 장을 선택제로 바꾸는 날에는
+    그 컴포넌트들에도 번호를 넘겨야 한다.
+  */
   const summary = conclusion(r, picks);
   // 프로필 해설은 두 지면에 나눠 싣는다. 한 번만 계산해 둔다.
   const profileIns = profileInsight(r);
@@ -128,7 +172,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 01 핵심 요약 ─────────────────────────────────── */}
       <Chapter
-        no="01"
+        no={no('summary')}
         title="핵심 요약"
         description="교육 전후의 역량 변화와 교육 만족도를 한눈에 봅니다. 아래 장에서 각 수치가 어디서 나왔는지 차례로 풀어 설명합니다."
       >
@@ -250,7 +294,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 02 교육 개요 ─────────────────────────────────── */}
       <Chapter
-        no="02"
+        no={no('course')}
         title="교육 개요"
         description={`이 보고서가 다루는 교육이 무엇인지 먼저 밝힙니다. 아래의 모든 수치는 ${
           manyCourses(r) ? '이 과정들을' : '이 과정을'
@@ -288,7 +332,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* 회차가 많으면 여섯씩 끊어 다음 쪽으로 잇는다. */}
       {chunk(r.satisfaction.courses.slice(COURSES_PER_SHEET), COURSES_PER_SHEET).map((group, i) => (
-        <Chapter key={i} no="02" title="교육 개요" cont>
+        <Chapter key={i} no={no('course')} title="교육 개요" cont>
           <Block>
             <CourseTable courses={group} />
           </Block>
@@ -309,7 +353,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Fragment key={set.offeringId}>
           {set.overview && (
             <Chapter
-              no="02"
+              no={no('course')}
               title="교육 개요"
               description={<b className="text-gray-900">{set.overview.title}</b>}
               cont
@@ -327,13 +371,13 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <>
           {r.satisfaction.courses.length > 1 &&
             r.satisfaction.overviews.map((c) => (
-              <Chapter key={c.offeringId} no="02" title="교육 개요" cont>
+              <Chapter key={c.offeringId} no={no('course')} title="교육 개요" cont>
                 <CourseDetail course={c} />
               </Chapter>
             ))}
 
           <Chapter
-            no="03"
+            no={no('satisfaction')}
             title="교육 만족도"
             description="SafariOn 설문 결과입니다. 이 보고서가 다루는 교육의 응답을 모아 지표별로 냅니다."
           >
@@ -365,7 +409,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 04 읽는 기준 ─────────────────────────────────── */}
       <Chapter
-        no="04"
+        no={no('criteria')}
         title="읽는 기준과 분석 가능 범위"
         description="이 보고서의 수치가 어떤 사람들로 계산되었는지, 각 분석을 어디까지 해석할 수 있는지 밝힙니다."
       >
@@ -402,37 +446,43 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
             {[
               {
                 name: '전체 대 전체 비교',
-                what: '사전 응시자 전원과 사후 응답자 전원 (05·06·08장)',
+                what: `사전 응시자 전원과 사후 응답자 전원 (${no('overall')}·${no('diff')}·${no('gaps')}장)`,
                 need: '각 5명 이상',
                 ok: r.coverage.preN >= 5 && r.coverage.postN >= 5,
               },
               {
                 name: '같은 사람끼리 비교',
-                what: '두 검사에 모두 응한 사람의 전후 차이 (05·06·08장)',
+                what: `두 검사에 모두 응한 사람의 전후 차이 (${no('overall')}·${no('diff')}·${no('gaps')}장)`,
                 need: '매칭 10명 이상',
                 ok: r.coverage.matchedN >= 10,
               },
               {
                 name: '사전·사후 차이 분석',
-                what: '이해·활용·평가·책임 네 역량 (06장)',
+                what: `이해·활용·평가·책임 네 역량 (${no('diff')}장)`,
                 need: '각 10명 이상',
                 ok: r.coverage.preN >= 10 && r.coverage.postN >= 10,
               },
               {
                 name: 'AX 역량 갭 변화 분석',
-                what: '자기평가·상황판단·행동빈도의 격차 (08장)',
+                what: `자기평가·상황판단·행동빈도의 격차 (${no('gaps')}장)`,
                 need: '각 5명 · 매칭 10명',
                 ok: r.coverage.preN >= 5 && r.coverage.postN >= 5 && r.coverage.matchedN >= 10,
               },
-              {
-                name: '소속 차이 다변량 분석',
-                what: '부서에 따라 역량 구성이 다른가 (09장)',
-                need: '(인원 − 부서 수) ≥ 4',
-                ok: r.department.manovaPost.usable,
-              },
+              // 싣지 않기로 한 장은 기준표에서도 뺀다. 본문에 없는 장을
+              // 여기서만 가리키면 받는 쪽이 빠진 쪽을 찾게 된다.
+              ...(showManova
+                ? [
+                    {
+                      name: '소속 차이 다변량 분석',
+                      what: `부서에 따라 역량 구성이 다른가 (${no('department')}장)`,
+                      need: '(인원 − 부서 수) ≥ 4',
+                      ok: r.department.manovaPost.usable,
+                    },
+                  ]
+                : []),
               {
                 name: '프로필 변화 분석',
-                what: '유형 비중이 달라졌는가 (10장)',
+                what: `유형 비중이 달라졌는가 (${no('profile')}장)`,
                 need: '기대빈도 5 이상',
                 ok: r.profile.chi2.usable && r.profile.chi2.smallCells <= 0.2,
               },
@@ -456,7 +506,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 05 종합 역량 변화 ────────────────────────────── */}
       <Chapter
-        no="05"
+        no={no('overall')}
         title="종합 역량 변화"
         description="교육 전후의 종합 점수를 두 가지 방식으로 비교합니다. 전체 대 전체는 기업의 지금 수준을, 같은 사람끼리는 교육의 효과를 말합니다."
       >
@@ -513,7 +563,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 06 사전·사후 차이 분석 ───────────────────────────────── */}
       <Chapter
-        no="06"
+        no={no('diff')}
         title="사전·사후 차이 분석 (t검정)"
         description="교육을 받은 사람들의 AX 역량이 얼마나 달라졌는지, 사전검사와 사후검사를 비교합니다."
       >
@@ -586,7 +636,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         </Block>
       </Chapter>
 
-      <Chapter no="06" title="사전·사후 차이 분석 (t검정)" cont>
+      <Chapter no={no('diff')} title="사전·사후 차이 분석 (t검정)" cont>
         <Block>
           <TableCaption>하위 역량 12가지 사전·사후 비교</TableCaption>
           {/* 한 표 안에 막대를 넣어, 숫자는 정확히 읽고 크기는 눈으로 짚게 한다. */}
@@ -619,7 +669,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 07 등급 분포 ─────────────────────────────────── */}
       <Chapter
-        no="07"
+        no={no('levels')}
         title="등급 분포"
         description="평균만 보면 '모두가 조금씩 오른 것'과 '몇 명이 크게 오른 것'이 같아 보입니다. 입문·초급·중급·고급으로 나눠 교육이 어느 층에 효과가 있었는지 봅니다."
       >
@@ -628,7 +678,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         ))}
       </Chapter>
 
-      <Chapter no="07" title="등급 분포" cont>
+      <Chapter no={no('levels')} title="등급 분포" cont>
         {r.levels.slice(3).map((l) => (
           <LevelBlock key={l.name} l={l} />
         ))}
@@ -638,7 +688,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 08 영역별 변화와 격차 ────────────────────────── */}
       <Chapter
-        no="08"
+        no={no('gaps')}
         title="AX 역량 갭 변화 분석"
         description="응시자의 AX 역량 변화는 총점이나 영역별 평균 점수만으로는 충분히 설명하기 어렵습니다. 자기평가(SE)·상황판단(SJ)·행동빈도(BH) 사이의 차이를 비교해, 스스로 인식하는 수준과 실제 판단·행동 수준 사이의 변화를 확인합니다."
       >
@@ -701,7 +751,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Insight insight={sectionInsight(r)} />
       </Chapter>
 
-      <Chapter no="08" title="AX 역량 갭 변화 분석" cont>
+      <Chapter no={no('gaps')} title="AX 역량 갭 변화 분석" cont>
         <Block
           title="영역별 통계 검정"
           description="사전은 사전검사 응시자 전부, 사후는 응답자 전부 기준입니다."
@@ -742,7 +792,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         </Block>
       </Chapter>
 
-      <Chapter no="08" title="AX 역량 갭 변화 분석" cont>
+      <Chapter no={no('gaps')} title="AX 역량 갭 변화 분석" cont>
         <Lead>
           {[
             '같은 사람 안에서 세 영역이 얼마나 어긋나 있는지를 봅니다. 점수가 올랐더라도 어긋남이 그대로면, 아는 것과 하는 것 사이의 거리는 줄지 않은 것입니다.',
@@ -807,168 +857,183 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         />
       </Chapter>
 
-      {/* ── 09 소속별 차이 ───────────────────────────────── */}
-      <Chapter
-        no="09"
-        title="소속 차이 다변량 분석 (MANOVA)"
-        description="같은 교육을 받아도 부서에 따라 결과가 다를 수 있습니다. 네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 봅니다."
-      >
-        <Lead>
-          {[
-            '소속은 응시자가 적어 낸 것을 그대로 씁니다. 소속별 평균과 표준편차는 아래와 같습니다.',
-            '역량 네 가지를 따로 네 번 검정하면 우연히 하나가 유의해질 확률이 그만큼 커지고, 역량끼리 서로 얽혀 있다는 사실도 버리게 됩니다. 그래서 네 가지를 한꺼번에 놓고 보는 다변량 분산분석을 먼저 쓰고, 그 결과가 유의할 때 역량별로 따로 들여다봅니다.',
-          ]}
-        </Lead>
-
-        <Block>
-          <TableCaption>소속별 AX 역량 하위 영역 기초 통계량</TableCaption>
-          {r.department.stats.length === 0 ? (
-            <EmptyState message="소속별로 나눌 응답이 없습니다." />
-          ) : (
-            <Table
-              columns={[
-                '구분',
-                ...r.department.stats[0].byCompetency.map((c) => `${c.short} 평균 / 표준편차`),
+      {/*
+        소속 차이 분석은 뺄 수 있다. 부서가 적거나 인원이 모자라면 이 장은
+        "분석하지 못했습니다"와 빈 표만 남는다. 뺀 쪽에서는 뒤 장 번호가
+        당겨져, 처음부터 없던 장처럼 읽힌다.
+      */}
+      {showManova && (
+        <>
+          {/* ── 09 소속별 차이 ───────────────────────────────── */}
+          <Chapter
+            no={no('department')}
+            title="소속 차이 다변량 분석 (MANOVA)"
+            description="같은 교육을 받아도 부서에 따라 결과가 다를 수 있습니다. 네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 봅니다."
+          >
+            <Lead>
+              {[
+                '소속은 응시자가 적어 낸 것을 그대로 씁니다. 소속별 평균과 표준편차는 아래와 같습니다.',
+                '역량 네 가지를 따로 네 번 검정하면 우연히 하나가 유의해질 확률이 그만큼 커지고, 역량끼리 서로 얽혀 있다는 사실도 버리게 됩니다. 그래서 네 가지를 한꺼번에 놓고 보는 다변량 분산분석을 먼저 쓰고, 그 결과가 유의할 때 역량별로 따로 들여다봅니다.',
               ]}
-              minWidth={640}
-              columnWidths={[132, null, null, null, null]}
-            >
-              {r.department.stats.map((d) => (
-                <tr key={d.name} className={ROW_CLASS}>
-                  {/* 인원은 다음 지면의 소속별 평균 표에 있어 여기서는 적지 않는다. */}
-                  <Td className="txt-c1-bold">{d.name}</Td>
-                  {d.byCompetency.map((c) => (
-                    <Td key={c.code} className="tabular-nums">
-                      {c.mean === null ? '—' : c.mean.toFixed(2)}
-                      <span className="text-gray-500">
-                        {' / '}
-                        {c.sd === null ? '—' : c.sd.toFixed(3)}
+            </Lead>
+
+            <Block>
+              <TableCaption>소속별 AX 역량 하위 영역 기초 통계량</TableCaption>
+              {r.department.stats.length === 0 ? (
+                <EmptyState message="소속별로 나눌 응답이 없습니다." />
+              ) : (
+                <Table
+                  columns={[
+                    '구분',
+                    ...r.department.stats[0].byCompetency.map((c) => `${c.short} 평균 / 표준편차`),
+                  ]}
+                  minWidth={640}
+                  columnWidths={[132, null, null, null, null]}
+                >
+                  {r.department.stats.map((d) => (
+                    <tr key={d.name} className={ROW_CLASS}>
+                      {/* 인원은 다음 지면의 소속별 평균 표에 있어 여기서는 적지 않는다. */}
+                      <Td className="txt-c1-bold">{d.name}</Td>
+                      {d.byCompetency.map((c) => (
+                        <Td key={c.code} className="tabular-nums">
+                          {c.mean === null ? '—' : c.mean.toFixed(2)}
+                          <span className="text-gray-500">
+                            {' / '}
+                            {c.sd === null ? '—' : c.sd.toFixed(3)}
+                          </span>
+                        </Td>
+                      ))}
+                    </tr>
+                  ))}
+                </Table>
+              )}
+            </Block>
+
+            <Lead>
+              {r.department.manovaPost.usable
+                ? [
+                    `네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 본 결과입니다. Wilks' Λ = ${r.department.manovaPost.wilks}, F = ${r.department.manovaPost.f}, p = ${pText(r.department.manovaPost.p)}.`,
+                    r.department.manovaPost.significant
+                      ? '소속에 따라 역량 구성이 다르다고 볼 만합니다. 어느 역량에서 차이가 나는지는 아래 표에서 하나씩 봅니다.'
+                      : '소속에 따른 차이는 뚜렷하지 않습니다. 참고로 역량별 결과를 아래에 싣습니다.',
+                  ]
+                : [
+                    `소속 차이 다변량 분석은 실시하지 못했습니다. ${r.department.manovaPost.note ?? ''}`,
+                    '아래 역량별 결과를 대신 읽어 주세요.',
+                  ]}
+            </Lead>
+          </Chapter>
+
+          <Chapter
+            no={no('department')}
+            title="소속 차이 다변량 분석 (MANOVA)"
+            description="역량을 하나씩 나누어 본 분산분석 결과입니다."
+            cont
+          >
+            <Lead>
+              {[
+                '앞의 다변량 분석이 네 역량을 한 묶음으로 보고 소속 간 차이를 확인한 것이라면, 아래 표는 역량을 하나씩 나누어 각각 같은 방식으로 확인한 것입니다. 묶어서는 차이가 없어도 특정 역량에서만 차이가 나는 경우가 있습니다.',
+                '제곱합은 흩어진 정도를 부서 간과 부서 안으로 나눈 값이고, F 는 그 둘의 비입니다. 부서 간 흩어짐이 부서 안 흩어짐보다 뚜렷하게 클 때 F 가 커지고 p 가 작아집니다. η² 는 그 역량의 점수 차이 가운데 소속으로 설명되는 몫으로, 0.01 은 작음, 0.06 은 중간, 0.14 이상은 큼으로 봅니다.',
+                '아래의 분산분석은 사후 점수를 기준으로 합니다. 이어지는 검정은 점수 자체가 아니라 사전에서 사후로 변한 폭이 소속에 따라 달랐는지를 따로 묻습니다.',
+              ]}
+            </Lead>
+
+            <Block>
+              <TableCaption>소속 간 AX 역량 하위 영역에 대한 차이 분석</TableCaption>
+              <Table
+                columns={['역량', '제곱합', '자유도', '평균제곱', 'F', 'p', 'η²']}
+                minWidth={640}
+                columnWidths={[70, 100, 60, 100, 86, 72, 62]}
+              >
+                {r.department.manovaPost.perVariable.map((v) => (
+                  <tr key={v.name} className={ROW_CLASS}>
+                    <Td className="txt-c1-bold">{v.name}</Td>
+                    <Td className="text-gray-500 tabular-nums">
+                      {v.anova.ssBetween === null ? '—' : v.anova.ssBetween.toFixed(3)}
+                    </Td>
+                    <Td className="text-gray-500 tabular-nums">{v.anova.df1 ?? '—'}</Td>
+                    <Td className="text-gray-500 tabular-nums">
+                      {v.anova.msBetween === null ? '—' : v.anova.msBetween.toFixed(3)}
+                    </Td>
+                    <Td className="txt-c1-bold tabular-nums">
+                      {v.anova.f === null ? '—' : v.anova.f.toFixed(3)}
+                      <span className="text-special-pink-600">{stars(v.anova.p)}</span>
+                    </Td>
+                    <Td className="tabular-nums">{pText(v.anova.p)}</Td>
+                    <Td className="text-gray-500 tabular-nums">
+                      {v.anova.eta2 === null ? '—' : v.anova.eta2.toFixed(3)}
+                    </Td>
+                  </tr>
+                ))}
+              </Table>
+              <TableNote>* p &lt; .05, ** p &lt; .01, *** p &lt; .001</TableNote>
+            </Block>
+
+            <TestLine
+              label={`소속에 따라 변화량이 다른가 (일원 분산분석 · 같은 사람 ${r.department.changeAnova.n}명)`}
+              result={r.department.changeAnova}
+              extra={
+                r.department.changeAnova.usable
+                  ? `F(${r.department.changeAnova.df1}, ${r.department.changeAnova.df2}) = ${r.department.changeAnova.f}`
+                  : undefined
+              }
+            />
+          </Chapter>
+
+          {/* 소속별 평균은 지면을 따로 쓴다. 부서가 열 곳을 넘으면 표만으로 A4 한 쪽을 채운다. */}
+          <Chapter
+            no={no('department')}
+            title="소속 차이 다변량 분석 (MANOVA)"
+            description="부서별 사전·사후 평균과 그 변화입니다."
+            cont
+          >
+            <Lead>
+              {[
+                '부서마다 사전·사후 평균과 그 변화를 나란히 적었습니다. 앞의 검정이 "소속에 따른 차이가 통계적으로 뚜렷한가"를 묻는다면, 이 표는 실제로 어느 부서가 어디에서 어디로 갔는지를 그대로 보여 줍니다.',
+                `사전 인원과 사후 인원이 다른 부서가 있습니다. 사후검사에 응하지 않은 사람이 있기 때문이며, 응답이 ${MIN_GROUP_SIZE}명에 못 미치는 부서는 표본 부족으로 표시했습니다. 그런 부서의 평균은 한두 사람의 점수에 크게 흔들리므로 부서 간 비교의 근거로 쓰지 않는 편이 좋습니다.`,
+              ]}
+            </Lead>
+
+            <Block title="소속별 평균">
+              <Table
+                columns={['소속', '사전 인원', '사후 인원', '사전', '사후', '변화']}
+                minWidth={640}
+                columnWidths={[150, 72, 72, 76, 76, 76]}
+              >
+                {r.department.rows.map((d) => (
+                  <tr key={d.name} className={ROW_CLASS}>
+                    <Td className="txt-c1-bold">
+                      <span className="flex items-center gap-2">
+                        {d.name}
+                        {d.preN > 0 && d.preN < MIN_GROUP_SIZE && (
+                          <Badge tone="warn">표본 부족</Badge>
+                        )}
                       </span>
                     </Td>
-                  ))}
-                </tr>
-              ))}
-            </Table>
-          )}
-        </Block>
+                    <Td className="text-gray-500 tabular-nums">
+                      {d.preN > 0 ? `${d.preN}명` : '—'}
+                    </Td>
+                    <Td className="text-gray-500 tabular-nums">
+                      {d.postN > 0 ? `${d.postN}명` : '—'}
+                    </Td>
+                    <Td className="text-gray-500 tabular-nums">{score(d.pre)}</Td>
+                    <Td className="txt-c1-bold tabular-nums">{score(d.post)}</Td>
+                    <Td className={cn('txt-c1-bold tabular-nums', diffColor(d.diff))}>
+                      {delta(d.diff)}
+                    </Td>
+                  </tr>
+                ))}
+              </Table>
+            </Block>
 
-        <Lead>
-          {r.department.manovaPost.usable
-            ? [
-                `네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 본 결과입니다. Wilks' Λ = ${r.department.manovaPost.wilks}, F = ${r.department.manovaPost.f}, p = ${pText(r.department.manovaPost.p)}.`,
-                r.department.manovaPost.significant
-                  ? '소속에 따라 역량 구성이 다르다고 볼 만합니다. 어느 역량에서 차이가 나는지는 아래 표에서 하나씩 봅니다.'
-                  : '소속에 따른 차이는 뚜렷하지 않습니다. 참고로 역량별 결과를 아래에 싣습니다.',
-              ]
-            : [
-                `소속 차이 다변량 분석은 실시하지 못했습니다. ${r.department.manovaPost.note ?? ''}`,
-                '아래 역량별 결과를 대신 읽어 주세요.',
-              ]}
-        </Lead>
-      </Chapter>
-
-      <Chapter
-        no="09"
-        title="소속 차이 다변량 분석 (MANOVA)"
-        description="역량을 하나씩 나누어 본 분산분석 결과입니다."
-        cont
-      >
-        <Lead>
-          {[
-            '앞의 다변량 분석이 네 역량을 한 묶음으로 보고 소속 간 차이를 확인한 것이라면, 아래 표는 역량을 하나씩 나누어 각각 같은 방식으로 확인한 것입니다. 묶어서는 차이가 없어도 특정 역량에서만 차이가 나는 경우가 있습니다.',
-            '제곱합은 흩어진 정도를 부서 간과 부서 안으로 나눈 값이고, F 는 그 둘의 비입니다. 부서 간 흩어짐이 부서 안 흩어짐보다 뚜렷하게 클 때 F 가 커지고 p 가 작아집니다. η² 는 그 역량의 점수 차이 가운데 소속으로 설명되는 몫으로, 0.01 은 작음, 0.06 은 중간, 0.14 이상은 큼으로 봅니다.',
-            '아래의 분산분석은 사후 점수를 기준으로 합니다. 이어지는 검정은 점수 자체가 아니라 사전에서 사후로 변한 폭이 소속에 따라 달랐는지를 따로 묻습니다.',
-          ]}
-        </Lead>
-
-        <Block>
-          <TableCaption>소속 간 AX 역량 하위 영역에 대한 차이 분석</TableCaption>
-          <Table
-            columns={['역량', '제곱합', '자유도', '평균제곱', 'F', 'p', 'η²']}
-            minWidth={640}
-            columnWidths={[70, 100, 60, 100, 86, 72, 62]}
-          >
-            {r.department.manovaPost.perVariable.map((v) => (
-              <tr key={v.name} className={ROW_CLASS}>
-                <Td className="txt-c1-bold">{v.name}</Td>
-                <Td className="text-gray-500 tabular-nums">
-                  {v.anova.ssBetween === null ? '—' : v.anova.ssBetween.toFixed(3)}
-                </Td>
-                <Td className="text-gray-500 tabular-nums">{v.anova.df1 ?? '—'}</Td>
-                <Td className="text-gray-500 tabular-nums">
-                  {v.anova.msBetween === null ? '—' : v.anova.msBetween.toFixed(3)}
-                </Td>
-                <Td className="txt-c1-bold tabular-nums">
-                  {v.anova.f === null ? '—' : v.anova.f.toFixed(3)}
-                  <span className="text-special-pink-600">{stars(v.anova.p)}</span>
-                </Td>
-                <Td className="tabular-nums">{pText(v.anova.p)}</Td>
-                <Td className="text-gray-500 tabular-nums">
-                  {v.anova.eta2 === null ? '—' : v.anova.eta2.toFixed(3)}
-                </Td>
-              </tr>
-            ))}
-          </Table>
-          <TableNote>* p &lt; .05, ** p &lt; .01, *** p &lt; .001</TableNote>
-        </Block>
-
-        <TestLine
-          label={`소속에 따라 변화량이 다른가 (일원 분산분석 · 같은 사람 ${r.department.changeAnova.n}명)`}
-          result={r.department.changeAnova}
-          extra={
-            r.department.changeAnova.usable
-              ? `F(${r.department.changeAnova.df1}, ${r.department.changeAnova.df2}) = ${r.department.changeAnova.f}`
-              : undefined
-          }
-        />
-      </Chapter>
-
-      {/* 소속별 평균은 지면을 따로 쓴다. 부서가 열 곳을 넘으면 표만으로 A4 한 쪽을 채운다. */}
-      <Chapter
-        no="09"
-        title="소속 차이 다변량 분석 (MANOVA)"
-        description="부서별 사전·사후 평균과 그 변화입니다."
-        cont
-      >
-        <Lead>
-          {[
-            '부서마다 사전·사후 평균과 그 변화를 나란히 적었습니다. 앞의 검정이 "소속에 따른 차이가 통계적으로 뚜렷한가"를 묻는다면, 이 표는 실제로 어느 부서가 어디에서 어디로 갔는지를 그대로 보여 줍니다.',
-            `사전 인원과 사후 인원이 다른 부서가 있습니다. 사후검사에 응하지 않은 사람이 있기 때문이며, 응답이 ${MIN_GROUP_SIZE}명에 못 미치는 부서는 표본 부족으로 표시했습니다. 그런 부서의 평균은 한두 사람의 점수에 크게 흔들리므로 부서 간 비교의 근거로 쓰지 않는 편이 좋습니다.`,
-          ]}
-        </Lead>
-
-        <Block title="소속별 평균">
-          <Table
-            columns={['소속', '사전 인원', '사후 인원', '사전', '사후', '변화']}
-            minWidth={640}
-            columnWidths={[150, 72, 72, 76, 76, 76]}
-          >
-            {r.department.rows.map((d) => (
-              <tr key={d.name} className={ROW_CLASS}>
-                <Td className="txt-c1-bold">
-                  <span className="flex items-center gap-2">
-                    {d.name}
-                    {d.preN > 0 && d.preN < MIN_GROUP_SIZE && <Badge tone="warn">표본 부족</Badge>}
-                  </span>
-                </Td>
-                <Td className="text-gray-500 tabular-nums">{d.preN > 0 ? `${d.preN}명` : '—'}</Td>
-                <Td className="text-gray-500 tabular-nums">{d.postN > 0 ? `${d.postN}명` : '—'}</Td>
-                <Td className="text-gray-500 tabular-nums">{score(d.pre)}</Td>
-                <Td className="txt-c1-bold tabular-nums">{score(d.post)}</Td>
-                <Td className={cn('txt-c1-bold tabular-nums', diffColor(d.diff))}>
-                  {delta(d.diff)}
-                </Td>
-              </tr>
-            ))}
-          </Table>
-        </Block>
-
-        <Insight insight={departmentInsight(r)} />
-      </Chapter>
+            <Insight insight={departmentInsight(r)} />
+          </Chapter>
+        </>
+      )}
 
       {/* ── 10 프로필 유형 변화 ──────────────────────────── */}
       <Chapter
-        no="10"
+        no={no('profile')}
         title="프로필 변화 분석"
         description="점수만으로는 보이지 않는 것을 봅니다. 사전과 사후의 프로필 유형 분포를 비교해, 사람들이 AI를 대하는 방식이 달라졌는지 봅니다."
       >
@@ -1027,7 +1092,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         </Block>
       </Chapter>
 
-      <Chapter no="10" title="프로필 변화 분석" cont>
+      <Chapter no={no('profile')} title="프로필 변화 분석" cont>
         <Lead>
           {[
             '앞 표의 비중을 여섯 축의 모양으로 바꾼 것입니다. 왼쪽이 사전, 오른쪽이 사후이며, 각 축은 그 유형이 차지하는 비중입니다.',
@@ -1070,7 +1135,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         <Insight insight={{ paragraphs: profileIns.paragraphs.slice(0, 2) }} />
       </Chapter>
 
-      <Chapter no="10" title="프로필 변화 분석" cont>
+      <Chapter no={no('profile')} title="프로필 변화 분석" cont>
         <Block
           title="같은 사람의 유형 이동"
           description={`이름이 이어진 ${r.coverage.matchedN}명 중 ${r.profile.moved}명의 유형이 바뀌고 ${r.profile.stayed}명이 그대로입니다.`}
@@ -1105,7 +1170,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
       {/* ── 11 경영진이 본 성숙도 ────────────────────────── */}
       {org.executives > 0 && (
         <Chapter
-          no="11"
+          no={no('exec')}
           title="경영진이 본 AX 성숙도"
           description="임원이 응답한 조직 성숙도입니다. 구성원 역량과는 대상도 문항도 다르므로 같은 축에 놓고 비교하지 않습니다."
         >
@@ -1167,7 +1232,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
 
       {/* ── 12 다음 단계 제안 ────────────────────────────── */}
       <Chapter
-        no="12"
+        no={no('next')}
         title="다음 단계 제안"
         description="이번 결과를 근거로 다음에 이어서 들을 만한 과정을 고릅니다. 무엇을 보고 골랐는지 함께 적었습니다."
       >
@@ -1182,7 +1247,7 @@ export function CompanyReportView({ r, date }: { r: CompanyReport; date: string 
         )}
       </Chapter>
 
-      <Chapter no="12" title="다음 단계 제안" cont>
+      <Chapter no={no('next')} title="다음 단계 제안" cont>
         {picks.slice(2).map((rec, i) => (
           <RecommendationCard key={rec.course.no} rec={rec} rank={i + 3} />
         ))}

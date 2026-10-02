@@ -150,7 +150,16 @@ function Detail({ detail }: { detail: PreOrgDetail }) {
             description="역량 점수는 영역 가중치를 적용한 값이고, 하위 역량은 문항 단순 평균입니다. 두 값이 서로 다른 계산이라 하위 역량을 평균해도 역량 점수와 같아지지 않습니다."
             padded={false}
           >
-            <Table columns={['역량', '평균', '수준']} minWidth={560} columnWidths={[null, 110, 90]}>
+            {/*
+              역량 이름이 남는 자리를 갖는다. 긴 하위 역량 이름이 줄바꿈되는 쪽이
+              훨씬 손해다. 평균과 수준은 같은 너비로 둔다 — 폭이 서로 다르면 두
+              열이 어긋나 보인다.
+            */}
+            <Table
+              columns={['역량', '평균', '수준']}
+              minWidth={860}
+              columnWidths={[null, 260, 260]}
+            >
               {competencies.map((c) => (
                 <Fragment key={c.code}>
                   <tr className="border-adm-line-soft bg-gray-0 border-b">
@@ -184,7 +193,15 @@ function Detail({ detail }: { detail: PreOrgDetail }) {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <Card title="레벨 분포" padded={false}>
-              <Table columns={['레벨', '인원', '비중']} minWidth={360} firstColumnWidth={120}>
+              {/*
+                이름이 남는 자리를 갖고 숫자 열은 고정 너비로 둔다. 거꾸로 하면
+                "초급" 두 글자가 눌리고 숫자가 자리를 다 쓴다.
+              */}
+              <Table
+                columns={['레벨', '인원', '비중']}
+                minWidth={560}
+                columnWidths={[null, 260, 260]}
+              >
                 {levels.map((l) => (
                   <tr key={l.level} className={ROW_CLASS}>
                     <Td className="txt-c1-bold">{LEVEL_LABEL[l.level] ?? l.level}</Td>
@@ -198,8 +215,9 @@ function Detail({ detail }: { detail: PreOrgDetail }) {
             <Card title="프로필 유형" padded={false}>
               <Table
                 columns={['유형', '묶음', '인원', '비중']}
-                minWidth={420}
-                firstColumnWidth={120}
+                /* 열이 넷이라 260 씩은 들어가지 않는다. 셋을 같은 너비로 묶는다. */
+                minWidth={620}
+                columnWidths={[null, 180, 180, 180]}
               >
                 {profiles.map((p) => (
                   <tr key={`${p.type}-${p.group}`} className={ROW_CLASS}>
