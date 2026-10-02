@@ -419,16 +419,14 @@ function Identify({
             </p>
           ) : (
             <p id="respondent-name-help" className="txt-b-regular text-special-pink-600 mt-2.5">
-              사전검사 때 입력하신 이름과 <b>똑같이</b> 적어 주세요. 다르게 적으면 이전 결과와
-              비교할 수 없습니다.
+              본인의 이름을 적어 주세요. 사전검사를 하셨다면 그때와 <b>똑같은 이름</b>으로 적어
+              주세요.
             </p>
           )}
         </div>
 
         <div className="bg-gray-0 mt-6 rounded-[16px] px-5 py-4">
           <p className="txt-b-regular text-gray-500">
-            입력하신 이름은 사전검사 결과와 대조하는 용도로만 사용됩니다.
-            <br />
             기업에 전달되는 보고서에는{' '}
             <b className="text-gray-900">개인 이름이나 개인별 점수가 표시되지 않으며</b>, 결과는
             팀·조직 단위로만 집계됩니다.

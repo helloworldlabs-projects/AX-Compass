@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -9,7 +10,7 @@ import { PrintButton } from '@/components/admin/report/PrintButton';
 import { Card, EmptyState, ErrorState, LoadingState, Notice } from '@/components/admin/ui';
 import { useCompanyReport } from '@/hooks/useCompanyReport';
 import { usePublishedReport } from '@/hooks/usePostReport';
-import { usePostResponseCount } from '@/hooks/usePostResponse';
+import { usePostResponseCount, useRawPostResponses } from '@/hooks/usePostResponse';
 import type { CompanyReport } from '@/lib/admin/report';
 import type { ReportRecord } from '@/types/postReport';
 
@@ -74,10 +75,15 @@ export default function ReportDetailPage() {
   }
 
   const { record, snapshot } = published.data;
+  /*
+    key 를 검사 번호로 둔다. 같은 라우트 안에서 보고서를 옮겨 다니면 React 가
+    컴포넌트를 그대로 재사용해, 앞 보고서에서 끈 "소속 차이 분석"이 다음
+    보고서까지 꺼진 채로 따라온다. 보고서가 바뀌면 상태도 다시 잡는다.
+  */
   return snapshot ? (
-    <Published r={snapshot} record={record} />
+    <Published key={linkId} r={snapshot} record={record} />
   ) : (
-    <LiveReport linkId={linkId} record={record} />
+    <LiveReport key={linkId} linkId={linkId} record={record} />
   );
 }
 
@@ -111,8 +117,42 @@ function LiveReport({ linkId, record }: { linkId: number; record: ReportRecord }
 }
 
 function Published({ r, record }: { r: CompanyReport; record: ReportRecord }) {
-  // 발행한 뒤에 응답이 더 들어왔는지만 따로 센다. 보고서 전체를 다시 계산하지 않는다.
+  /*
+    발행한 뒤에 무엇이 달라졌는지 센다. 보고서 전체를 다시 계산하지 않는다.
+
+    응답 수만으로는 모자라다. 사전검사 매칭이 달라지면 행 수는 그대로인 채
+    "같은 사람끼리 비교"의 인원과 수치가 움직인다.
+  */
   const live = usePostResponseCount(record.linkId).data;
+  const rawRows = useRawPostResponses(record.linkId).data;
+  const liveMatched = rawRows?.filter((x) => x.preUserId !== null).length;
+
+  /*
+    소속 차이 분석을 실을지 말지.
+
+    부서가 너무 적거나 인원이 모자라면 이 장은 "분석하지 못했습니다"와 빈 표만
+    남는다. 기업에 건네는 문서에 그런 쪽을 넣을 이유가 없으므로 뺄 수 있게 한다.
+    보여 주는 방식만 바꾸므로 저장된 보고서는 건드리지 않는다 — 어느 쪽을 건넬지
+    고르는 일 때문에 발행일과 판이 움직여서는 안 된다.
+  */
+  const [showManova, setShowManova] = useState(r.department.manovaPost.usable);
+
+  const changes: { headline: string; detail: string }[] = [];
+  if (live !== undefined && live !== record.postRespondents) {
+    changes.push({
+      headline:
+        live > record.postRespondents
+          ? `사후검사 응답이 ${live - record.postRespondents}명 늘었습니다`
+          : '사후검사 응답이 달라졌습니다',
+      detail: `응답은 발행할 때 ${record.postRespondents}명이었고 지금은 ${live}명입니다.`,
+    });
+  }
+  if (liveMatched !== undefined && liveMatched !== r.coverage.matchedN) {
+    changes.push({
+      headline: '사전검사 매칭이 달라졌습니다',
+      detail: `사전검사와 이어진 사람은 발행할 때 ${r.coverage.matchedN}명이었고 지금은 ${liveMatched}명입니다. 같은 사람끼리 비교가 이 인원으로 나옵니다.`,
+    });
+  }
 
   return (
     <>
@@ -126,31 +166,44 @@ function Published({ r, record }: { r: CompanyReport; record: ReportRecord }) {
             {record.issuedOn} 발행
             {record.revision > 1 && ` · ${record.revision}판`}
           </span>
+          {/*
+            어느 쪽을 건넬지 여기서 고른다. 저장된 보고서는 그대로 두고 보여
+            주는 방식만 바꾸므로, 몇 번을 오가도 발행일과 판은 움직이지 않는다.
+          */}
+          <button
+            type="button"
+            onClick={() => setShowManova((v) => !v)}
+            className="txt-c1-bold hover:border-adm-brand hover:text-adm-brand flex h-10 items-center rounded-[8px] border border-gray-200 px-4 text-gray-500 transition"
+          >
+            {showManova ? '소속 차이 분석 빼고 보기' : '소속 차이 분석 넣어 보기'}
+          </button>
           <PrintButton />
         </span>
       </div>
 
-      {/* 담당자에게 하는 말이지 기업에 하는 말이 아니라 인쇄물에는 나가지 않는다. */}
-      {live !== undefined && live !== record.postRespondents && (
+      {!showManova && (
         <div className="no-print">
-          <Notice
-            bordered
-            title={`발행한 뒤에 사후검사 응답이 ${
-              live > record.postRespondents
-                ? `${live - record.postRespondents}명 늘었습니다`
-                : '달라졌습니다'
-            }`}
-          >
-            {record.issuedOn}에 발행할 때는 {record.postRespondents}명이었고 지금은 {live}
-            명입니다. 아래 화면은 <b className="text-gray-900">발행 시점의 보고서</b>라 그때 건넨
-            문서와 같습니다. 늘어난 응답까지 넣어 새로 전달하려면 목록에서{' '}
-            <b className="text-gray-900">다시 생성</b>을 눌러 주세요. 그때 발행일도 함께 새로
-            찍힙니다.
+          <Notice bordered title="소속 차이 분석을 뺀 상태입니다">
+            뒤 장 번호가 한 칸씩 당겨져, 받는 쪽에는 처음부터 없던 장으로 보입니다. 읽는
+            기준표에서도 그 줄이 빠집니다. 저장된 보고서는 그대로이므로 발행일과 판은 바뀌지
+            않습니다.
           </Notice>
         </div>
       )}
 
-      <CompanyReportView r={r} date={record.issuedOn} />
+      {/* 담당자에게 하는 말이지 기업에 하는 말이 아니라 인쇄물에는 나가지 않는다. */}
+      {changes.length > 0 && (
+        <div className="no-print">
+          <Notice bordered title={`발행한 뒤에 ${changes.map((c) => c.headline).join(', ')}`}>
+            {changes.map((c) => c.detail).join(' ')} 아래 화면은{' '}
+            <b className="text-gray-900">발행 시점의 보고서</b>라 그때 건넨 문서와 같습니다. 지금
+            상태로 새로 전달하려면 목록에서 <b className="text-gray-900">다시 생성</b>을 눌러
+            주세요. 그때 발행일도 함께 새로 찍힙니다.
+          </Notice>
+        </div>
+      )}
+
+      <CompanyReportView r={r} date={record.issuedOn} showManova={showManova} />
     </>
   );
 }

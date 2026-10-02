@@ -9,9 +9,11 @@ import {
   deltaClass,
   deltaText,
   FIRST_COL,
+  VALUE_COL,
   Panel,
   Trace,
 } from '@/components/admin/post/ChangeTable';
+import { PendingActions } from '@/components/admin/post/PendingActions';
 import { RematchButton } from '@/components/admin/post/RematchButton';
 import {
   Badge,
@@ -248,20 +250,46 @@ function Detail({
 
       {orphan.length > 0 && (
         <Notice bordered title={`사전검사 기록을 찾지 못한 응답이 ${orphan.length}건 있습니다`}>
-          <p>부서별 집계에서 빠집니다. 적힌 이름을 사전검사 전체에서 찾아 봤습니다.</p>
-          <div className="mt-4">
-            <RematchButton linkId={link.id} />
-          </div>
-          <ul className="mt-4 space-y-3">
-            {orphan.map((r) => (
-              <li key={r.id} className="rounded-[16px] bg-white px-5 py-4">
-                <p className="txt-c1-bold text-gray-900">{r.name}</p>
-                <div className="mt-2">
-                  <Trace orgName={link.org} hits={hitsByName.get(r.name) ?? []} />
-                </div>
-              </li>
-            ))}
-          </ul>
+          {/*
+            두 가지를 말한다 — 들어간다는 것과, 어디서만 빠진다는 것. 한
+            덩어리로 붙여 두면 앞 문장을 읽다가 뒤 문장을 놓친다. 줄을 나눈다.
+          */}
+          <p>
+            <b className="text-gray-900">응답 자체는 그대로 집계에 들어갑니다.</b> 사후 평균과
+            등급·프로필 분포에 모두 반영됩니다.
+            <br />
+            다만 사전 점수를 짝지을 수 없어, 같은 사람끼리 비교와 부서별 집계에서만 빠집니다 —
+            부서는 사전검사에서 따라오기 때문입니다. 적힌 이름을 사전검사 전체에서 찾아 봤습니다.
+          </p>
+
+          {/*
+            건수가 늘면 이 목록만으로 화면이 한참 길어져 아래 응답 목록이 밀린다.
+            늘 접어 두고 필요할 때 연다 — 건수에 따라 열렸다 닫혔다 하면 어제 본
+            화면과 오늘 본 화면이 달라진다.
+          */}
+          <details className="group mt-4">
+            <summary className="txt-c1-bold text-special-pink-600 inline-flex cursor-pointer list-none items-center gap-1.5 select-none">
+              <span className="transition group-open:rotate-90">▸</span>
+              <span className="group-open:hidden">{orphan.length}건 자세히 보기</span>
+              <span className="hidden group-open:inline">접기</span>
+            </summary>
+
+            {/* 다시 맞추기는 펼친 뒤에 보인다. 누르기 전에 아래 목록을 먼저 봐야 한다. */}
+            <div className="mt-4">
+              <RematchButton linkId={link.id} />
+            </div>
+
+            <ul className="mt-4 space-y-3">
+              {orphan.map((r) => (
+                <li key={r.id} className="rounded-[16px] bg-white px-5 py-4">
+                  <p className="txt-c1-bold text-gray-900">{r.name}</p>
+                  <div className="mt-2">
+                    <Trace orgName={link.org} hits={hitsByName.get(r.name) ?? []} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </details>
         </Notice>
       )}
 
@@ -289,8 +317,19 @@ function Detail({
               '행동빈도',
               '사전',
               '변화',
+              '관리',
             ]}
-            minWidth={1180}
+            minWidth={1320}
+            /*
+              접히면 안 되는 열에만 너비를 준다. 재어 보고 정한 값이다.
+
+              · 제출 시각 — "2026-09-21 07:49" 가 한 줄에 들어가야 한다
+              · 소속     — "이문체육문화센터" 가 한 줄에 들어가야 한다
+              · 관리     — 알약 둘이 한 줄에 들어가야 한다
+
+              나머지는 숫자뿐이라 남는 자리를 똑같이 나눠 써도 남는다.
+            */
+            columnWidths={[140, 172, 200, null, null, null, null, null, null, null, 148]}
           >
             {view.rows.map((r) => {
               const d = r.pre === null ? null : Math.round((r.post.total - r.pre.total) * 10) / 10;
@@ -314,6 +353,10 @@ function Detail({
                     {r.pre === null ? '—' : score(r.pre.total)}
                   </Td>
                   <Td className={deltaClass(d)}>{deltaText(d)}</Td>
+                  {/* 손댈 수 있는 것을 한 칸에 모은다. 아직은 백엔드가 없어 눌리지 않는다. */}
+                  <Td>
+                    <PendingActions matched={r.match === '매칭'} />
+                  </Td>
                 </tr>
               );
             })}
@@ -381,8 +424,8 @@ function Detail({
                 `사후(${rows.length}명)`,
                 '변화',
               ]}
-              minWidth={780}
-              firstColumnWidth={FIRST_COL}
+              minWidth={1100}
+              columnWidths={[FIRST_COL, VALUE_COL, VALUE_COL, null]}
             >
               {profiles.map((p) => {
                 const basePct = preAll ? (preAll.profiles[p.code] ?? 0) : p.prePct;
@@ -423,8 +466,8 @@ function Detail({
                 `사후(${matched.length}명)`,
                 '변화',
               ]}
-              minWidth={780}
-              firstColumnWidth={FIRST_COL}
+              minWidth={1400}
+              columnWidths={[FIRST_COL, VALUE_COL, VALUE_COL, VALUE_COL, null]}
             >
               {departments.map((d) => (
                 <tr key={d.key} className={ROW_CLASS}>
