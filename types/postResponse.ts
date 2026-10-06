@@ -58,6 +58,8 @@ export interface PostResponseDto extends ScoreFieldsDto {
   department: string | null;
   preUserId: number | null;
   matchedAt: string | null;
+  /** 집계에서 뺀 시각. 정상 응답이면 null. 백엔드가 아직 안 주면 undefined */
+  excludedAt?: string | null;
   /** YYYY-MM-DD HH:mm:ss */
   submittedAt: string;
   /** A·B·C */
@@ -107,6 +109,38 @@ export interface StoredPostResponse {
   submittedAt: string;
   post: Scores;
   profile: ProfileId | null;
+  /**
+   * 집계에서 뺀 시각. 정상 응답이면 null.
+   *
+   * 뺀 응답도 목록에는 남는다 — 담당자가 보면서 되돌릴 수 있어야 한다.
+   * 통계는 화면에서 이 값으로 걸러 낸다.
+   */
+  excludedAt: string | null;
+}
+
+/**
+ * 사전검사 연결을 손으로 지정하거나 푼다. preUserId 가 null 이면 해제.
+ *
+ * 부서는 보내지 않는다 — 백엔드가 사전검사 쪽에서 채운다.
+ */
+export interface PreLinkRequestDto {
+  preUserId: number | null;
+}
+
+export interface PreLinkResponseDto {
+  responseId: number;
+  preUserId: number | null;
+  matchedAt: string | null;
+}
+
+/** 응답을 집계에서 빼거나 되돌린다. */
+export interface ExcludeRequestDto {
+  exclude: boolean;
+}
+
+export interface ExcludeResponseDto {
+  responseId: number;
+  excludedAt: string | null;
 }
 
 export type RematchResult = RematchResponseDto;

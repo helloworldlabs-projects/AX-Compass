@@ -1,6 +1,7 @@
 'use client';
 
 import { CourseCell } from '@/components/admin/common/CourseCell';
+import { ExtendLinkButton } from '@/components/admin/post/ExtendLinkButton';
 import { CopyLinkButton } from '@/components/admin/post/CopyLinkButton';
 import { DeleteLinkButton } from '@/components/admin/post/DeleteLinkButton';
 import { IssueLinkForm } from '@/components/admin/post/IssueLinkForm';
@@ -93,7 +94,12 @@ export default function SessionsPage() {
           <Table
             columns={['기업', '코드', '과정', '대상', '응답', '마감', '상태', '']}
             minWidth={1060}
-            columnWidths={[200, 110, null, 90, 110, 120, 90, 180]}
+            /*
+              마지막 칸은 버튼 셋이 한 줄에 들어갈 만큼. 재어 보니 링크 복사 82
+              + 마감일 변경 94 + 마감 54 + 사이 간격 16 = 246 이고, 좌우 여백
+              28 을 더해 274 가 필요하다. 글자가 조금 길어질 자리를 두어 290.
+            */
+            columnWidths={[200, 110, null, 90, 110, 120, 90, 290]}
           >
             {list.map((l) => {
               const target = targetOf.get(l.institutionId) ?? 0;
@@ -120,8 +126,15 @@ export default function SessionsPage() {
                     <Badge tone={TONE[l.status]}>{l.status}</Badge>
                   </Td>
                   <Td className="text-right">
-                    <span className="flex justify-end gap-2">
+                    <span className="flex flex-wrap items-center justify-end gap-2">
                       <CopyLinkButton slug={l.slug} />
+                      {/*
+                        진행중이든 마감이든 보인다. 마감된 뒤에 늘리면 그
+                        사이에 들어오려던 사람이 "종료되었습니다"를 보고
+                        돌아간다. 새로 발급하면 주소가 바뀌어 이미 안내한
+                        링크가 죽으므로, 같은 링크의 날짜를 바꾼다.
+                      */}
+                      <ExtendLinkButton link={l} />
                       {l.status === '진행중' && (
                         <DeleteLinkButton id={l.id} org={l.org} responses={countOf(l.id)} />
                       )}

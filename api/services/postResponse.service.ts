@@ -1,6 +1,10 @@
 import type {
   CheckNameResponseDto,
+  ExcludeRequestDto,
+  ExcludeResponseDto,
   PostResponseDto,
+  PreLinkRequestDto,
+  PreLinkResponseDto,
   RematchResponseDto,
   RematchResult,
   ResponseCountDto,
@@ -18,6 +22,8 @@ const mapStoredPostResponse = (dto: PostResponseDto): StoredPostResponse => ({
   name: dto.name,
   department: dto.department,
   preUserId: dto.preUserId,
+  // 백엔드가 아직 이 칸을 안 주면 "빼지 않은 응답"으로 읽는다.
+  excludedAt: dto.excludedAt ?? null,
   submittedAt: dto.submittedAt.slice(0, 16),
   post: {
     total: dto.overall,
@@ -90,5 +96,33 @@ export const postResponseService = {
     apiFetch<RematchResponseDto>(`/ops/links/${linkId}/responses/rematch`, {
       ...TOKEN,
       method: 'POST',
+    }),
+
+  /*
+    아래 둘은 아직 백엔드에 없다. 화면은 lib/admin/pending-api.ts 의 플래그로
+    잠가 두었고, 엔드포인트가 올라오면 그 값만 바꾼다.
+    요청서: docs/local/RESPONSE-LINK-EDIT-REQUEST.md
+  */
+
+  /** E1 — 사전검사 연결을 손으로 지정하거나 푼다. 409 면 같은 검사에서 이미 쓰인 사람 */
+  preLinkResponse: async (
+    responseId: number,
+    body: PreLinkRequestDto,
+  ): Promise<PreLinkResponseDto> =>
+    apiFetch<PreLinkResponseDto>(`/ops/responses/${responseId}/pre-link`, {
+      ...TOKEN,
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  /** E2 — 응답을 집계에서 빼거나 되돌린다 */
+  setResponseExcluded: async (
+    responseId: number,
+    body: ExcludeRequestDto,
+  ): Promise<ExcludeResponseDto> =>
+    apiFetch<ExcludeResponseDto>(`/ops/responses/${responseId}/exclude`, {
+      ...TOKEN,
+      method: 'POST',
+      body: JSON.stringify(body),
     }),
 };
