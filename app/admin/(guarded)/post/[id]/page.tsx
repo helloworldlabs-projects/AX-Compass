@@ -13,7 +13,8 @@ import {
   Panel,
   Trace,
 } from '@/components/admin/post/ChangeTable';
-import { PendingActions } from '@/components/admin/post/PendingActions';
+import { LinkToPre, type LinkCandidate } from '@/components/admin/post/LinkToPre';
+import { ResponseActions } from '@/components/admin/post/ResponseActions';
 import { RematchButton } from '@/components/admin/post/RematchButton';
 import {
   Badge,
@@ -33,9 +34,10 @@ import {
 } from '@/components/admin/ui';
 import { usePostLink } from '@/hooks/usePostLink';
 import { useRawPostResponses, useScoredPostResponses } from '@/hooks/usePostResponse';
-import { usePreNameHits, usePreOrg } from '@/hooks/useReference';
+import { usePreMembers, usePreNameHits, usePreOrg } from '@/hooks/useReference';
 import type { ProfileId } from '@/lib/admin/ax-scoring';
 import { levelOf, score } from '@/lib/admin/metrics';
+import { cn } from '@/lib/utils';
 import {
   competencyChanges,
   departmentChanges,
@@ -46,7 +48,7 @@ import {
   type PostResponse,
 } from '@/lib/admin/post-stats';
 import type { ExamLink } from '@/types/postLink';
-import type { PreOrgDetail } from '@/types/reference';
+import type { PreMember, PreOrgDetail } from '@/types/reference';
 
 const COMPONENT_SECTION: Record<string, string> = {
   SELF_ESTIMATE: 'A',
@@ -94,6 +96,8 @@ function PostOrgDetail({ linkId }: { linkId: number }) {
   const rawQuery = useRawPostResponses(linkId);
   // 이 기업에서 사전검사를 치른 사람 전체. 못 읽으면 매칭된 사람의 사전으로 대신한다.
   const preOrg = usePreOrg(scored.link?.institutionId);
+  // 손으로 이을 후보를 뽑는 데 쓴다. 같은 질의를 scored 가 이미 받아 두어 캐시를 탄다.
+  const preMembers = usePreMembers(scored.link?.institutionId);
 
   const orphanNames = useMemo(
     () => (scored.responses ?? []).filter((r) => r.match === '사전없음').map((r) => r.name),
@@ -129,6 +133,7 @@ function PostOrgDetail({ linkId }: { linkId: number }) {
       rows={scored.responses}
       tagAverages={scored.tagAverages}
       preOrg={preOrg.data ?? null}
+      preMembers={preMembers.data ?? []}
       hitsByName={hitsByName}
     />
   );
@@ -136,15 +141,17 @@ function PostOrgDetail({ linkId }: { linkId: number }) {
 
 function Detail({
   link,
-  rows,
+  rows: allRows,
   tagAverages,
   preOrg,
+  preMembers,
   hitsByName,
 }: {
   link: ExamLink;
   rows: PostResponse[];
   tagAverages: Record<string, number>;
   preOrg: PreOrgDetail | null;
+  preMembers: PreMember[];
   hitsByName: ReturnType<typeof usePreNameHits>['hitsByName'];
 }) {
   const searchParams = useSearchParams();
@@ -152,15 +159,36 @@ function Detail({
   const page = Number(searchParams.get('page') ?? 1);
 
   // 통계는 늘 전체 응답 기준이다. 명단만 검색으로 거른다.
+  /*
+    통계는 뺀 응답을 거른 `rows` 로 낸다. 목록에는 `allRows` 를 그려 "제외됨"
+    으로 보여 주고 되돌릴 수 있게 한다.
+  */
+  const rows = allRows.filter((r) => !r.excluded);
   const matched = matchedOf(rows);
   const orphan = rows.filter((r) => r.match === '사전없음');
+
+  /*
+    손으로 이을 후보. **이 검사에서** 아직 아무 응답에도 붙지 않은 사람만 준다.
+
+    다른 검사에서 이어진 사람은 빼지 않는다 — 같은 사람이 같은 기업의 다른
+    교육을 또 들으면 사후검사를 따로 내고, 이 검사에서도 이어져야 한다.
+    기업 전체로 거르면 교육을 두 번 들은 사람이 목록에서 사라진다.
+  */
+  const candidates: LinkCandidate[] = (() => {
+    const taken = new Set(allRows.flatMap((r) => (r.preUserId === null ? [] : [r.preUserId])));
+    return preMembers
+      .filter((m) => !taken.has(m.userId))
+      .map((m) => ({ userId: m.userId, name: m.name, department: m.department }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  })();
   const preMean = mean(matched.map((r) => r.pre!.total));
   // 사후는 응답한 사람 전부로 낸다.
   const postMean = mean(rows.map((r) => r.post.total));
 
+  // 목록에는 뺀 응답도 보여 준다 — 보여야 되돌릴 수 있다. 통계만 rows 로 낸다.
   const found = keyword
-    ? rows.filter((r) => r.name.includes(keyword) || (r.department ?? '').includes(keyword))
-    : rows;
+    ? allRows.filter((r) => r.name.includes(keyword) || (r.department ?? '').includes(keyword))
+    : allRows;
   const view = paginate(found, page);
 
   const preAll = preOrg
@@ -286,6 +314,7 @@ function Detail({
                   <div className="mt-2">
                     <Trace orgName={link.org} hits={hitsByName.get(r.name) ?? []} />
                   </div>
+                  <LinkToPre responseId={r.id} candidates={candidates} />
                 </li>
               ))}
             </ul>
@@ -334,8 +363,19 @@ function Detail({
             {view.rows.map((r) => {
               const d = r.pre === null ? null : Math.round((r.post.total - r.pre.total) * 10) / 10;
               return (
-                <tr key={r.id} className={ROW_CLASS}>
-                  <Td className="txt-c1-bold text-gray-900">{r.name}</Td>
+                <tr
+                  key={r.id}
+                  /* 뺀 응답은 흐리게. 표에는 남아 있지만 숫자에는 들어가지 않는다. */
+                  className={cn(ROW_CLASS, r.excluded && 'opacity-45')}
+                >
+                  <Td className="txt-c1-bold text-gray-900">
+                    {r.name}
+                    {r.excluded && (
+                      <span className="ml-1.5 align-middle">
+                        <Badge tone="warn">제외됨</Badge>
+                      </span>
+                    )}
+                  </Td>
                   <Td>
                     {r.match === '매칭' && r.department ? (
                       <span className="text-gray-500">{r.department}</span>
@@ -353,9 +393,13 @@ function Detail({
                     {r.pre === null ? '—' : score(r.pre.total)}
                   </Td>
                   <Td className={deltaClass(d)}>{deltaText(d)}</Td>
-                  {/* 손댈 수 있는 것을 한 칸에 모은다. 아직은 백엔드가 없어 눌리지 않는다. */}
+                  {/* 손댈 수 있는 것을 한 칸에 모은다. */}
                   <Td>
-                    <PendingActions matched={r.match === '매칭'} />
+                    <ResponseActions
+                      responseId={r.id}
+                      matched={r.match === '매칭'}
+                      excluded={r.excluded}
+                    />
                   </Td>
                 </tr>
               );

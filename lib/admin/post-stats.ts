@@ -50,6 +50,15 @@ export interface PostResponse {
   /** 사전검사에서 따라온 부서. 매칭에 실패하면 알 수 없다. */
   department: string | null;
   submittedAt: string;
+  /**
+   * 집계에서 뺀 응답인가.
+   *
+   * 잘못 들어온 응답을 지우지 않고 표시만 해 둔다. 통계를 내는 자리에서는
+   * 걸러 내고, 관리 화면은 "제외됨"으로 보여 되돌릴 수 있게 한다.
+   */
+  excluded: boolean;
+  /** 이어진 사전검사 응시자 번호. 손으로 이을 후보를 가릴 때 쓴다 */
+  preUserId: number | null;
   match: MatchState;
   post: Scores;
   /** 사전 점수. 매칭된 건에만 있다. */

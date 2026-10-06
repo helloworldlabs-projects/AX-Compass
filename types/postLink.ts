@@ -74,6 +74,17 @@ export interface ExamLink {
   status: LinkStatus;
   /** 닫혔거나 마감일이 지남 */
   closed: boolean;
+  /**
+   * 운영자가 직접 거둔 링크인가.
+   *
+   * 마감일이 지나 닫힌 것과 구별한다. 기업을 잘못 적어 거둔 링크를 실수로
+   * 다시 열면 엉뚱한 기업이 응시하게 되므로, 화면에서 다른 버튼을 쓴다.
+   */
+  withdrawn: boolean;
+  /** 거둔 시각 `YYYY-MM-DD`. 거두지 않았으면 null */
+  closedOn: string | null;
+  /** 거둔 관리자 번호 */
+  closedBy: number | null;
   /** 비어 있으면 그 기업의 회차 전부 */
   offerings: LinkOffering[];
 }
@@ -84,4 +95,18 @@ export interface PublicLink {
   course: string | null;
   dueOn: string;
   closed: boolean;
+}
+
+/**
+ * L6 — 마감일 연장·재개.
+ *
+ * `reopen` 은 운영자가 직접 거둔 링크(`status='closed'`)를 다시 열 때만 보낸다.
+ * 마감일이 지나 닫힌 링크는 `dueOn` 만 늘리면 되고, 거기에 `reopen` 을 붙이면
+ * 잘못 적어 거둔 링크까지 되살릴 위험이 생긴다.
+ */
+export interface ExtendLinkRequestDto {
+  /** 새 마감일 YYYY-MM-DD. 그날 23:59(KST)까지 */
+  dueOn: string;
+  /** 거둔 링크를 다시 열 때만 true */
+  reopen?: boolean;
 }

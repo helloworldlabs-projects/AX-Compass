@@ -75,7 +75,9 @@ export function buildSubmitBody(
     answers: EXAM_ITEMS.flatMap((item) => {
       const raw = answers[item.id];
       if (raw === undefined || raw === null || raw === '') return [];
-      return [{ itemCode: item.id, rawValue: String(raw), scoredValue: normalizeAnswer(item, raw) }];
+      return [
+        { itemCode: item.id, rawValue: String(raw), scoredValue: normalizeAnswer(item, raw) },
+      ];
     }),
     scores,
   };
@@ -111,6 +113,8 @@ export function toPostResponses(
       department: pre?.department ?? r.department,
       submittedAt: r.submittedAt,
       match: pre ? '매칭' : '사전없음',
+      excluded: r.excludedAt !== null,
+      preUserId: r.preUserId,
       post: r.post,
       pre: pre ? preScores(pre) : null,
       postProfile: r.profile ?? 'BALANCED',
