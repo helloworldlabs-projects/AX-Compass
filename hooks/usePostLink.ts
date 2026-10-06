@@ -43,6 +43,21 @@ export const useClosePostLink = () => {
 };
 
 /**
+ * 마감일을 늘린다. 운영자가 거둔 링크를 다시 열 때만 `reopen` 을 함께 보낸다.
+ *
+ * 주소(slug)는 바뀌지 않는다 — 이미 안내한 링크가 그대로 살아야 한다.
+ * 이미 낸 사람은 다시 못 낸다. 아직 안 낸 사람을 받기 위한 기능이다.
+ */
+export const useExtendPostLink = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ linkId, dueOn, reopen }: { linkId: number; dueOn: string; reopen?: boolean }) =>
+      postLinkService.extendPostLink(linkId, { dueOn, reopen }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: postLinkKeys.all }),
+  });
+};
+
+/**
  * 발급 폼 선택지 (운영 기관 → 교육 운영 건 → 학습 기업).
  * 참조 API 가 실패해도 링크 목록은 보여야 하므로 error 를 따로 돌려준다.
  */

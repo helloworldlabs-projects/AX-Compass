@@ -90,6 +90,31 @@ export const useRematchPostResponses = () => {
 };
 
 /**
+ * 사전검사 연결을 손으로 지정하거나 푼다. `preUserId` 가 null 이면 해제.
+ *
+ * 보고서는 발행 시점의 전문을 그대로 그리므로 이미 발행한 보고서는 바뀌지
+ * 않는다. 반영하려면 다시 생성해야 하고, 보고서 화면이 그 사실을 알린다.
+ */
+export const usePreLinkResponse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ responseId, preUserId }: { responseId: number; preUserId: number | null }) =>
+      postResponseService.preLinkResponse(responseId, { preUserId }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: postResponseKeys.all }),
+  });
+};
+
+/** 응답을 집계에서 빼거나 되돌린다. 지우지 않으므로 언제든 돌아온다. */
+export const useSetResponseExcluded = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ responseId, exclude }: { responseId: number; exclude: boolean }) =>
+      postResponseService.setResponseExcluded(responseId, { exclude }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: postResponseKeys.all }),
+  });
+};
+
+/**
  * 한 검사의 응답에 사전검사를 잇는다 (원본 responsesOf + tagAveragesOf).
  * 사전검사를 못 읽으면 사전 없이 보여준다 — 사후 응답까지 감출 이유는 없다.
  */
