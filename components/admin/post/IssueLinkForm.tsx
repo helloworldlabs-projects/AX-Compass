@@ -85,6 +85,8 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
   /** 기업을 직접 고를 때의 검색어. */
   const [query, setQuery] = useState('');
   const [dueOn, setDueOn] = useState(defaultDueOn);
+  /* 대개 함께 받는다. 빼야 할 때만 끄도록 켜 둔 채로 연다. */
+  const [fieldSurvey, setFieldSurvey] = useState(true);
   const [issued, setIssued] = useState<Issued | null>(null);
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
@@ -111,6 +113,7 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
     setInstitutionId(null);
     setQuery('');
     setDueOn(defaultDueOn());
+    setFieldSurvey(true);
     setIssued(null);
     setCopied(false);
     setCopyFailed(false);
@@ -169,6 +172,7 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
         courseTitle,
         dueOn,
         offeringIds: chosen.map((o) => o.offeringId),
+        fieldSurvey,
       },
       {
         onSuccess: (link) =>
@@ -395,6 +399,33 @@ export function IssueLinkForm({ options }: { options: IssueOptions }) {
 
               {chosen.length > 0 && company?.eligible && (
                 <>
+                  {/*
+                    발급할 때만 정한다. 뒤에 바꾸면 이미 낸 사람과 앞으로 낼
+                    사람의 문항이 달라져 한 보고서에 섞인다.
+                  */}
+                  <div className="rounded-[16px] border border-gray-100 bg-white px-5 py-4">
+                    {/* 설명이 두 줄이라 체크 칸을 글 높이 가운데에 둔다. */}
+                    <label
+                      htmlFor="link-field-survey"
+                      className="flex cursor-pointer items-center gap-3"
+                    >
+                      <input
+                        id="link-field-survey"
+                        type="checkbox"
+                        checked={fieldSurvey}
+                        onChange={(e) => setFieldSurvey(e.target.checked)}
+                        className="accent-adm-brand size-4 shrink-0"
+                      />
+                      <span>
+                        <span className="txt-c1-bold text-gray-900">현업 적용도 검사 포함</span>
+                        <span className="txt-c2-regular mt-1 block leading-[1.65] text-gray-500">
+                          사후 역량 검사 이후 교육 내용의 실제 업무 적용 현황과 효과를 확인하는
+                          설문을 추가합니다.
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+
                   {/* 과정명은 받지 않는다. 2단계의 운영 건이 곧 이 검사가 다루는 교육이다. */}
                   <div>
                     <label htmlFor="link-due" className="txt-c1-bold text-gray-900">

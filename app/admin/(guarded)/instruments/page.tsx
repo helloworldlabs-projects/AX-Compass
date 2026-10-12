@@ -2,6 +2,7 @@
 
 import { PreviewButton } from '@/components/admin/instruments/PreviewButton';
 import { Badge, Card, PageHeader, ROW_CLASS, StatCard, Table, Td } from '@/components/admin/ui';
+import { FIELD_INTRO, FIELD_ITEMS, FIELD_VERSION } from '@/lib/admin/field-survey';
 import {
   CAPS,
   COMPETENCIES,
@@ -48,7 +49,7 @@ export default function InstrumentsPage() {
     <>
       <PageHeader
         title="검사 문항"
-        description="사후검사에 쓰이는 문항과 채점 기준입니다. 수정은 설계 시트에서 하고 다시 불러옵니다."
+        description={`사후검사에 쓰이는 문항과 채점 기준입니다. 역량 ${EXAM_ITEMS.length}문항에 현업 적용도 ${FIELD_ITEMS.length}문항을 더해 두었습니다. 수정은 설계 시트에서 하고 다시 불러옵니다.`}
         action={
           <div className="flex items-center gap-3">
             <Badge tone="info">조회 전용</Badge>
@@ -58,8 +59,16 @@ export default function InstrumentsPage() {
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="문항" sub="사후검사 전체" value={EXAM_ITEMS.length} unit="개" />
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
+        <StatCard label="역량 문항" sub="모든 검사에 들어감" value={EXAM_ITEMS.length} unit="개" />
+        {/* 늘 쓰이는 문항이 아니라는 것을 숫자 옆에 적어 둔다. */}
+        <StatCard
+          label="현업 적용도"
+          sub="링크마다 선택"
+          value={FIELD_ITEMS.length}
+          unit="개"
+          tone="success"
+        />
         <StatCard label="핵심 역량" sub="U · P · E · R" value={COMPETENCIES.length} unit="개" />
         <StatCard
           label="세부 역량"
@@ -134,6 +143,70 @@ export default function InstrumentsPage() {
           </Card>
         );
       })}
+
+      {/*
+        현업 적용도는 역량 검사와 따로 둔다. 점수를 매기지 않고, 링크마다 포함
+        여부가 달라 늘 쓰이는 문항이 아니다. 그래서 위 표에 섞지 않고 아래에
+        따로 싣는다.
+      */}
+      <Card
+        title="현업 적용도 검사"
+        description={`선택형 부가 설문 · ${FIELD_ITEMS.length}개 문항 · 판 ${FIELD_VERSION}`}
+        padded={false}
+      >
+        <div className="border-b border-gray-100 px-6 py-4">
+          <p className="txt-c1-regular leading-[1.65] text-gray-500">{FIELD_INTRO.lead}</p>
+          <p className="txt-c2-regular mt-2 text-gray-400">
+            링크를 발급할 때 포함 여부를 고릅니다. 역량 점수·등급·사전사후 증감에는 섞지 않고,
+            보고서에 별도 장으로 싣습니다.
+          </p>
+        </div>
+
+        {/*
+          보기를 문항 칸 안에 넣는다. 상황판단(B)과 같은 모양이다 — 오른쪽 좁은
+          칸에 세로로 쌓으면 문항마다 행 높이가 널뛰어 훑기 어렵다.
+        */}
+        <Table minWidth={900} columns={['번호', '문항', '유형']}>
+          {FIELD_ITEMS.map((item) => (
+            <tr key={item.id} className={ROW_CLASS}>
+              <Td className="txt-c2-regular whitespace-nowrap text-gray-500 tabular-nums">
+                {item.id}
+              </Td>
+              <Td className="txt-c1-regular w-full text-gray-700">
+                {item.prompt}
+                {item.hint && (
+                  <span className="txt-c2-regular mt-1 block text-gray-400">{item.hint}</span>
+                )}
+
+                {item.options ? (
+                  <ul className="mt-3 flex flex-wrap gap-x-2 gap-y-1.5">
+                    {item.options.map((o) => (
+                      <li
+                        key={o.code}
+                        className="bg-adm-track-fill txt-c2-regular rounded-[6px] px-2.5 py-1 text-gray-500"
+                      >
+                        {o.label}
+                        {o.exclusive && <span className="ml-1.5 text-gray-400">단독</span>}
+                        {o.etc && <span className="ml-1.5 text-gray-400">입력란</span>}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="txt-c2-regular mt-3 text-gray-400">{item.placeholder}</p>
+                )}
+              </Td>
+              <Td className="txt-c2-regular whitespace-nowrap text-gray-500">
+                {item.type === 'SINGLE'
+                  ? '단일 선택'
+                  : item.type === 'MULTI'
+                    ? `복수 선택 · 최대 ${item.maxPick}`
+                    : '서술형'}
+                {item.optional && <span className="block text-gray-400">선택 작성</span>}
+              </Td>
+            </tr>
+          ))}
+        </Table>
+      </Card>
 
       <Card
         title="세부 역량"
