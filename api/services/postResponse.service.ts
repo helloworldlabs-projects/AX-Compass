@@ -1,5 +1,6 @@
 import type {
   CheckNameResponseDto,
+  FieldAnswersDto,
   ExcludeRequestDto,
   ExcludeResponseDto,
   PostResponseDto,
@@ -25,6 +26,8 @@ const mapStoredPostResponse = (dto: PostResponseDto): StoredPostResponse => ({
   // 백엔드가 아직 이 칸을 안 주면 "빼지 않은 응답"으로 읽는다.
   excludedAt: dto.excludedAt ?? null,
   submittedAt: dto.submittedAt.slice(0, 16),
+  fieldSurveyVersion: dto.surveyVersion ?? null,
+  fieldAnswers: parseFieldAnswers(dto.fieldAnswers),
   post: {
     total: dto.overall,
     sections: { A: dto.sections.A ?? 0, B: dto.sections.B ?? 0, C: dto.sections.C ?? 0 },
@@ -37,6 +40,26 @@ const mapStoredPostResponse = (dto: PostResponseDto): StoredPostResponse => ({
   },
   profile: dto.profile as ProfileId | null,
 });
+
+/**
+ * 설문 답을 객체로 되돌린다.
+ *
+ * 제출할 때는 객체로 보내는데, 조회 명세는 같은 칸을 문자열로 적어 두었다.
+ * 어느 쪽으로 오는지에 기대지 않고 둘 다 받는다 — 문자열이면 풀고, 풀다
+ * 실패하면 없는 것으로 둔다. 설문 하나 때문에 응답 목록 전체가 깨지면 안 된다.
+ */
+function parseFieldAnswers(
+  raw: FieldAnswersDto | string | null | undefined,
+): FieldAnswersDto | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw !== 'string') return raw;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed !== null ? (parsed as FieldAnswersDto) : null;
+  } catch {
+    return null;
+  }
+}
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
 

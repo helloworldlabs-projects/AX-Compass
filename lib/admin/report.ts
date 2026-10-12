@@ -1,4 +1,5 @@
 import { levelOf, MEMBER_COMPETENCIES, type MemberCompetency } from '@/lib/admin/metrics';
+import { buildFieldReport, type FieldReport } from '@/lib/admin/field-report';
 import type {
   ChoiceQuestion,
   CourseOverview,
@@ -166,6 +167,15 @@ export interface CompanyReport {
       diff: number | null;
     }[];
   };
+
+  /**
+   * 현업 적용도.
+   *
+   * 설문을 받지 않은 링크이거나 완료 응답이 없으면 null 이다. 설문을 받은
+   * 링크인지는 link.fieldSurvey 가 따로 말해 준다 — 둘을 구별해야 "아직
+   * 응답이 없다" 와 "애초에 묻지 않았다" 를 다르게 적을 수 있다.
+   */
+  fieldSurvey: FieldReport | null;
 
   /** 프로필 유형 변화 */
   profile: {
@@ -644,6 +654,7 @@ export function computeCompanyReport({
       changeAnova: oneWayAnova(changeGroups),
       rows: departmentRows,
     },
+    fieldSurvey: buildFieldReport(responses),
     profile: {
       rows: profileRows.sort((a, b) => b.postShare - a.postShare),
       chi2: chiSquare([

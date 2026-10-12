@@ -24,6 +24,8 @@ export interface ExamLinkDto {
   closedAt: string | null;
   closedBy: number | null;
   offerings: LinkOfferingDto[];
+  /** 역량 검사 뒤에 현업 적용도 설문을 받는가. 발급할 때 정하고 바꿀 수 없다 */
+  fieldSurvey?: boolean;
 }
 
 /** PostExam.IssueLinkRequest — 기관 코드·이름은 서버가 SafariOn 에서 채운다 */
@@ -37,6 +39,13 @@ export interface IssueLinkRequestDto {
   dueOn: string;
   /** 소문자 hex 32자 */
   offeringIds: string[];
+  /**
+   * 현업 적용도 설문을 함께 받을지. 비우면 false.
+   *
+   * 발급한 뒤에는 바꿀 수 없다 — 이미 낸 사람과 앞으로 낼 사람의 문항이
+   * 달라져 한 보고서에 섞인다.
+   */
+  fieldSurvey?: boolean;
 }
 
 /** PostExam.PublicLink — 공개(토큰 없음), /after/[slug] 응시 화면용 */
@@ -50,6 +59,8 @@ export interface PublicLinkDto {
   expired: boolean;
   /** 열려 있고 마감일 전. false 면 이름 확인·제출이 409 */
   accepting: boolean;
+  /** true 면 제출에 surveyVersion·fieldAnswers 가 필요하다 */
+  fieldSurvey?: boolean;
 }
 
 // ─── Domain Model — UI 소비용 ───────────────────────────────────────────────
@@ -87,6 +98,8 @@ export interface ExamLink {
   closedBy: number | null;
   /** 비어 있으면 그 기업의 회차 전부 */
   offerings: LinkOffering[];
+  /** 역량 검사 뒤에 현업 적용도 설문을 받는가 */
+  fieldSurvey: boolean;
 }
 
 export interface PublicLink {
@@ -95,6 +108,8 @@ export interface PublicLink {
   course: string | null;
   dueOn: string;
   closed: boolean;
+  /** 역량 검사 뒤에 현업 적용도 설문을 받는가 */
+  fieldSurvey: boolean;
 }
 
 /**

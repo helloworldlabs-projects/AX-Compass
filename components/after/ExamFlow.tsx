@@ -4,6 +4,18 @@ import { useEffect, useState } from 'react';
 
 import { useCheckPostResponseName, useSubmitPostResponse } from '@/hooks/usePostResponse';
 import type { Answers, Section } from '@/lib/admin/ax-scoring';
+import {
+  FIELD_INTRO,
+  fieldItem,
+  hasAnswer,
+  isAnswered,
+  needsEtc,
+  prunedAnswers,
+  togglePick,
+  visibleItems,
+  type FieldAnswers,
+  type FieldItem,
+} from '@/lib/admin/field-survey';
 import { EXAM_ITEMS, LIKERT_LABELS, SECTIONS, type ExamItem } from '@/lib/admin/instrument';
 import { cn } from '@/lib/utils';
 import { ApiError, getApiErrorDetail } from '@/types/common';
@@ -33,9 +45,17 @@ type Step =
   | { kind: 'intro' }
   | { kind: 'section-intro'; section: Section }
   | { kind: 'item'; item: ExamItem; indexInExam: number }
+  | { kind: 'field-intro' }
+  | { kind: 'field'; item: FieldItem }
   | { kind: 'done' };
 
-function buildSteps(): Step[] {
+/**
+ * 화면 차례.
+ *
+ * 현업 적용도 설문은 링크마다 켜고 끄므로 차례를 두 벌 만든다. 설문이 없는
+ * 링크에서 빈 자리를 지나가게 두면 진행률이 100%에 닿지 않는다.
+ */
+function buildSteps(fieldSurvey: boolean): Step[] {
   const steps: Step[] = [{ kind: 'identify' }, { kind: 'intro' }];
   let n = 0;
   for (const s of SECTIONS) {
@@ -44,11 +64,16 @@ function buildSteps(): Step[] {
       steps.push({ kind: 'item', item, indexInExam: ++n });
     }
   }
+  if (fieldSurvey) {
+    steps.push({ kind: 'field-intro' });
+    for (const item of visibleItems()) steps.push({ kind: 'field', item });
+  }
   steps.push({ kind: 'done' });
   return steps;
 }
 
-const STEPS = buildSteps();
+const STEPS_PLAIN = buildSteps(false);
+const STEPS_FIELD = buildSteps(true);
 const TOTAL_ITEMS = EXAM_ITEMS.length;
 
 const DUPLICATE_NAME =
@@ -78,15 +103,19 @@ export function ExamFlow({
   slug,
   cohort,
   preview = false,
+  fieldSurvey = false,
 }: {
   slug: string;
   /** 링크가 가리키는 기업. 공통 링크이므로 응시자 본인은 이름으로 특정한다. */
   cohort: ExamCohort;
   /** 관리자 미리보기. 제출해도 서버로 보내지 않는다. */
   preview?: boolean;
+  /** 역량 검사 뒤에 현업 적용도 설문을 받는 링크인가. 발급할 때 정해진다. */
+  fieldSurvey?: boolean;
 }) {
   const [at, setAt] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
+  const [fieldAnswers, setFieldAnswers] = useState<FieldAnswers>({});
   const [name, setName] = useState('');
   /** 이미 낸 이름일 때의 안내. */
   const [nameError, setNameError] = useState<string | null>(null);
@@ -101,18 +130,39 @@ export function ExamFlow({
   // 다른 사람으로 갈리는 것을 조금이라도 줄이기 위함이다.
   const normalizedName = name.trim().replace(/\s+/g, ' ');
 
-  const step = STEPS[at];
+  const steps = fieldSurvey ? STEPS_FIELD : STEPS_PLAIN;
+  const step = steps[at];
   const answeredCount = Object.keys(answers).length;
-  const progress = Math.round((answeredCount / TOTAL_ITEMS) * 100);
-  const isLastItem = step.kind === 'item' && step.indexInExam === TOTAL_ITEMS;
+
+  /*
+    설문까지 진행률에 넣는다. 역량 문항만 세면 설문에 들어선 순간 100% 가 되어
+    "끝났는데 왜 더 묻나" 로 읽힌다.
+  */
+  const fieldShown = fieldSurvey ? visibleItems() : [];
+  const fieldAnsweredCount = fieldShown.filter((i) => hasAnswer(i, fieldAnswers)).length;
+  /*
+    분모에서도 빈 선택 문항을 뺀다. 넣어 두면 비워 두고 넘어가도 되는 문항
+    때문에 끝까지 풀고도 98% 에서 멈춘다 — 뭔가 빠뜨린 것처럼 읽힌다.
+    적은 사람은 분자와 분모에 함께 더해지니 그쪽도 100% 다.
+  */
+  const fieldCounted = fieldShown.filter((i) => !i.optional || hasAnswer(i, fieldAnswers)).length;
+  const totalToAnswer = TOTAL_ITEMS + fieldCounted;
+  const progress = Math.round(
+    ((answeredCount + fieldAnsweredCount) / Math.max(totalToAnswer, 1)) * 100,
+  );
+
+  /** 마지막 응답 화면. 여기서 누르면 제출이다. */
+  const isLastStep = at === steps.length - 2;
 
   const currentAnswer = step.kind === 'item' ? answers[step.item.id] : undefined;
   const canAdvance =
     step.kind === 'identify'
       ? normalizedName.length >= 2
-      : step.kind !== 'item' || currentAnswer !== undefined;
+      : step.kind === 'item'
+        ? currentAnswer !== undefined
+        : step.kind !== 'field' || isAnswered(step.item, fieldAnswers);
 
-  const advance = () => setAt((i) => Math.min(i + 1, STEPS.length - 1));
+  const advance = () => setAt((i) => Math.min(i + 1, steps.length - 1));
 
   /**
    * 이름을 적고 넘어갈 때 한 번 확인한다.
@@ -140,17 +190,23 @@ export function ExamFlow({
    * 아무것도 남지 않았다는 사실을 모른 채 창을 닫는다. 성공했을 때만 넘긴다.
    */
   const submit = () => {
-    if (preview) return setAt(STEPS.length - 1);
+    if (preview) return setAt(steps.length - 1);
     submitMutation.mutate(
-      { slug, name: normalizedName, answers },
-      { onSuccess: () => setAt(STEPS.length - 1) },
+      {
+        slug,
+        name: normalizedName,
+        answers,
+        // 고르다 지운 빈 칸은 빼고 보낸다. 그대로 두면 집계에서 0 으로 세어진다.
+        fieldAnswers: fieldSurvey ? prunedAnswers(fieldAnswers) : null,
+      },
+      { onSuccess: () => setAt(steps.length - 1) },
     );
   };
 
   /** 버튼과 Enter 가 똑같이 군다 — 이름 확인·제출을 건너뛰면 안 된다. */
   const primary = () => {
     if (!canAdvance || submitting || checkingName) return;
-    if (isLastItem) submit();
+    if (isLastStep) submit();
     else if (step.kind === 'identify') advanceFromName();
     else advance();
   };
@@ -189,11 +245,13 @@ export function ExamFlow({
       ? '응시자 확인'
       : step.kind === 'intro'
         ? '검사 시작 전 안내'
-        : step.kind === 'section-intro' && sectionMeta
-          ? sectionMeta.intro.title
-          : sectionMeta
-            ? `${sectionMeta.label}(${sectionMeta.english})`
-            : '검사 완료';
+        : step.kind === 'field-intro' || step.kind === 'field'
+          ? FIELD_INTRO.title
+          : step.kind === 'section-intro' && sectionMeta
+            ? sectionMeta.intro.title
+            : sectionMeta
+              ? `${sectionMeta.label}(${sectionMeta.english})`
+              : '검사 완료';
 
   return (
     <div className="mx-auto w-full max-w-[1000px] px-4 pt-8 pb-32 lg:px-6 lg:pb-20">
@@ -249,7 +307,7 @@ export function ExamFlow({
           />
         )}
 
-        {step.kind === 'intro' && <Intro />}
+        {step.kind === 'intro' && <Intro fieldSurvey={fieldSurvey} />}
 
         {step.kind === 'section-intro' && sectionMeta && <SectionIntro meta={sectionMeta} />}
 
@@ -263,7 +321,25 @@ export function ExamFlow({
           />
         )}
 
-        {step.kind === 'done' && <Done answered={answeredCount} total={TOTAL_ITEMS} />}
+        {step.kind === 'field-intro' && <FieldIntro />}
+
+        {step.kind === 'field' && (
+          <FieldCard
+            key={step.item.id}
+            item={step.item}
+            answers={fieldAnswers}
+            onAnswer={setFieldAnswers}
+          />
+        )}
+
+        {step.kind === 'done' && (
+          <Done
+            answered={answeredCount}
+            total={TOTAL_ITEMS}
+            fieldAnswered={fieldSurvey ? fieldAnsweredCount : null}
+            fieldTotal={fieldShown.length}
+          />
+        )}
       </div>
 
       {/*
@@ -292,7 +368,7 @@ export function ExamFlow({
               onClick={primary}
               className="bg-adm-brand h-14 w-full rounded-[10px] px-10 text-[16px] leading-[150%] font-bold text-white transition disabled:cursor-not-allowed disabled:bg-gray-200 lg:w-auto"
             >
-              {isLastItem
+              {isLastStep
                 ? submitting
                   ? '제출 중…'
                   : '제출하기'
@@ -437,7 +513,7 @@ function Identify({
   );
 }
 
-function Intro() {
+function Intro({ fieldSurvey }: { fieldSurvey: boolean }) {
   return (
     <section className={cn(SCREEN_CLASS, 'lg:py-10')}>
       <div className="space-y-4">
@@ -472,6 +548,13 @@ function Intro() {
             총 {TOTAL_ITEMS}문항이며, 5분 내외가 걸립니다. 중간에 나가면 처음부터 다시 진행해야
             합니다.
           </Bullet>
+          {/* 끝난 줄 알았는데 문항이 더 나오면 속은 기분이 든다. 미리 알린다. */}
+          {fieldSurvey && (
+            <Bullet>
+              역량 검사 뒤에 <b className="text-gray-900">현업 적용도</b> 문항이 이어집니다 — 배운
+              것을 실제 업무에 얼마나 적용했는지 여쭙습니다.
+            </Bullet>
+          )}
         </Panel>
       </div>
     </section>
@@ -705,9 +788,189 @@ function OptionChoice({
   );
 }
 
+/* ── 현업 적용도 ─────────────────────────────────────────── */
+
+/**
+ * 설문 안내.
+ *
+ * 역량 검사가 끝났다는 말을 먼저 한다. 끝난 줄 알았는데 문항이 더 나오면 속은
+ * 기분이 든다. 무엇을 왜 더 묻는지, 어느 기간을 기준으로 답할지 적는다.
+ */
+function FieldIntro() {
+  return (
+    <section className={cn(SCREEN_CLASS, 'lg:py-10')}>
+      <p className="txt-c1-bold text-adm-brand">{FIELD_INTRO.title}</p>
+      <h2 className="txt-st-bold mt-2 text-gray-900">배운 것을 실제로 써 보셨나요?</h2>
+      <p className="txt-b-regular mt-4 leading-[1.7] text-gray-500">{FIELD_INTRO.lead}</p>
+
+      <div className="bg-gray-0 mt-6 rounded-[16px] px-4 py-4 lg:px-6 lg:py-5">
+        <p className="txt-b-regular leading-[1.7] text-gray-500">
+          역량 검사는 여기서 끝났습니다. 지금부터는 <b className="text-gray-900">몇 문항</b>만 더
+          여쭙습니다.
+          <br />
+          정답이 없는 질문입니다. 적용하지 못하셨더라도 그대로 골라 주시면 됩니다.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * 설문 한 문항.
+ *
+ * 단일 선택·복수 선택·서술형을 한 자리에서 다룬다. 문항 수가 적고 유형마다
+ * 화면이 크게 다르지 않아, 유형별로 쪼개면 같은 뼈대가 세 번 반복된다.
+ */
+function FieldCard({
+  item,
+  answers,
+  onAnswer,
+}: {
+  item: FieldItem;
+  answers: FieldAnswers;
+  onAnswer: (next: FieldAnswers) => void;
+}) {
+  const value = answers[item.id];
+  const picked = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+  const etcKey = `${item.id}_etc`;
+  const etcText = typeof answers[etcKey] === 'string' ? (answers[etcKey] as string) : '';
+  const showEtc = needsEtc(item, Array.isArray(value) ? value : (value ?? ''));
+
+  /*
+    3·4번은 2번에서 고른 업무를 기준으로 답해야 한다. 무엇을 떠올리며 답할지
+    위에 적어 둔다 — 두 문항 건너에 고른 것이라 기억이 흐려진다.
+  */
+  const basis =
+    item.id === 'F3' || item.id === 'F4'
+      ? fieldItem('F2')?.options?.find((o) => o.code === answers.F2)?.label
+      : undefined;
+
+  return (
+    <section className={cn(SCREEN_CLASS, 'lg:py-10')}>
+      {basis && (
+        <p className="bg-gray-0 txt-c1-bold mb-3 rounded-full px-4 py-2 text-gray-500">
+          기준 업무 · <span className="text-gray-900">{basis}</span>
+        </p>
+      )}
+
+      <h2 className="txt-st2-bold leading-[1.5] text-gray-900">{item.prompt}</h2>
+      {item.hint && <p className="txt-c1-regular mt-2 text-gray-500">{item.hint}</p>}
+      {item.type === 'MULTI' && (
+        <p className="txt-c1-bold text-adm-brand mt-2">
+          최대 {item.maxPick}개까지 고를 수 있습니다.
+        </p>
+      )}
+      {item.optional && (
+        <p className="txt-c1-regular mt-2 text-gray-400">
+          {item.optionalNote ?? '비워 두고 넘어가셔도 됩니다.'}
+        </p>
+      )}
+
+      {item.type === 'TEXT' ? (
+        <textarea
+          value={typeof value === 'string' ? value : ''}
+          rows={6}
+          maxLength={500}
+          placeholder={item.placeholder}
+          onChange={(e) => onAnswer({ ...answers, [item.id]: e.target.value })}
+          className="txt-b-regular mt-6 w-full rounded-[10px] border border-gray-100 bg-white px-4 py-3 leading-[1.7] text-gray-900 outline-none placeholder:text-gray-300 focus:border-gray-300"
+        />
+      ) : (
+        <ul
+          role={item.type === 'MULTI' ? undefined : 'radiogroup'}
+          aria-label="보기"
+          className="mt-6 space-y-2"
+        >
+          {(item.options ?? []).map((o) => {
+            const on = picked.includes(o.code);
+            return (
+              <li key={o.code}>
+                <button
+                  type="button"
+                  role={item.type === 'MULTI' ? 'checkbox' : 'radio'}
+                  aria-checked={on}
+                  onClick={() =>
+                    onAnswer(
+                      item.type === 'MULTI'
+                        ? { ...answers, [item.id]: togglePick(item, picked, o.code) }
+                        : { ...answers, [item.id]: o.code },
+                    )
+                  }
+                  className={cn(
+                    'txt-b-regular flex w-full items-center gap-3 rounded-[16px] border px-4 py-3.5 text-left transition',
+                    on
+                      ? 'border-adm-brand bg-special-navy-200 txt-b-bold text-gray-900'
+                      : 'bg-adm-track-fill hover:bg-special-dark-blue-100 border-transparent text-gray-500',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'grid size-5 shrink-0 place-items-center border transition',
+                      item.type === 'MULTI' ? 'rounded-[6px]' : 'rounded-full',
+                      on ? 'border-adm-brand bg-adm-brand text-white' : 'border-gray-200 bg-white',
+                    )}
+                  >
+                    {on && <span className="text-[11px] leading-none">✓</span>}
+                  </span>
+                  {o.label}
+                </button>
+
+                {/*
+                  "기타"를 고르면 무엇인지 적어야 한다. 비워 두면 집계에서 쓸 수
+                  없다. 입력란은 고른 보기 바로 아래에 붙인다 — 목록 밖 맨 아래에
+                  두면 어느 보기에 딸린 칸인지 알 수 없고, 보기가 여섯 개쯤 되면
+                  한참 떨어진 자리에 나타난다.
+
+                  들여쓰기는 체크 칸에 맞추려는 것인데, 좁은 화면에서는 적을
+                  자리를 32px 깎을 뿐이라 폰에서는 붙여 둔다.
+                */}
+                {o.etc === true && on && showEtc && (
+                  <div className="mt-2 pl-0 lg:pl-8">
+                    <label className="txt-c1-bold block text-gray-500" htmlFor={etcKey}>
+                      {item.etcLabel ?? '어떤 내용인지 적어 주세요'}
+                    </label>
+                    <input
+                      id={etcKey}
+                      type="text"
+                      value={etcText}
+                      maxLength={100}
+                      autoFocus
+                      placeholder={item.etcPlaceholder ?? '간단히 적어 주세요'}
+                      onChange={(e) => onAnswer({ ...answers, [etcKey]: e.target.value })}
+                      className="txt-b-regular mt-1.5 h-12 w-full shrink-0 rounded-[10px] border border-gray-100 bg-white px-4 text-gray-900 outline-none placeholder:text-gray-300 focus:border-gray-300"
+                    />
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 /* ── 완료 ────────────────────────────────────────────────── */
 
-function Done({ answered, total }: { answered: number; total: number }) {
+/**
+ * 끝 화면.
+ *
+ * 설문까지 받은 링크면 두 가지를 따로 적는다. 역량 검사 수만 적으면 방금 더
+ * 답한 설문이 어디로 갔는지 알 수 없고, 둘을 합쳐 "43문항" 이라 적으면 역량
+ * 검사가 43문항인 것처럼 읽힌다.
+ */
+function Done({
+  answered,
+  total,
+  fieldAnswered,
+  fieldTotal,
+}: {
+  answered: number;
+  total: number;
+  /** 설문을 받지 않는 링크면 null */
+  fieldAnswered: number | null;
+  fieldTotal: number;
+}) {
   return (
     <section className="flex h-full flex-col justify-center rounded-[16px] border border-gray-100 bg-white px-4 py-16 text-center lg:px-8 lg:py-20">
       <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-green-100">
@@ -724,7 +987,16 @@ function Done({ answered, total }: { answered: number; total: number }) {
       </div>
       <h1 className="txt-t3 mt-6 text-gray-900">검사가 완료되었습니다</h1>
       <p className="txt-b-regular mt-3 text-gray-500">
-        {total}문항 중 {answered}문항에 응답하셨습니다.
+        {fieldAnswered === null ? (
+          <>
+            {total}문항 중 {answered}문항에 응답하셨습니다.
+          </>
+        ) : (
+          <>
+            역량 검사 {total}문항 중 {answered}문항, 현업 적용도 설문 {fieldTotal}문항 중{' '}
+            {fieldAnswered}문항에 응답하셨습니다.
+          </>
+        )}
         <br />
         결과는 교육 담당자를 통해 기업 단위 보고서로 전달됩니다.
       </p>

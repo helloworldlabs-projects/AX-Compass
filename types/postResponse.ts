@@ -34,12 +34,23 @@ interface ScoreFieldsDto {
   gapSb: number;
 }
 
+/** 현업 적용도 설문의 답. 문항 코드를 키로, 복수 선택만 배열. "기타" 입력은 {문항}_etc */
+export type FieldAnswersDto = Record<string, string | string[]>;
+
 /** PostExam.SubmitResponseRequest */
 export interface SubmitPostResponseRequestDto extends ScoreFieldsDto {
   name: string;
   department: string | null;
   answers: PostAnswerDto[];
   scores: PostScoreDto[];
+  /**
+   * 현업 적용도 설문 문항 판. 설문을 받는 링크면 필수, 아니면 null.
+   *
+   * 어긋나면 400 — 설문 링크인데 없으면 OPS_013, 설문이 아닌데 있으면 OPS_014.
+   */
+  surveyVersion: string | null;
+  /** 설문을 받지 않는 링크면 null. 형식 오류 400 OPS_015, 16KB 초과 400 OPS_016 */
+  fieldAnswers: FieldAnswersDto | null;
 }
 
 export interface SubmitPostResponseResponseDto {
@@ -62,6 +73,15 @@ export interface PostResponseDto extends ScoreFieldsDto {
   excludedAt?: string | null;
   /** YYYY-MM-DD HH:mm:ss */
   submittedAt: string;
+  /** 현업 적용도 설문 문항 판. 설문을 받지 않은 응답이면 null */
+  surveyVersion?: string | null;
+  /**
+   * 제출할 때 보낸 설문 답이 그대로 돌아온다. 설문을 받지 않은 응답이면 null.
+   *
+   * 명세의 타입이 객체와 문자열 사이에서 갈린다(제출은 JsonNode, 조회는 string).
+   * 어느 쪽으로 와도 읽도록 서비스에서 풀어 준다.
+   */
+  fieldAnswers?: FieldAnswersDto | string | null;
   /** A·B·C */
   sections: Record<string, number>;
   /** U·P·E·R */
@@ -116,6 +136,9 @@ export interface StoredPostResponse {
    * 통계는 화면에서 이 값으로 걸러 낸다.
    */
   excludedAt: string | null;
+  /** 현업 적용도 설문. 설문을 받지 않은 응답이면 null */
+  fieldSurveyVersion: string | null;
+  fieldAnswers: FieldAnswersDto | null;
 }
 
 /**
