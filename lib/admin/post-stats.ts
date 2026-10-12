@@ -67,6 +67,13 @@ export interface PostResponse {
   postProfile: ProfileId;
   /** 사전 프로필 유형. 매칭된 건에만 있다. */
   preProfile: ProfileId | null;
+  /**
+   * 현업 적용도 설문. 설문을 받지 않은 링크의 응답이면 null.
+   *
+   * 역량 점수와 한 칸에 두지 않는다 — 묻는 것이 다르고, 합산하지도 않는다.
+   */
+  fieldSurveyVersion: string | null;
+  fieldAnswers: Record<string, string | string[]> | null;
 }
 
 export const SECTION_LABEL: Record<keyof SectionScores, string> = {

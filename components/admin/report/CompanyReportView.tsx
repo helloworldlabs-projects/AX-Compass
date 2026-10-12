@@ -27,6 +27,7 @@ import {
   stageOf,
 } from '@/lib/admin/metrics';
 import { recommendCourses, type Recommendation } from '@/lib/admin/recommend';
+import type { FieldReport, Rate, Share } from '@/lib/admin/field-report';
 import { LEVEL_NAMES, type CompanyReport } from '@/lib/admin/report';
 import { pText, stars } from '@/lib/admin/stats';
 import { cn } from '@/lib/utils';
@@ -149,12 +150,19 @@ export function CompanyReportView({
     'department',
     'profile',
     'exec',
+    'field',
     'next',
   ] as const;
   const numbers = new Map<string, string>();
-  CHAPTERS.filter((k) => k !== 'department' || showManova).forEach((k, i) =>
-    numbers.set(k, String(i + 1).padStart(2, '0')),
-  );
+  CHAPTERS.filter(
+    (k) =>
+      (k !== 'department' || showManova) &&
+      /*
+        설문을 받은 링크면 번호를 준다. 완료 응답이 없어도 "분석이 없다" 는
+        안내 한 쪽이 나가므로 자리를 비워 두면 번호가 어긋난다.
+      */
+      (k !== 'field' || r.link.fieldSurvey),
+  ).forEach((k, i) => numbers.set(k, String(i + 1).padStart(2, '0')));
   const no = (key: (typeof CHAPTERS)[number]) => numbers.get(key) ?? '';
   /*
     만족도 장은 아래 보조 컴포넌트(SatisfactionDetail·SatisfactionSet)에서도
@@ -1230,7 +1238,30 @@ export function CompanyReportView({
         </Chapter>
       )}
 
-      {/* ── 12 다음 단계 제안 ────────────────────────────── */}
+      {/* ── 현업 적용도 ──────────────────────────────────── */}
+      {r.fieldSurvey ? (
+        <>
+          <FieldPage1 f={r.fieldSurvey} no={no('field')} />
+          <FieldPage2 f={r.fieldSurvey} no={no('field')} />
+        </>
+      ) : (
+        r.link.fieldSurvey && (
+          <Chapter
+            no={no('field')}
+            title="현업 적용 현황과 효과"
+            description="현업 적용도 설문 완료 응답이 없어 분석을 제공하지 않습니다."
+          >
+            <Lead>
+              {[
+                '이 검사는 현업 적용도 설문을 함께 받도록 발급되었으나, 설문까지 끝낸 응답이 없습니다.',
+                '응답이 들어온 뒤에 보고서를 다시 생성하면 이 자리에 분석이 실립니다.',
+              ]}
+            </Lead>
+          </Chapter>
+        )
+      )}
+
+      {/* ── 다음 단계 제안 ───────────────────────────────── */}
       <Chapter
         no={no('next')}
         title="다음 단계 제안"
@@ -1824,4 +1855,285 @@ function extremes(competencies: { short: string; diff: number | null }[]): [stri
 
 function profileName(r: CompanyReport, id: string): string {
   return r.profile.rows.find((p) => p.id === id)?.name ?? id;
+}
+
+/* ── 현업 적용도 ─────────────────────────────────────────── */
+
+/** 사례 한 건에 내어 주는 최대 글자 수. 이보다 길면 끊는다 — 한 사람이 지면을 다 쓴다. */
+const CASE_MAX_CHARS = 170;
+
+/** 싣는 사례 수. 이 장은 현황을 보이는 자리라 수치보다 사례를 넉넉히 둔다. */
+const CASE_SHOWN = 5;
+
+/** 비율 한 칸. 분모가 0 이면 0% 가 아니라 "산출 불가" 라고 적는다. */
+function FieldStat({ label, rate, note }: { label: string; rate: Rate; note: string }) {
+  return (
+    <div className="bg-gray-0 rounded-[16px] px-5 py-4">
+      <p className="txt-c1-bold text-gray-500">{label}</p>
+      <p className="mt-1.5 text-[26px] leading-[1.2] font-bold text-gray-900 tabular-nums">
+        {rate.pct === null ? (
+          <span className="txt-st2-regular text-gray-400">산출 불가</span>
+        ) : (
+          <>
+            {rate.pct}
+            <span className="txt-st2-bold">%</span>
+          </>
+        )}
+      </p>
+      <p className="txt-c2-regular mt-1 text-gray-400 tabular-nums">
+        {rate.n} / {rate.of}명
+      </p>
+      <p className="txt-c2-regular mt-1.5 leading-[1.5] text-gray-500">{note}</p>
+    </div>
+  );
+}
+
+/**
+ * 보기별 분포를 가로 막대로. 0 인 보기도 남긴다 — 빠지면 무엇을 안 골랐는지 모른다.
+ *
+ * narrow 는 두 칸으로 나눠 놓을 때 쓴다. 전체 폭에 맞춰 잡은 보기 이름 칸을
+ * 그대로 두면 막대 자리가 30px 도 남지 않아 눈금 구실을 못 한다.
+ */
+function FieldBars({ rows, max, narrow }: { rows: Share[]; max?: number; narrow?: boolean }) {
+  const top = max === undefined ? rows : rows.slice(0, max);
+  return (
+    <ul className={narrow ? 'space-y-1.5' : 'space-y-2'}>
+      {top.map((r) => (
+        <li key={r.code} className={cn('flex items-center', narrow ? 'gap-2' : 'gap-3')}>
+          <span
+            className={cn(
+              'txt-c1-regular shrink-0 text-gray-500',
+              narrow ? 'w-[94px] leading-[1.35]' : 'w-[180px]',
+            )}
+          >
+            {narrow ? (r.short ?? r.label) : r.label}
+          </span>
+          <span
+            className={cn(
+              'bg-adm-track-fill flex-1 overflow-hidden rounded-[4px]',
+              narrow ? 'h-4' : 'h-5',
+            )}
+          >
+            {/*
+              눈금은 100% 다. 가장 큰 보기에 맞춰 늘리면 1등이 늘 꽉 차 보여,
+              37% 를 고른 보기가 모두가 고른 것처럼 읽힌다.
+            */}
+            <span
+              className="bg-adm-brand block h-full rounded-[4px]"
+              style={{ width: `${r.pct}%` }}
+            />
+          </span>
+          <span
+            className={cn(
+              'txt-c1-bold shrink-0 text-right whitespace-nowrap text-gray-900 tabular-nums',
+              narrow ? 'w-[84px]' : 'w-[86px]',
+            )}
+          >
+            {r.pct}% · {r.n}명
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function FieldPage1({ f, no }: { f: FieldReport; no: string }) {
+  return (
+    <Chapter
+      no={no}
+      title="현업 적용 현황과 효과"
+      description={`교육에서 배운 것을 실제 업무에 얼마나 적용했는지 물었습니다. 설문을 끝낸 ${f.n}명의 응답입니다.`}
+    >
+      <Lead>
+        {[
+          "역량 검사는 '할 수 있는가'를, 이 장은 '실제로 했는가'를 봅니다. 서로 다른 것이라 점수에 합치지 않습니다.",
+          '시간과 품질의 변화는 응답자가 체감한 것입니다. 측정값이 아니므로 비용으로 환산하지 않았고, 구간을 평균 내지도 않았습니다.',
+        ]}
+      </Lead>
+
+      <Block title="적용 요약">
+        <div className="grid grid-cols-2 gap-3">
+          <FieldStat
+            label="실제 업무 적용"
+            rate={f.applied}
+            note="연습·테스트에 그치지 않고 실제 업무에 적용한 사람"
+          />
+          <FieldStat
+            label="이어서 활용"
+            rate={f.repeated}
+            note="한 번에 그치지 않고 가끔 이상 쓰고 있는 사람"
+          />
+          <FieldStat
+            label="처리 시간 감소"
+            rate={f.timeCut}
+            note="적용 전보다 처리 시간이 줄었다고 답한 사람"
+          />
+          <FieldStat
+            label="결과물 품질 향상"
+            rate={f.qualityUp}
+            note="적용 전보다 결과물 품질이 좋아졌다고 답한 사람"
+          />
+        </div>
+      </Block>
+
+      <Block title="적용 단계" description={`응답 ${f.n}명 · 하나 선택`}>
+        <FieldBars rows={f.stages} />
+      </Block>
+
+      {f.tasks.some((t) => t.n > 0) && (
+        <Block title="적용한 업무" description={`응답 ${f.n}명 · 하나 선택`}>
+          <FieldBars rows={f.tasks.filter((t) => t.n > 0).sort((a, b) => b.n - a.n)} max={5} />
+        </Block>
+      )}
+
+      {/*
+        "비교하기 어려움" 은 막대에 이미 한 줄로 들어 있다. 아래에 같은 수를
+        다시 적으면 두 번 세는 것처럼 보인다.
+      */}
+      <Block title="체감한 변화" description={`응답 ${f.n}명 · 하나 선택`}>
+        <div className="grid grid-cols-2 gap-5">
+          <div>
+            <p className="txt-c1-bold mb-2 text-gray-900">처리 시간</p>
+            <FieldBars rows={f.timeSpread.filter((x) => x.n > 0)} narrow />
+          </div>
+          <div>
+            <p className="txt-c1-bold mb-2 text-gray-900">결과물 품질</p>
+            <FieldBars rows={f.qualitySpread.filter((x) => x.n > 0)} narrow />
+          </div>
+        </div>
+      </Block>
+
+      <Insight insight={{ paragraphs: fieldInsight(f) }} />
+    </Chapter>
+  );
+}
+
+function FieldPage2({ f, no }: { f: FieldReport; no: string }) {
+  return (
+    <Chapter
+      no={no}
+      title="현업 적용을 위한 후속 지원"
+      description="현업 적용을 막은 것과 응답자가 필요하다고 답한 지원입니다. 무엇을 할지는 마지막 장에서 다룹니다."
+    >
+      <Lead>
+        {[
+          '아래 둘은 여러 개를 고를 수 있는 문항이라 비율을 더하면 100%를 넘습니다. 그 문항에 답한 사람을 기준으로 통계를 냈습니다.',
+        ]}
+      </Lead>
+
+      <Block title="적용을 막은 것" description={multiNote(f.blockers)}>
+        {f.blockers.length === 0 ? (
+          <p className="txt-c1-regular text-gray-500">어려움을 고른 사람이 없습니다.</p>
+        ) : (
+          <FieldBars rows={f.blockers} max={5} />
+        )}
+      </Block>
+
+      <Block title="필요한 지원" description={multiNote(f.supports)}>
+        {f.supports.length === 0 ? (
+          <p className="txt-c1-regular text-gray-500">필요한 지원을 고른 사람이 없습니다.</p>
+        ) : (
+          <FieldBars rows={f.supports} max={5} />
+        )}
+      </Block>
+
+      {/*
+        여기에 "다음에 할 일" 을 규칙으로 만들어 붙였었다. 뺐다 — 무엇을 할지는
+        마지막 장(다음 단계 제안)이 이미 다루고, 이 장이 할 일은 현황을 있는
+        그대로 보이는 것이다. 그 자리를 사례에 내어 준다.
+      */}
+      <FieldCases cases={f.cases} />
+    </Chapter>
+  );
+}
+
+/** 복수 선택 문항임을 블록마다 밝힌다. 합이 100%를 넘는 이유가 제목 옆에 있어야 한다. */
+function multiNote(rows: Share[]): string | undefined {
+  if (rows.length === 0) return undefined;
+  // 이 장이 생기기 전에 발행한 payload 에는 분모가 없다. 그때는 수를 빼고 적는다.
+  const of = rows[0].of;
+  return typeof of !== 'number' || of === 0
+    ? '최대 2개 선택 · 합이 100%를 넘습니다'
+    : `응답 ${of}명 · 최대 2개 선택(합이 100%를 넘습니다)`;
+}
+
+/**
+ * 적용 사례.
+ *
+ * 쓴 사람이 적으면 싣지 않는다. 한두 건만 올리면 그 회사 안에서 누가 썼는지
+ * 짐작되고, 몇 사람의 말이 전체의 사례처럼 읽힌다.
+ */
+function FieldCases({ cases }: { cases: string[] }) {
+  // 부서 평균을 가리는 기준과 같은 인원을 쓴다.
+  if (cases.length < MIN_GROUP_SIZE) return null;
+
+  // 짧은 것부터 채운다. 길이를 끊어 두어 한 건이 지면을 먹지 않는다.
+  const shown = [...cases].sort((a, b) => a.length - b.length).slice(0, CASE_SHOWN);
+
+  return (
+    <Block title="적용 사례" description={`작성 ${cases.length}건 가운데 ${shown.length}건`}>
+      <ul className="space-y-2">
+        {shown.map((text, i) => (
+          <li key={i} className="bg-gray-0 rounded-[16px] border border-gray-100 px-4 py-2.5">
+            <p className="txt-c1-regular leading-[1.7] text-gray-700">
+              {text.length > CASE_MAX_CHARS ? `${text.slice(0, CASE_MAX_CHARS).trimEnd()}…` : text}
+            </p>
+          </li>
+        ))}
+      </ul>
+      {/*
+        사례는 응답자가 쓴 그대로 싣는다. 요약하거나 다듬지 않는다 — 없는 말을
+        지어낼 위험이 있고, 이 한 줄이 기업에 그대로 전달된다.
+      */}
+      <TableNote>
+        응답자가 적은 대표 내용을 그대로 옮겼습니다. 개인을 특정할 수 있는 표현은 싣지 않습니다.
+      </TableNote>
+    </Block>
+  );
+}
+
+/**
+ * 1쪽의 요약 문장.
+ *
+ * 응답에 있는 것만 말한다. 교육이 이 변화를 일으켰다고는 쓰지 않는다 —
+ * 비교할 대조군이 없고, 그 사이에 다른 일도 있었다.
+ */
+function fieldInsight(f: FieldReport): string[] {
+  const out: string[] = [];
+
+  const applied = f.applied.pct ?? 0;
+  const repeated = f.repeated.pct ?? 0;
+  out.push(
+    `설문을 끝낸 ${f.n}명 가운데 ${f.applied.n}명(${applied}%)이 배운 것을 실제 업무에 적용했습니다. ` +
+      (repeated >= applied / 2
+        ? `그중 상당수가 한 번에 그치지 않고 이어서 쓰고 있습니다(${f.repeated.n}명, ${repeated}%).`
+        : `다만 이어서 쓰는 사람은 ${f.repeated.n}명(${repeated}%)으로, 한 번 해 보고 멈춘 경우가 더 많습니다.`),
+  );
+
+  if (f.timeCut.pct !== null || f.qualityUp.pct !== null) {
+    // 분모가 앞, 분자가 뒤다. 뒤집어 적으면 "32명 중 49명" 같은 말이 된다.
+    const parts: string[] = [];
+    if (f.timeCut.pct !== null)
+      parts.push(
+        `처리 시간이 줄었다는 응답이 ${f.timeCut.of}명 중 ${f.timeCut.n}명(${f.timeCut.pct}%)`,
+      );
+    if (f.qualityUp.pct !== null)
+      parts.push(
+        `결과물 품질이 좋아졌다는 응답이 ${f.qualityUp.of}명 중 ${f.qualityUp.n}명(${f.qualityUp.pct}%)`,
+      );
+    out.push(
+      `${parts.join(', ')}입니다. 응답자가 체감한 변화이며, 측정한 값이 아닙니다. ` +
+        '비교하기 어렵다고 답한 사람은 제외하고 통계를 냈습니다.',
+    );
+  }
+
+  const top = f.blockers[0];
+  if (top) {
+    out.push(
+      `적용을 막은 것으로는 "${top.label}"을(를) 가장 많이 꼽았습니다(${top.n}명, ${top.pct}%). ` +
+        '다음 장에 무엇이 필요한지와 함께 적었습니다.',
+    );
+  }
+
+  return out;
 }

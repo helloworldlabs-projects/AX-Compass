@@ -17,7 +17,7 @@ import { buildSubmitBody, toPostResponses } from '@/lib/admin/post-results';
 import type { Answers } from '@/lib/admin/ax-scoring';
 import type { PostResponse } from '@/lib/admin/post-stats';
 import type { ExamLink } from '@/types/postLink';
-import type { StoredPostResponse } from '@/types/postResponse';
+import type { FieldAnswersDto, StoredPostResponse } from '@/types/postResponse';
 import type { PreMember } from '@/types/reference';
 import { usePostLink } from './usePostLink';
 import { usePreMembers } from './useReference';
@@ -31,15 +31,17 @@ interface SubmitInput {
   name: string;
   department?: string | null;
   answers: Answers;
+  /** 현업 적용도 설문 답. 설문을 받지 않는 링크면 null */
+  fieldAnswers?: FieldAnswersDto | null;
 }
 
 /** 제출. 이름 공백은 하나로 맞추고, 채점해 점수와 함께 보낸다. */
 export const useSubmitPostResponse = () =>
   useMutation({
-    mutationFn: ({ slug, name, department = null, answers }: SubmitInput) =>
+    mutationFn: ({ slug, name, department = null, answers, fieldAnswers = null }: SubmitInput) =>
       postResponseService.createPostResponse(
         slug,
-        buildSubmitBody(name.trim().replace(/\s+/g, ' '), department, answers),
+        buildSubmitBody(name.trim().replace(/\s+/g, ' '), department, answers, fieldAnswers),
       ),
   });
 

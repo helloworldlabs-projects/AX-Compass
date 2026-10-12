@@ -28,6 +28,8 @@ export const mapExamLink = (dto: ExamLinkDto): ExamLink => {
     closedOn: dto.closedAt?.slice(0, 10) ?? null,
     closedBy: dto.closedBy,
     offerings: dto.offerings,
+    // 아직 안 내려주는 서버면 "설문 없는 링크" 로 읽는다.
+    fieldSurvey: dto.fieldSurvey ?? false,
   };
 };
 
@@ -38,6 +40,7 @@ const mapPublicLink = (dto: PublicLinkDto): PublicLink => ({
   dueOn: dto.dueOn,
   // 닫혔거나 마감일이 지났으면 받지 않는다.
   closed: !dto.accepting,
+  fieldSurvey: dto.fieldSurvey ?? false,
 });
 
 const TOKEN = { tokenKey: 'axcompass:opsToken' } as const;

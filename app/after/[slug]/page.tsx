@@ -46,7 +46,8 @@ function PreviewExam() {
           문항 미리보기는 로그인한 관리자에게만 열립니다.
         </Message>
       ) : (
-        <ExamFlow slug="preview" cohort={PREVIEW_COHORT} preview />
+        /* 미리보기에서는 설문까지 보여 준다 — 운영자가 확인할 수 있어야 한다. */
+        <ExamFlow slug="preview" cohort={PREVIEW_COHORT} preview fieldSurvey />
       )}
     </Shell>
   );
@@ -85,6 +86,7 @@ function LinkExam({ slug }: { slug: string }) {
             course: '사후검사',
             dueOn: link.data.dueOn,
           }}
+          fieldSurvey={link.data.fieldSurvey}
         />
       )}
     </Shell>

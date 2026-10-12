@@ -17,18 +17,26 @@ import { EXAM_ITEMS, SPEC_META } from '@/lib/admin/instrument';
 import type { PostResponse, Scores } from '@/lib/admin/post-stats';
 import type { PreMember } from '@/types/reference';
 import type {
+  FieldAnswersDto,
   PostScoreDto,
   StoredPostResponse,
   SubmitPostResponseRequestDto,
 } from '@/types/postResponse';
+import { FIELD_VERSION } from '@/lib/admin/field-survey';
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
 
-/** 제출 본문. 원본 saveResponse 와 같은 값을 만든다. */
+/**
+ * 제출 본문. 원본 saveResponse 와 같은 값을 만든다.
+ *
+ * 현업 적용도 설문은 받은 링크에서만 붙인다. 설문이 없는 링크에 답을 실어
+ * 보내거나 반대로 비워 보내면 서버가 400 으로 되돌린다(OPS_013·014).
+ */
 export function buildSubmitBody(
   name: string,
   department: string | null,
   answers: Answers,
+  fieldAnswers: FieldAnswersDto | null = null,
 ): SubmitPostResponseRequestDto {
   const result = score(EXAM_ITEMS, answers);
 
@@ -80,6 +88,8 @@ export function buildSubmitBody(
       ];
     }),
     scores,
+    surveyVersion: fieldAnswers === null ? null : FIELD_VERSION,
+    fieldAnswers,
   };
 }
 
@@ -119,6 +129,8 @@ export function toPostResponses(
       pre: pre ? preScores(pre) : null,
       postProfile: r.profile ?? 'BALANCED',
       preProfile: (pre?.profile ?? null) as ProfileId | null,
+      fieldSurveyVersion: r.fieldSurveyVersion,
+      fieldAnswers: r.fieldAnswers,
     };
   });
 }
