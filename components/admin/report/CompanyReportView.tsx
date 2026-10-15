@@ -1709,7 +1709,8 @@ function CourseDetail({
                 className="txt-c2-bold bg-gray-0 rounded-full px-3 py-1.5 text-gray-500 tabular-nums"
               >
                 {i + 1}일차 {l.date}
-                {l.start && l.end ? ` ${l.start}~${l.end}` : ''}
+                {/* 운영 기록은 "09:00:00" 처럼 초까지 온다. 시·분만 적는다. */}
+                {l.start && l.end ? ` ${l.start.slice(0, 5)}~${l.end.slice(0, 5)}` : ''}
               </span>
             ))}
           </div>
@@ -1907,14 +1908,23 @@ function extremes(competencies: { short: string; diff: number | null }[]): [stri
   const sorted = [...withDiff].sort((a, b) => b.diff! - a.diff!);
   const top = sorted[0];
   const bottom = sorted[sorted.length - 1];
+  /*
+    같은 점수가 여럿이면 함께 적는다. 하나만 고르면 동점일 때 정렬 순서에 따라
+    다음 단계 제안(recommend.ts)과 다른 역량이 나온다.
+  */
+  const names = (v: number | null) =>
+    withDiff
+      .filter((c) => c.diff === v)
+      .map((c) => c.short)
+      .join('·');
   return [
     [
       top.diff! >= 0 ? '가장 많이 오른 역량' : '가장 덜 내린 역량',
-      `${top.short} (${delta(top.diff)}점)`,
+      `${names(top.diff)} (${delta(top.diff)}점)`,
     ],
     [
       bottom.diff! <= 0 ? '가장 많이 내린 역량' : '가장 덜 오른 역량',
-      `${bottom.short} (${delta(bottom.diff)}점)`,
+      `${names(bottom.diff)} (${delta(bottom.diff)}점)`,
     ],
   ];
 }

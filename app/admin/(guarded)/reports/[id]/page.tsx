@@ -157,7 +157,8 @@ function Published({ r, record }: { r: CompanyReport; record: ReportRecord }) {
   return (
     <>
       {/* 인쇄로 PDF 를 만들 때 이 제목이 파일 이름이 된다. 기업 이름을 넣어 파일끼리 가려지게 한다. */}
-      <title>{`${BASE_TITLE} [${r.link.org}]`}</title>
+      {/* 운영 기록의 기업명 끝에 공백이 붙어 오는 일이 있다. PDF 기본 파일 이름이 "[대웅×에스디푸드 ]" 가 된다. */}
+      <title>{`${BASE_TITLE} [${r.link.org.trim()}]`}</title>
 
       <div className="no-print flex items-center justify-between">
         {back}

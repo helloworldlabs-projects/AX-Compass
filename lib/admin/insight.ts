@@ -2,7 +2,7 @@ import { rankByPost, type CompanyReport } from '@/lib/admin/report';
 import { levelOf, rating, score } from '@/lib/admin/metrics';
 import { effectPhrase } from '@/lib/admin/stats';
 import type { Recommendation } from '@/lib/admin/recommend';
-import { with_ } from '@/lib/admin/josa';
+import { josa, with_ } from '@/lib/admin/josa';
 
 /**
  * 해설 문단.
@@ -160,9 +160,18 @@ export function overallInsight(r: CompanyReport): ChapterInsight {
             : paired.up === 0
               ? `${paired.n}명 모두 내렸습니다.`
               : `${paired.up}명이 오르고 ${paired.down}명이 내렸습니다.`,
-          welch.significant === paired.significant
-            ? '전체 비교와 같은 방향이라, 결과를 그대로 읽어도 무리가 없습니다.'
-            : '전체 비교와 결론이 다릅니다. 응답한 사람들이 한쪽으로 쏠렸을 가능성을 먼저 확인해야 합니다.',
+          /*
+            같은 방향이라도 인원이 적으면 "그대로 읽어도 된다" 고 맺지 않는다.
+            핵심 요약과 위 문장에서 이미 "기업 전체로 보기 어렵다" 고 해 놓고
+            여기서 뒤집으면, 한 보고서 안에서 말이 엇갈린다.
+          */
+          welch.significant !== paired.significant
+            ? '전체 비교와 결론이 다릅니다. 응답한 사람들이 한쪽으로 쏠렸을 가능성을 먼저 확인해야 합니다.'
+            : paired.n < 10
+              ? `전체 비교와 같은 방향입니다. 다만 ${paired.n}명뿐이라 방향을 뒷받침하는 정도로만 읽어 주세요.`
+              : small || (r.coverage.rate !== null && r.coverage.rate < 50)
+                ? '전체 비교와 같은 방향입니다. 다만 응답한 사람이 적어, 기업 전체로 넓혀 읽기는 어렵습니다.'
+                : '전체 비교와 같은 방향이라, 결과를 그대로 읽어도 무리가 없습니다.',
         )
       : `이름이 이어진 사람이 ${r.coverage.matchedN}명뿐이라 같은 사람끼리의 비교로는 뒷받침하지 못했습니다.`,
   );
@@ -236,12 +245,21 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
     }
   }
 
+  /*
+    거리가 좁혀졌는지는 같은 사람끼리 본다(report.ts 의 gaps 설명). 전체 평균으로
+    말하면 바로 아래 표의 "같은 사람" 숫자와 방향이 어긋날 수 있다 — 전체로는
+    -6.4 → -1.9 로 좁혀졌는데 같은 5명은 3.7 → 9.8 로 벌어진 보고서가 있었다.
+  */
   if (sr.diff !== null && sb.diff !== null) {
-    const closed = Math.abs(sr.post ?? 0) < Math.abs(sr.pre ?? 0);
+    const byPair = sr.paired.usable;
+    const before = byPair ? sr.paired.meanBefore : (sr.pre ?? 0);
+    const after = byPair ? sr.paired.meanAfter : (sr.post ?? 0);
+    const closed = Math.abs(after) < Math.abs(before);
+    const who = byPair ? `이름이 이어진 ${sr.paired.n}명만 보면 ` : '';
     pieces.push(
       closed
-        ? '교육 전보다 인식과 판단의 거리가 좁혀졌습니다.'
-        : '교육 전과 비교하면 이 거리가 좁혀지지는 않았습니다.',
+        ? `${who}교육 전보다 인식과 판단의 거리가 좁혀졌습니다.`
+        : `${who}교육 전과 비교해 인식과 판단의 거리가 좁혀지지는 않았습니다.`,
     );
   }
 
@@ -290,12 +308,25 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
 
   const second = para(...pieces);
 
+  /*
+    편차는 있는 그대로만 적는다.
+
+    여기서 "전사 공통 과정으로" 처럼 운영 방식을 권하면, 등급 분포(07장)와
+    종합 제언(11장)이 "수준을 나눠 여는 편이 낫다" 고 하는 보고서에서 권고가
+    서로 부딪힌다. 운영 방식은 등급 분포를 근거로 한 곳에서만 말한다.
+
+    1점에 못 미치는 차이는 움직였다고 하지 않는다. 0.1점이 늘었다고 "거리가
+    벌어졌으므로" 라고 쓴 보고서가 있었다.
+  */
+  const spread = r.gaps.spread.diff;
   const third =
-    r.gaps.spread.diff === null
+    spread === null
       ? null
-      : r.gaps.spread.diff < 0
-        ? `역량 간 편차는 ${abs(r.gaps.spread.diff)}점 줄었습니다. 특정 역량만 오른 것이 아니라 고르게 올랐다는 뜻으로, 다음 교육은 전사 공통 과정으로 이어 가도 좋습니다.`
-        : `역량 간 편차가 ${fmt(r.gaps.spread.diff)}점 늘었습니다. 변화한 역량과 그대로인 역량의 거리가 벌어졌으므로, 다음 교육은 뒤처진 역량을 중심으로 좁혀 잡는 편이 낫습니다.`;
+      : Math.abs(spread) < 1
+        ? '네 역량 사이의 편차는 교육 전과 거의 같습니다.'
+        : spread < 0
+          ? `역량 간 편차는 ${abs(spread)}점 줄었습니다. 특정 역량만 오른 것이 아니라 네 역량이 고르게 올랐다는 뜻입니다.`
+          : `역량 간 편차가 ${fmt(spread)}점 늘었습니다. 일부 역량이 다른 역량보다 크게 올라, 역량 사이의 차이가 벌어졌다는 뜻입니다.`;
 
   return { paragraphs: [first, second, third].filter(Boolean) as string[] };
 }
@@ -426,12 +457,13 @@ export function levelRowInsight(l: CompanyReport['levels'][number]): string {
   const postHigh = share(l.post, l.postN, ['중급', '고급']);
   const preHigh = share(l.pre, l.preN, ['중급', '고급']);
 
+  // "대표 등급" 은 가장 많은 사람이 속한 등급이다. 평균 점수로 정한 등급과 다를 수 있어 처음에 밝힌다.
   const moved =
     l.preMode && l.postMode && l.preMode !== l.postMode
       ? rank(l.postMode) > rank(l.preMode)
-        ? `대표 등급이 ${l.preMode}에서 ${l.postMode}으로 올라갔습니다.`
-        : `대표 등급이 ${l.preMode}에서 ${l.postMode}으로 내려갔습니다.`
-      : `대표 등급은 ${l.postMode ?? '—'}으로 그대로입니다.`;
+        ? `가장 많은 사람이 속한 등급(대표 등급)이 ${l.preMode}에서 ${l.postMode}으로 올라갔습니다.`
+        : `가장 많은 사람이 속한 등급(대표 등급)이 ${l.preMode}에서 ${l.postMode}으로 내려갔습니다.`
+      : `가장 많은 사람이 속한 등급(대표 등급)은 ${l.postMode ?? '—'}으로 그대로입니다.`;
 
   const body =
     postLow >= 80
@@ -465,7 +497,19 @@ export function levelInsight(r: CompanyReport): ChapterInsight {
 
   const first = levelRowInsight(overall);
 
+  /*
+    핵심 요약의 사후 등급은 평균 점수로 정하고, 여기의 대표 등급은 사람 수로
+    센다. 둘이 다르면 "요약은 중급인데 여기는 고급" 으로 읽혀 어느 쪽이 맞는지
+    묻게 된다 — 응답이 적은 기업에서 실제로 갈렸다.
+  */
+  const meanLevel = levelOf(r.overall.post);
+  const modeNote =
+    meanLevel && overall.postMode && meanLevel !== overall.postMode
+      ? `핵심 요약의 사후 등급(${meanLevel})은 평균 점수로 정한 것이라, 사람 수로 센 대표 등급과 다릅니다.`
+      : null;
+
   const second = para(
+    modeNote,
     risen.length > 0 &&
       `역량별로는 ${list(
         risen.map((l) => `${l.name}(${l.preMode}→${l.postMode})`),
@@ -784,18 +828,29 @@ export function satisfactionInsight(r: CompanyReport): ChapterInsight {
   */
   const paired = r.overall.paired;
   const high = overall !== null && overall >= 4.5;
-  const grew = paired.usable && paired.significant === true && (r.overall.diff ?? 0) > 0;
+  /*
+    만족도 응답자, 사후 응답자, 이름이 이어진 사람은 서로 다른 무리다. 그래서
+    여기서 말하는 변화는 두 검사에 모두 응한 사람의 것으로 적고, 숫자도 그
+    사람들의 평균 변화를 쓴다(전체 대 전체 차이가 아니다). "올랐다" 고 말할지도
+    같은 숫자로 고른다 — 다른 숫자로 고르면 "−3점 올랐습니다" 가 나올 수 있다.
+  */
+  const pairedDiff = Math.round((paired.meanAfter - paired.meanBefore) * 10) / 10;
+  const grew = paired.usable && paired.significant === true && pairedDiff > 0;
 
   const third = para(
     '만족도는 교육을 어떻게 받아들였는지에 대한 응답이고, 뒤에서 다루는 역량 변화는 실제로 무엇이 달라졌는지에 대한 측정입니다. 두 가지는 같은 방향으로 나타나기도 하고 어긋나기도 하므로, 만족도가 높다는 사실만으로 역량이 향상되었다고 판단하지 않습니다.',
     !paired.usable
-      ? '이번 회차는 같은 인원을 대상으로 한 전후 비교가 성립하지 않아, 만족도와 역량 변화를 비교하기 어렵습니다.'
+      ? '이번 회차는 사전·사후검사에 모두 응한 사람이 적어 전후 비교가 성립하지 않아, 만족도와 역량 변화를 비교하기 어렵습니다.'
       : high && grew
-        ? `이번 회차는 만족도가 ${overall}점으로 높고, 같은 인원의 종합 역량도 ${fmt(r.overall.diff)}점 향상되어 통계적으로도 확인되었습니다. 교육에 대한 평가와 실제 역량 변화가 같은 방향으로 나타난 경우로, 후속 과정을 연계하기에 적합한 상태입니다.`
+        ? `이번 회차는 만족도가 ${overall}점으로 높고, 두 검사에 모두 응한 ${paired.n}명의 종합 역량도 ${fmt(pairedDiff)}점 올랐습니다. ${
+            paired.n < 10
+              ? '다만 인원이 적어 방향을 확인하는 정도로 읽어 주세요. '
+              : '이 변화는 통계적으로도 확인됩니다. '
+          }교육에 대한 평가와 실제 역량 변화가 같은 방향으로 나타난 경우로, 후속 과정을 연계하기에 적합한 상태입니다.`
         : high && !grew
-          ? `이번 회차는 만족도가 ${overall}점으로 높은 반면, 같은 인원의 종합 역량 변화는 통계적으로 뚜렷하지 않습니다. 교육에 대한 평가가 곧 역량 향상을 의미하지는 않으므로, 후속 과정은 만족도보다 아래의 역량별 결과를 근거로 설계하는 것이 적절합니다.`
+          ? `이번 회차는 만족도가 ${overall}점으로 높은 반면, 두 검사에 모두 응한 사람들의 종합 역량 변화는 통계적으로 뚜렷하지 않습니다. 교육에 대한 평가가 곧 역량 향상을 의미하지는 않으므로, 후속 과정은 만족도보다 아래의 역량별 결과를 근거로 설계하는 것이 적절합니다.`
           : !high && grew
-            ? `이번 회차는 만족도가 ${rating(overall)}점으로 높지 않은데, 같은 사람들의 종합 역량은 ${fmt(r.overall.diff)}점 올랐습니다. 난도나 진행 방식에는 부담이 있었으나 배움 자체는 일어난 것이므로, 내용보다 운영 방식을 보완하는 편이 낫습니다.`
+            ? `이번 회차는 만족도가 ${rating(overall)}점으로 높지 않은데, 두 검사에 모두 응한 사람들의 종합 역량은 ${fmt(pairedDiff)}점 올랐습니다. 난도나 진행 방식에는 부담이 있었으나 배움 자체는 일어난 것이므로, 내용보다 운영 방식을 보완하는 편이 낫습니다.`
             : '이번 회차는 만족도와 역량 변화 모두 뚜렷하게 나타나지 않았습니다. 과정 내용과 운영 방식을 함께 점검할 필요가 있습니다.',
   );
 
@@ -880,21 +935,21 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
       `사후 응답률이 ${r.coverage.rate}%입니다. 다음 회차에는 응답 기간을 늘리거나 부서장을 통해 독려해, 기업 전체의 변화로 말할 수 있는 수준까지 모으는 것이 좋겠습니다.`,
     );
   }
-  if (r.coverage.postN - r.coverage.matchedN > 0) {
-    gaps.push(
-      `사전검사와 이어지지 않은 응답이 ${r.coverage.postN - r.coverage.matchedN}건 있습니다. 응시 안내에 "사전검사 때와 같은 이름"을 굵게 적으면 상당수가 줄어듭니다.`,
-    );
-  }
+  /*
+    "사전검사와 이어지지 않은 응답" 을 고치는 일(응시 안내 문구)은 우리 몫이라
+    기업에 건네는 종합 제언에 싣지 않는다.
+  */
 
   if (picks.length > 0) {
     actions.push(
-      `${with_(`${picks[0].course.shortTitle}(${picks[0].course.hours}시간)`, '을')} 다음 과정으로 권합니다. ${picks[0].effect}`,
+      `${picks[0].course.shortTitle}(${picks[0].course.hours}시간)${josa(picks[0].course.shortTitle, '을')} 다음 과정으로 권합니다. ${picks[0].effect}`,
     );
   }
   if (picks.length > 1) {
     actions.push(
-      `이어서 ${with_(
-        list(picks.slice(1).map((p) => `${p.course.shortTitle}(${p.course.hours}시간)`)),
+      // 조사는 마지막 과정 이름에 맞춘다 — 괄호 속 "시간" 이 아니다.
+      `이어서 ${list(picks.slice(1).map((p) => `${p.course.shortTitle}(${p.course.hours}시간)`))}${josa(
+        picks[picks.length - 1].course.shortTitle,
         '을',
       )} 검토해 보실 수 있습니다.`,
     );
@@ -904,16 +959,23 @@ export function conclusion(r: CompanyReport, picks: Recommendation[]): Conclusio
       '소속에 따라 역량 구성이 다르므로, 전사 공통 과정과 직무별 과정을 나눠 운영하는 편이 효율적입니다.',
     );
   }
+  /*
+    운영 방식 권고는 07장(등급 분포)과 같은 기준으로 고른다. 결론만 같고 이유가
+    다르면 — 중급 이상이 75% 인데 "등급이 여러 구간에 퍼져 있으므로" — 두 장이
+    서로 다른 근거를 대는 것처럼 읽힌다.
+  */
   const overallLevel = r.levels.find((l) => l.name === '종합');
   if (overallLevel && overallLevel.postN > 0) {
-    const low =
-      Math.round(
-        ((overallLevel.post['입문'] + overallLevel.post['초급']) / overallLevel.postN) * 100,
-      ) >= 80;
+    const pct = (keys: ('입문' | '초급' | '중급' | '고급')[]) =>
+      Math.round((keys.reduce((a, k) => a + overallLevel.post[k], 0) / overallLevel.postN) * 100);
+    const low = pct(['입문', '초급']) >= 80;
+    const high = pct(['중급', '고급']) >= 50;
     actions.push(
       low
         ? '구성원 대부분이 입문·초급에 몰려 있어, 수준을 나누기보다 공통 과정으로 기초를 함께 올리는 편이 낫습니다.'
-        : '등급이 여러 구간에 퍼져 있으므로, 한 과정으로 묶기보다 수준을 나눠 여는 편이 낫습니다.',
+        : high
+          ? '구성원 절반 이상이 중급 이상이므로, 공통 교육보다 직무별·주제별 심화 과정으로 나누어 여는 편이 낫습니다.'
+          : '등급이 여러 구간에 퍼져 있으므로, 한 과정으로 묶기보다 수준을 나눠 여는 편이 낫습니다.',
     );
   }
 
