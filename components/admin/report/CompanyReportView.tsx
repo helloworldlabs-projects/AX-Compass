@@ -45,7 +45,6 @@ import {
 } from './Charts';
 import {
   Block,
-  Caveat,
   Chapter,
   CoverSheet,
   Figure,
@@ -278,7 +277,11 @@ export function CompanyReportView({
                 '응답 범위',
                 `사전 ${r.coverage.preN}명 중 ${r.coverage.postN}명이 사후에 응했습니다${
                   r.coverage.rate === null ? '' : ` (응답률 ${r.coverage.rate}%)`
-                }. 이름이 이어진 사람은 ${r.coverage.matchedN}명입니다.`,
+                }. 이름이 이어진 사람은 ${r.coverage.matchedN}명입니다.${
+                  lowCoverage
+                    ? ' 절반에 못 미쳐, 위 변화를 기업 전체의 변화로 보기는 어렵습니다.'
+                    : ''
+                }`,
               ],
             ].map(([label, value]) => (
               <div key={label} className="flex gap-6 py-3 first:pt-0 last:pb-0">
@@ -338,13 +341,11 @@ export function CompanyReportView({
           )}
         </Block>
 
-        {lowCoverage && (
-          <Caveat>
-            사후검사에 응한 사람이 사전 응시자의 {r.coverage.rate}%입니다. 절반에 못 미치므로, 아래
-            변화를 <b className="text-gray-900">기업 전체의 변화</b>라고 말하기 어렵습니다. 응답한
-            사람들이 한쪽으로 쏠렸을 가능성을 함께 고려해 주세요.
-          </Caveat>
-        )}
+        {/*
+          응답률이 절반에 못 미친다는 경고는 진단 요약의 "응답 범위" 줄에 붙였다.
+          여기 따로 상자로 두었더니 응답률이 낮은 기업에서 이 지면이 A4 를 넘겨,
+          경고 끝줄과 바닥글이 다음 장으로 밀려났다. 응답률 숫자도 이미 그 줄에 있다.
+        */}
       </Chapter>
 
       {/* ── 02 교육 개요 ─────────────────────────────────── */}
@@ -1251,13 +1252,6 @@ export function CompanyReportView({
             />
             <Figure label="임원 응답" value={org.executives} unit="명" />
           </div>
-
-          {org.executives < MIN_GROUP_SIZE && (
-            <Caveat>
-              임원 응답이 {org.executives}명입니다. 평균이라 해도 개인의 답이 그대로 드러날 수
-              있으니, 기업에 전달할 때 이 장을 실을지 판단해 주세요.
-            </Caveat>
-          )}
 
           <Block title="관점별 현재와 목표">
             <div className="mb-6">
