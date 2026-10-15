@@ -85,12 +85,21 @@ export function recommendCourses(
 
   /* ── 3) 교육이 닿지 않은 역량 ────────────────────────── */
 
+  /*
+    가장 적게 변한 역량이 둘 이상이면 문장에는 함께 적는다. 하나만 적으면
+    동점일 때 핵심 요약과 다른 역량이 나온다 — 이해·책임이 둘 다 +22.8점인
+    보고서에서 요약은 "책임", 여기는 "이해" 라고 적었다.
+
+    점수는 예전처럼 맨 앞 하나에만 준다. 동점인 역량 모두에 주면 그 역량들을
+    다루는 과정이 함께 올라와, 문장을 맞추려던 고침이 추천 순위까지 바꾼다.
+  */
   const byChange = r.competencies.filter((c) => c.diff !== null).sort((a, b) => a.diff! - b.diff!);
+  const tied = byChange.filter((c) => c.diff === byChange[0]?.diff);
   const leastMoved = byChange[0];
-  if (leastMoved && byChange.length > 1) {
+  if (leastMoved && byChange.length > tied.length) {
     signals.push({
       weight: 4,
-      reason: `${leastMoved.short} 역량은 교육 뒤에도 가장 적게 변화했습니다 (${fmt(leastMoved.diff)}점)`,
+      reason: `${tied.map((c) => c.short).join('·')} 역량은 교육 뒤에도 가장 적게 변화했습니다 (${fmt(leastMoved.diff)}점)`,
       match: (c) => c.competencies.includes(leastMoved.code as MemberCompetency),
     });
   }
@@ -150,7 +159,8 @@ export function recommendCourses(
   if (topGap && topGap.gap > 0) {
     signals.push({
       weight: 3,
-      reason: `경영진이 본 ${topGap.name} 관점의 목표 격차가 +${Math.round(topGap.gap)}로 가장 큽니다`,
+      // 10장 표와 같은 소수 한 자리로 적는다. 조사는 숫자를 읽은 소리에 맞춘다(+52.5로, +53으로).
+      reason: `경영진이 본 ${topGap.name} 관점의 목표 격차가 +${with_(String(Math.round(topGap.gap * 10) / 10), '으로')} 가장 큽니다`,
       match: (c) => c.maturityViews.some((v) => v.startsWith(topGap.name.slice(0, 3))),
     });
   }
