@@ -79,6 +79,53 @@ const CONCLUSION_LINES = 3;
 /** 한 지면에 넣는 교육 회차 수. 이보다 많으면 다음 쪽으로 넘긴다. */
 const COURSES_PER_SHEET = 6;
 
+/**
+ * 문항별 평균 표를 지면에 나눠 담는다.
+ *
+ * 줄 수를 고정해 끊으면 "넘칠 때만 넘긴다"가 되지 않는다. 문항이 짧아 한 줄씩
+ * 들어가는 기업은 열두 개도 한 쪽에 들어가는데, 고정 기준은 그런 표까지
+ * 쪼개 버린다. 반대로 기준을 올리면 문항이 긴 기업에서 지면이 찢어진다.
+ *
+ * 그래서 글자 수로 높이를 어림한다. 이 칸은 429px 폭에 11px 글자라 마흔 자쯤에서
+ * 줄이 바뀌고(실측: 40자까지 한 줄, 41자부터 두 줄), 한 줄짜리가 11.1mm,
+ * 두 줄짜리가 16.7mm 다 — 줄이 하나 늘 때마다 5.6mm.
+ */
+const CHARS_PER_LINE = 40;
+const ROW_FIRST_LINE_MM = 11.1;
+const ROW_EXTRA_LINE_MM = 5.6;
+
+/**
+ * 한 지면의 표가 쓸 수 있는 높이(mm).
+ *
+ * A4 297mm 에서 지면 머리글·장 제목·바닥글·여백이 68mm, 블록의 제목과 주석이
+ * 33mm, 표 머리가 11mm 를 먹는다. 남는 185mm 에서 조금 덜어 둔다 — 어림이
+ * 빗나가도 쪽이 찢어지지 않을 만큼의 여유다.
+ */
+const TABLE_BUDGET_MM = 178;
+
+const rowHeightMM = (text: string) =>
+  ROW_FIRST_LINE_MM +
+  (Math.max(1, Math.ceil(text.length / CHARS_PER_LINE)) - 1) * ROW_EXTRA_LINE_MM;
+
+/** 높이를 어림해 채운다. 다 들어가면 묶음은 하나다 — 그때는 지금과 똑같이 한 쪽이다. */
+function packQuestions<T extends { content: string }>(rows: T[]): T[][] {
+  const out: T[][] = [];
+  let group: T[] = [];
+  let used = 0;
+  for (const row of rows) {
+    const h = rowHeightMM(row.content);
+    if (group.length > 0 && used + h > TABLE_BUDGET_MM) {
+      out.push(group);
+      group = [];
+      used = 0;
+    }
+    group.push(row);
+    used += h;
+  }
+  if (group.length > 0) out.push(group);
+  return out;
+}
+
 /** 서술형 응답에서 문장으로 올릴 것을 고르는 기준이 되는 최소 길이. */
 const MEANINGFUL_LENGTH = 8;
 
@@ -631,7 +678,14 @@ export function CompanyReportView({
           <div className="flex items-center justify-center gap-6">
             <Radar
               axes={r.competencies.map((c) => ({ label: c.short, pre: c.pre, post: c.post }))}
-              maxWidth={252}
+              /*
+                상자를 옆으로 늘리고 여백을 줄여, 그려지는 높이는 그대로 둔 채
+                고리만 키운다(반지름 114 → 134). 252 로 두었을 때 이 지면은
+                297.3mm 로 A4 를 0.3mm 넘겨 바닥글이 다음 장으로 밀려났다.
+              */
+              width={420}
+              inset={26}
+              maxWidth={278}
             />
             <Legend
               direction="column"
@@ -1433,10 +1487,14 @@ function SatisfactionDetail({
 }) {
   return (
     <>
-      {questions.length > 0 && (
-        <Chapter no="03" title="교육 만족도" description={note} cont>
+      {/*
+        한 쪽에 들어가면 한 쪽으로 끝내고, 넘칠 때만 이어 간다. 다 들어가면
+        packQuestions 가 묶음을 하나만 만들므로 문항이 적은 기업에서는 지금과 같다.
+      */}
+      {packQuestions(questions).map((group, i, groups) => (
+        <Chapter key={`q-${i}`} no="03" title="교육 만족도" description={note} cont>
           <Block
-            title="문항별 평균"
+            title={groups.length > 1 ? `문항별 평균 (${i + 1}/${groups.length})` : '문항별 평균'}
             description={`별점 문항 ${questions.length}개 · ${SCALE_MAX}점 만점`}
           >
             <Table
@@ -1444,7 +1502,7 @@ function SatisfactionDetail({
               minWidth={640}
               columnWidths={[null, 88, 72, 64]}
             >
-              {questions.map((q) => (
+              {group.map((q) => (
                 <tr key={q.questionId} className={ROW_CLASS}>
                   <Td>{q.content}</Td>
                   <Td className="text-gray-500">{metricLabel(q.metric)}</Td>
@@ -1453,10 +1511,13 @@ function SatisfactionDetail({
                 </tr>
               ))}
             </Table>
-            <TableNote>평균이 낮은 문항이 다음 회차에서 먼저 보완할 항목입니다.</TableNote>
+            {/* 마지막 묶음에만 적는다. 이어지는 쪽마다 같은 말이 나오면 거슬린다. */}
+            {i === groups.length - 1 && (
+              <TableNote>평균이 낮은 문항이 다음 회차에서 먼저 보완할 항목입니다.</TableNote>
+            )}
           </Block>
         </Chapter>
-      )}
+      ))}
 
       {chunk(choices, 3).map((group, i) => (
         <Chapter key={`choice-${i}`} no="03" title="교육 만족도" description={note} cont>
@@ -1464,7 +1525,7 @@ function SatisfactionDetail({
             <Block
               key={q.questionId}
               title={q.content}
-              description={`응답 ${q.respondents}명 · 하나 선택`}
+              description={`응답 ${q.respondents}명 · 단일 선택`}
             >
               <ChoiceBars question={q} />
             </Block>
@@ -1472,8 +1533,13 @@ function SatisfactionDetail({
         </Chapter>
       ))}
 
-      {/* 서술형은 내용이 있는 응답을 골라 그대로 싣고, 나머지는 건수로만 남긴다. */}
-      {chunk(freeText, 3).map((group, i) => (
+      {/*
+        서술형은 내용이 있는 응답을 골라 그대로 싣고, 나머지는 건수로만 남긴다.
+
+        한 지면에 두 문항까지다. 셋을 올리면 답변이 긴 기업에서 지면이 A4 를
+        넘겨 쪽이 찢어진다 — 바닥글만 다음 장으로 밀려난 PDF 가 실제로 나갔다.
+      */}
+      {chunk(freeText, 2).map((group, i) => (
         <Chapter key={`free-${i}`} no="03" title="교육 만족도" description={note} cont>
           {group.map((q) => (
             <FreeTextBlock key={q.questionId} question={q} />
@@ -1714,8 +1780,14 @@ function FreeTextBlock({ question }: { question: FreeTextQuestion }) {
   const meaningful = question.answers.filter(
     (a) => a.valid !== false && a.text.length >= MEANINGFUL_LENGTH,
   );
-  // 셋까지. 세 문항을 한 지면에 놓으려면 이만큼이 한계다.
-  const shown = [...meaningful].sort((a, b) => b.text.length - a.text.length).slice(0, 3);
+  /*
+    다섯까지 올린다. 한 지면에 두 문항만 두므로 그만큼 자리가 생긴다.
+
+    길이는 끊지 않는다 — 답을 그대로 싣는 쪽을 먼저 본다. 다만 긴 것부터 고르는
+    규칙과 맞물리면 가장 높은 답 다섯 개가 실리게 되므로, 답이 긴 기업에서는
+    지면이 넘칠 수 있다. 그때는 여기에 글자 수 상한을 건다.
+  */
+  const shown = [...meaningful].sort((a, b) => b.text.length - a.text.length).slice(0, 5);
   /** 내용은 있지만 지면이 모자라 싣지 못한 것. */
   const held = meaningful.length - shown.length;
   /** 애초에 문장으로 옮길 내용이 없던 것. */
@@ -1937,113 +2009,253 @@ function FieldBars({ rows, max, narrow }: { rows: Share[]; max?: number; narrow?
   );
 }
 
+/**
+ * 지면 하나가 블록에 내어 줄 수 있는 높이(mm).
+ *
+ * A4 297mm 에서 머리글·제목·설명·바닥글·여백이 70mm 쯤이다. 217 로 두었더니
+ * 실제로는 들어가던 후속 지원 쪽(블록 합 224.7mm)까지 쪼개져 226 으로 올렸다.
+ * 이어지는 쪽은 설명이 빠져 조금 더 넉넉하지만, 한 값으로 두어도 모자라지 않는다.
+ */
+const FIELD_BUDGET_MM = 226;
+
+/** 블록 사이 간격(space-y-4). 높이를 어림할 때 함께 센다. */
+const FIELD_GAP_MM = 4.2;
+
+/** 막대 블록 — 제목·설명이 23.5mm, 한 줄이 7.6mm. 실측값이다. */
+const barsMM = (rows: number) => 23.5 + rows * 7.6;
+
+/**
+ * 블록을 지면에 나눠 담는다.
+ *
+ * 다 들어가면 묶음은 하나다 — 응답이 적은 기업은 지금처럼 한 쪽으로 끝난다.
+ * 넘칠 때만 다음 쪽으로 이어진다.
+ */
+function packSheets(items: { key: string; mm: number; node: ReactNode }[]): ReactNode[][] {
+  const out: ReactNode[][] = [];
+  let group: ReactNode[] = [];
+  let used = 0;
+  for (const item of items) {
+    const need = item.mm + (group.length > 0 ? FIELD_GAP_MM : 0);
+    if (group.length > 0 && used + need > FIELD_BUDGET_MM) {
+      out.push(group);
+      group = [];
+      used = 0;
+    }
+    group.push(<Fragment key={item.key}>{item.node}</Fragment>);
+    used += group.length > 1 ? need : item.mm;
+  }
+  if (group.length > 0) out.push(group);
+  return out;
+}
+
+/**
+ * 현업 적용 — 현황과 효과.
+ *
+ * 블록이 다섯이라 응답이 많은 기업에서는 한 쪽에 들어가지 않는다(실측 416mm).
+ * 높이를 어림해 담기는 만큼만 담고, 남으면 (계속) 으로 이어 간다.
+ */
 function FieldPage1({ f, no }: { f: FieldReport; no: string }) {
-  return (
-    <Chapter
-      no={no}
-      title="현업 적용 현황과 효과"
-      description={`교육에서 배운 것을 실제 업무에 얼마나 적용했는지 물었습니다. 설문을 끝낸 ${f.n}명의 응답입니다.`}
-    >
-      <Lead>
-        {[
-          "역량 검사는 '할 수 있는가'를, 이 장은 '실제로 했는가'를 봅니다. 서로 다른 것이라 점수에 합치지 않습니다.",
-          '시간과 품질의 변화는 응답자가 체감한 것입니다. 측정값이 아니므로 비용으로 환산하지 않았고, 구간을 평균 내지도 않았습니다.',
-        ]}
-      </Lead>
+  const taskRows = f.tasks.filter((t) => t.n > 0).sort((a, b) => b.n - a.n);
+  const feltRows = Math.max(
+    f.timeSpread.filter((x) => x.n > 0).length,
+    f.qualitySpread.filter((x) => x.n > 0).length,
+  );
+  const insight = fieldInsight(f);
 
-      <Block title="적용 요약">
-        <div className="grid grid-cols-2 gap-3">
-          <FieldStat
-            label="실제 업무 적용"
-            rate={f.applied}
-            note="연습·테스트에 그치지 않고 실제 업무에 적용한 사람"
-          />
-          <FieldStat
-            label="이어서 활용"
-            rate={f.repeated}
-            note="한 번에 그치지 않고 가끔 이상 쓰고 있는 사람"
-          />
-          <FieldStat
-            label="처리 시간 감소"
-            rate={f.timeCut}
-            note="적용 전보다 처리 시간이 줄었다고 답한 사람"
-          />
-          <FieldStat
-            label="결과물 품질 향상"
-            rate={f.qualityUp}
-            note="적용 전보다 결과물 품질이 좋아졌다고 답한 사람"
-          />
-        </div>
-      </Block>
-
-      <Block title="적용 단계" description={`응답 ${f.n}명 · 하나 선택`}>
-        <FieldBars rows={f.stages} />
-      </Block>
-
-      {f.tasks.some((t) => t.n > 0) && (
-        <Block title="적용한 업무" description={`응답 ${f.n}명 · 하나 선택`}>
-          <FieldBars rows={f.tasks.filter((t) => t.n > 0).sort((a, b) => b.n - a.n)} max={5} />
+  const items = [
+    {
+      key: 'lead',
+      mm: 11.7,
+      node: (
+        <Lead>
+          {[
+            "역량 검사는 '할 수 있는가'를, 이 장은 '실제로 했는가'를 봅니다. 서로 다른 것이라 점수에 합치지 않습니다.",
+            '시간과 품질의 변화는 응답자가 체감한 것입니다. 측정값이 아니므로 비용으로 환산하지 않았고, 구간을 평균 내지도 않았습니다.',
+          ]}
+        </Lead>
+      ),
+    },
+    {
+      key: 'summary',
+      mm: 93.9,
+      node: (
+        <Block title="적용 요약">
+          <div className="grid grid-cols-2 gap-3">
+            <FieldStat
+              label="실제 업무 적용"
+              rate={f.applied}
+              note="연습·테스트에 그치지 않고 실제 업무에 적용한 사람"
+            />
+            <FieldStat
+              label="이어서 활용"
+              rate={f.repeated}
+              note="한 번에 그치지 않고 가끔 이상 쓰고 있는 사람"
+            />
+            <FieldStat
+              label="처리 시간 감소"
+              rate={f.timeCut}
+              note="적용 전보다 처리 시간이 줄었다고 답한 사람"
+            />
+            <FieldStat
+              label="결과물 품질 향상"
+              rate={f.qualityUp}
+              note="적용 전보다 결과물 품질이 좋아졌다고 답한 사람"
+            />
+          </div>
         </Block>
-      )}
+      ),
+    },
+    {
+      key: 'stages',
+      mm: barsMM(f.stages.length),
+      node: (
+        <Block title="적용 단계" description={`응답 ${f.n}명 · 단일 선택`}>
+          <FieldBars rows={f.stages} />
+        </Block>
+      ),
+    },
+    ...(taskRows.length > 0
+      ? [
+          {
+            key: 'tasks',
+            mm: barsMM(Math.min(taskRows.length, 5)),
+            node: (
+              <Block title="적용한 업무" description={`응답 ${f.n}명 · 단일 선택`}>
+                <FieldBars rows={taskRows} max={5} />
+              </Block>
+            ),
+          },
+        ]
+      : []),
+    {
+      key: 'felt',
+      // 두 칸으로 나뉘어 있어 긴 쪽이 높이를 정한다. 칸 이름 줄이 6mm 더 붙는다.
+      mm: barsMM(feltRows) + 6,
+      node: (
+        <>
+          {/*
+            "비교하기 어려움" 은 막대에 이미 한 줄로 들어 있다. 아래에 같은 수를
+            다시 적으면 두 번 세는 것처럼 보인다.
+          */}
+          <Block title="체감한 변화" description={`응답 ${f.n}명 · 단일 선택`}>
+            <div className="grid grid-cols-2 gap-5">
+              <div>
+                <p className="txt-c1-bold mb-2 text-gray-900">처리 시간</p>
+                <FieldBars rows={f.timeSpread.filter((x) => x.n > 0)} narrow />
+              </div>
+              <div>
+                <p className="txt-c1-bold mb-2 text-gray-900">결과물 품질</p>
+                <FieldBars rows={f.qualitySpread.filter((x) => x.n > 0)} narrow />
+              </div>
+            </div>
+          </Block>
+        </>
+      ),
+    },
+    {
+      key: 'insight',
+      mm: 10 + insight.length * 8.1,
+      node: <Insight insight={{ paragraphs: insight }} />,
+    },
+  ];
 
-      {/*
-        "비교하기 어려움" 은 막대에 이미 한 줄로 들어 있다. 아래에 같은 수를
-        다시 적으면 두 번 세는 것처럼 보인다.
-      */}
-      <Block title="체감한 변화" description={`응답 ${f.n}명 · 하나 선택`}>
-        <div className="grid grid-cols-2 gap-5">
-          <div>
-            <p className="txt-c1-bold mb-2 text-gray-900">처리 시간</p>
-            <FieldBars rows={f.timeSpread.filter((x) => x.n > 0)} narrow />
-          </div>
-          <div>
-            <p className="txt-c1-bold mb-2 text-gray-900">결과물 품질</p>
-            <FieldBars rows={f.qualitySpread.filter((x) => x.n > 0)} narrow />
-          </div>
-        </div>
-      </Block>
-
-      <Insight insight={{ paragraphs: fieldInsight(f) }} />
-    </Chapter>
+  return (
+    <>
+      {packSheets(items).map((group, i) => (
+        <Chapter
+          key={`field1-${i}`}
+          no={no}
+          title="현업 적용 현황과 효과"
+          description={
+            i === 0
+              ? `교육에서 배운 것을 실제 업무에 얼마나 적용했는지 물었습니다. 설문을 끝낸 ${f.n}명의 응답입니다.`
+              : undefined
+          }
+          cont={i > 0}
+        >
+          {group}
+        </Chapter>
+      ))}
+    </>
   );
 }
 
+/**
+ * 현업 적용 — 후속 지원.
+ *
+ * 적용 사례는 응답자가 쓴 그대로라 길이를 알 수 없다. 글자 수로 높이를 어림해,
+ * 막대 둘과 함께 한 쪽에 들어가면 한 쪽으로 끝내고 넘치면 이어 간다.
+ */
 function FieldPage2({ f, no }: { f: FieldReport; no: string }) {
+  const cases = fieldCases(f.cases);
+
+  const items = [
+    {
+      key: 'lead',
+      mm: 4.8,
+      node: (
+        <Lead>
+          {[
+            '아래 둘은 여러 개를 고를 수 있는 문항이라 비율을 더하면 100%를 넘습니다. 그 문항에 답한 사람을 기준으로 통계를 냈습니다.',
+          ]}
+        </Lead>
+      ),
+    },
+    {
+      key: 'blockers',
+      mm: barsMM(Math.min(f.blockers.length, 5)),
+      node: (
+        <Block title="적용을 막은 것" description={multiNote(f.blockers)}>
+          {f.blockers.length === 0 ? (
+            <p className="txt-c1-regular text-gray-500">어려움을 고른 사람이 없습니다.</p>
+          ) : (
+            <FieldBars rows={f.blockers} max={5} />
+          )}
+        </Block>
+      ),
+    },
+    {
+      key: 'supports',
+      mm: barsMM(Math.min(f.supports.length, 5)),
+      node: (
+        <Block title="필요한 지원" description={multiNote(f.supports)}>
+          {f.supports.length === 0 ? (
+            <p className="txt-c1-regular text-gray-500">필요한 지원을 고른 사람이 없습니다.</p>
+          ) : (
+            <FieldBars rows={f.supports} max={5} />
+          )}
+        </Block>
+      ),
+    },
+    ...(cases === null
+      ? []
+      : [
+          {
+            key: 'cases',
+            mm: cases.mm,
+            node: <FieldCases shown={cases.shown} total={f.cases.length} />,
+          },
+        ]),
+  ];
+
   return (
-    <Chapter
-      no={no}
-      title="현업 적용을 위한 후속 지원"
-      description="현업 적용을 막은 것과 응답자가 필요하다고 답한 지원입니다. 무엇을 할지는 마지막 장에서 다룹니다."
-    >
-      <Lead>
-        {[
-          '아래 둘은 여러 개를 고를 수 있는 문항이라 비율을 더하면 100%를 넘습니다. 그 문항에 답한 사람을 기준으로 통계를 냈습니다.',
-        ]}
-      </Lead>
-
-      <Block title="적용을 막은 것" description={multiNote(f.blockers)}>
-        {f.blockers.length === 0 ? (
-          <p className="txt-c1-regular text-gray-500">어려움을 고른 사람이 없습니다.</p>
-        ) : (
-          <FieldBars rows={f.blockers} max={5} />
-        )}
-      </Block>
-
-      <Block title="필요한 지원" description={multiNote(f.supports)}>
-        {f.supports.length === 0 ? (
-          <p className="txt-c1-regular text-gray-500">필요한 지원을 고른 사람이 없습니다.</p>
-        ) : (
-          <FieldBars rows={f.supports} max={5} />
-        )}
-      </Block>
-
-      {/*
-        여기에 "다음에 할 일" 을 규칙으로 만들어 붙였었다. 뺐다 — 무엇을 할지는
-        마지막 장(다음 단계 제안)이 이미 다루고, 이 장이 할 일은 현황을 있는
-        그대로 보이는 것이다. 그 자리를 사례에 내어 준다.
-      */}
-      <FieldCases cases={f.cases} />
-    </Chapter>
+    <>
+      {packSheets(items).map((group, i) => (
+        <Chapter
+          key={`field2-${i}`}
+          no={no}
+          title="현업 적용을 위한 후속 지원"
+          description={
+            i === 0
+              ? '현업 적용을 막은 것과 응답자가 필요하다고 답한 지원입니다. 무엇을 할지는 마지막 장에서 다룹니다.'
+              : undefined
+          }
+          cont={i > 0}
+        >
+          {group}
+        </Chapter>
+      ))}
+    </>
   );
 }
 
@@ -2058,20 +2270,32 @@ function multiNote(rows: Share[]): string | undefined {
 }
 
 /**
- * 적용 사례.
+ * 실을 사례를 고르고 그 높이를 어림한다.
  *
- * 쓴 사람이 적으면 싣지 않는다. 한두 건만 올리면 그 회사 안에서 누가 썼는지
- * 짐작되고, 몇 사람의 말이 전체의 사례처럼 읽힌다.
+ * 쓴 사람이 적으면 싣지 않는다 — 한두 건만 올리면 그 회사 안에서 누가 썼는지
+ * 짐작되고, 몇 사람의 말이 전체의 사례처럼 읽힌다. 부서 평균을 가리는 기준과
+ * 같은 인원을 쓴다.
+ *
+ * 높이는 글자 수로 센다. 이 칸은 한 줄에 쉰 자쯤 들어가고, 한 줄이 7.6mm 에
+ * 칸 자체의 위아래가 5mm 다. 제목과 주석이 28mm.
  */
-function FieldCases({ cases }: { cases: string[] }) {
-  // 부서 평균을 가리는 기준과 같은 인원을 쓴다.
+function fieldCases(cases: string[]): { shown: string[]; mm: number } | null {
   if (cases.length < MIN_GROUP_SIZE) return null;
 
   // 짧은 것부터 채운다. 길이를 끊어 두어 한 건이 지면을 먹지 않는다.
   const shown = [...cases].sort((a, b) => a.length - b.length).slice(0, CASE_SHOWN);
+  const mm =
+    28 +
+    shown.reduce(
+      (sum, t) => sum + 5 + Math.max(1, Math.ceil(Math.min(t.length, CASE_MAX_CHARS) / 50)) * 7.6,
+      0,
+    );
+  return { shown, mm };
+}
 
+function FieldCases({ shown, total }: { shown: string[]; total: number }) {
   return (
-    <Block title="적용 사례" description={`작성 ${cases.length}건 가운데 ${shown.length}건`}>
+    <Block title="적용 사례" description={`작성 ${total}건 가운데 ${shown.length}건`}>
       <ul className="space-y-2">
         {shown.map((text, i) => (
           <li key={i} className="bg-gray-0 rounded-[16px] border border-gray-100 px-4 py-2.5">
