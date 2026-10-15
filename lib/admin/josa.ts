@@ -67,5 +67,6 @@ export function josa(word: string, kind: JosaKind): string {
 
 /** 낱말 뒤에 조사를 붙여 돌려준다. */
 export function with_(word: string, kind: JosaKind): string {
-  return `${word}${josa(word, kind)}`;
+  // 운영 기록의 이름 끝에 공백이 붙어 오는 일이 있다. 그대로 이으면 "대웅×에스디푸드 는" 이 된다.
+  return `${word.trimEnd()}${josa(word, kind)}`;
 }
