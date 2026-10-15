@@ -76,6 +76,18 @@
     background: #fff;
   }
 
+  /*
+    관리자 화면이 든 문서는 body 전체가 같은 쪽 설정을 쓴다.
+
+    .admin-root 에만 admin-page 를 주면, 그 뒤에 붙은 요소(토스트를 담는 빈
+    <section> 같은 것)는 기본 쪽 설정을 쓴다. 쪽 설정 이름이 바뀌는 자리에서
+    브라우저는 쪽을 강제로 나누므로, 높이 0 인 빈 상자가 혼자 새 쪽을 차지해
+    PDF 끝에 빈 쪽이 붙었다. body 를 같은 이름으로 묶으면 바뀌는 자리가 없다.
+  */
+  body:has(.admin-root) {
+    page: admin-page;
+  }
+
   .admin-root .no-print {
     display: none !important;
   }
