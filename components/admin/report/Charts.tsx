@@ -57,20 +57,34 @@ export function Radar({
   axes,
   max = 100,
   size = 320,
+  width,
+  inset = 46,
   maxWidth = 360,
 }: {
   axes: { label: string; pre: number | null; post: number | null }[];
   max?: number;
+  /** viewBox 의 높이. 그림의 크기는 이쪽이 정한다 */
   size?: number;
-  /** 화면에 그려지는 최대 너비(px). viewBox 는 그대로라 모양은 달라지지 않는다. */
+  /**
+   * viewBox 의 너비. 비우면 size 와 같은 정사각형이다.
+   *
+   * 축이 넷이면 그림은 마름모가 되어 좌우 모서리가 빈다. 상자를 옆으로 늘리면
+   * 그 빈 자리가 축 이름 몫이 되고, 그만큼 고리를 키울 수 있다 — 높이는 그대로
+   * 두고 그림만 커진다.
+   */
+  width?: number;
+  /** 고리와 상자 사이 여백. 축 이름이 짧으면 줄여 그림을 키운다 */
+  inset?: number;
+  /** 화면에 그려지는 최대 너비(px). viewBox 비율대로 높이가 따라온다 */
   maxWidth?: number;
 }) {
   const n = axes.length;
   if (n < 3) return null;
 
-  const cx = size / 2;
+  const boxW = width ?? size;
+  const cx = boxW / 2;
   const cy = size / 2;
-  const r = size / 2 - 46;
+  const r = size / 2 - inset;
 
   const point = (i: number, value: number) => {
     // 12시 방향에서 시작해 시계 방향으로 돈다.
@@ -90,7 +104,7 @@ export function Radar({
 
   return (
     <svg
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={`0 0 ${boxW} ${size}`}
       className="h-auto w-full"
       style={{ maxWidth: `${maxWidth}px` }}
       role="img"

@@ -110,10 +110,16 @@
     max-width: none;
     padding: 11mm 12mm;
     box-shadow: none;
-    break-after: page;
+    /*
+      나눔을 지면 "앞"에 건다. break-after 로 걸면 마지막 지면 뒤에도 나눔이
+      남아 빈 쪽이 따라붙는다 — :last-child 로 풀 수는 있지만, 지면 뒤에 숨은
+      요소가 하나만 붙어도 그 예외가 어긋난다. 앞에 거는 쪽은 첫 지면만
+      풀어 주면 되고 문서 끝에는 나눌 것이 남지 않는다.
+    */
+    break-before: page;
   }
 
-  .admin-root .report-sheet:last-child {
-    break-after: auto;
+  .admin-root .report-sheet:first-child {
+    break-before: auto;
   }
 }
