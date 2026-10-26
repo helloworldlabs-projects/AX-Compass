@@ -197,10 +197,10 @@ export function recommendCourses(
   /* ── 점수 매기기 ─────────────────────────────────────── */
 
   // 이번에 들은 과정은 빼고, 진단 과정 중 사전 진단도 뺀다.
-  const taken = (r.link.course ?? '').trim();
+  const taken = takenTitles(r);
   const pool = COURSES.filter((c) => {
     if (c.no === 1) return false; // 사전 진단은 이미 지난 단계다
-    if (taken && (c.title === taken || c.shortTitle === taken)) return false;
+    if (taken.has(bareTitle(c.title))) return false;
     return true;
   });
 
@@ -248,6 +248,36 @@ export function recommendCourses(
   }));
 
   return { picks, signals: signals.map((s) => s.reason) };
+}
+
+/**
+ * 과정 본이름. 앞에 붙은 대괄호를 모두 떼고 띄어쓰기를 모두 지운다.
+ *
+ * 운영 회차 이름은 "[기업명] [AX 레시피 - 에이전트 구축] 과정명" 처럼 기업명
+ * 대괄호가 하나 더 붙고, 그 사이 띄어쓰기도 회차마다 다르다. 과정 목록의
+ * 이름과 그대로 견주면 맞을 일이 없어, 들은 과정이 추천 1순위로 다시 올라왔다.
+ *
+ * 띄어쓰기는 아예 빼고 견준다. 과정명 안에서도 "생성형 AI기반" 과
+ * "생성형 AI 기반" 처럼 회차마다 다르게 적힌 것이 있다.
+ */
+function bareTitle(title: string): string {
+  return title.replace(/^(\s*\[[^\]]*\]\s*)+/, '').replace(/\s+/g, '');
+}
+
+/**
+ * 이 검사에 묶인 회차에서 들은 과정들.
+ *
+ * 링크에 회차가 여럿이면 link.course 는 "… 외 2건" 이라 하나만 담긴다.
+ * 회차 목록(link.offerings)과 만족도에 잡힌 회차를 함께 본다.
+ */
+function takenTitles(r: CompanyReport): Set<string> {
+  const titles = [
+    // 예전에 발행된 보고서에는 두 칸이 없을 수 있다.
+    ...(r.link.offerings ?? []).map((o) => o.title),
+    ...(r.satisfaction.courses ?? []).map((c) => c.title),
+    (r.link.course ?? '').replace(/\s*외\s*\d+건$/, ''),
+  ];
+  return new Set(titles.map(bareTitle).filter(Boolean));
 }
 
 function fmt(v: number | null): string {
