@@ -133,7 +133,7 @@
         },
         {
           "code": "UP_CLEAR",
-          "label": "뚜렷하게 높아짐",
+          "label": "높아짐",
           "effect": "up"
         },
         {
