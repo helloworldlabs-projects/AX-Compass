@@ -325,7 +325,7 @@ export function computeCompanyReport({
   link,
   pre,
   preMembers,
-  responses,
+  responses: allResponses,
   tagAverages,
   metrics,
   satisfactionList,
@@ -337,6 +337,9 @@ export function computeCompanyReport({
 }: CompanyReportInputs): CompanyReport {
   const institutionId = link.institutionId;
 
+  // 관리 화면에서 "제외"한 응답은 보고서의 어느 숫자에도 넣지 않는다.
+  // 하위 역량 평균(tagAverages)은 서버가 이미 빼고 준다.
+  const responses = allResponses.filter((r) => !r.excluded);
   const matched = responses.filter((r) => r.pre !== null);
 
   /* ── 종합 ──────────────────────────────────────────────── */
