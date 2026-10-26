@@ -7,6 +7,9 @@ import {
   conclusion,
   courseInsight,
   departmentInsight,
+  departmentTestInsight,
+  gapTestInsight,
+  manovaInsight,
   levelInsight,
   manyCourses,
   overallInsight,
@@ -14,8 +17,9 @@ import {
   satisfactionInsight,
   satisfactionMetricsInsight,
   sectionInsight,
+  sectionTestInsight,
 } from '@/lib/admin/insight';
-import { with_ } from '@/lib/admin/josa';
+import { josa, with_ } from '@/lib/admin/josa';
 import {
   METRICS,
   MIN_GROUP_SIZE,
@@ -164,10 +168,16 @@ export function CompanyReportView({
    * 남는다. 빼기로 하면 뒤 장 번호가 당겨져 처음부터 없던 장처럼 읽힌다.
    */
   showManova = true,
+  hiddenCases = [],
+  onHideCase,
 }: {
   r: CompanyReport;
   date: string;
   showManova?: boolean;
+  /** 담당자가 화면에서 뺀 적용 사례. 빈 자리는 다음 사례로 채운다 */
+  hiddenCases?: string[];
+  /** 주면 사례마다 "빼기" 단추가 붙는다(인쇄에는 나오지 않는다) */
+  onHideCase?: (text: string) => void;
 }) {
   const { org } = r.pre;
   const lowCoverage = r.coverage.rate !== null && r.coverage.rate < 50;
@@ -853,6 +863,8 @@ export function CompanyReportView({
             ))}
           </Table>
         </Block>
+
+        <Insight insight={sectionTestInsight(r)} />
       </Chapter>
 
       <Chapter no={no('gaps')} title="AX 역량 갭 변화 분석" cont>
@@ -918,6 +930,8 @@ export function CompanyReportView({
               : undefined
           }
         />
+
+        <Insight insight={gapTestInsight(r)} />
       </Chapter>
 
       {/*
@@ -972,19 +986,7 @@ export function CompanyReportView({
               )}
             </Block>
 
-            <Lead>
-              {r.department.manovaPost.usable
-                ? [
-                    `네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 본 결과입니다. Wilks' Λ = ${r.department.manovaPost.wilks}, F = ${r.department.manovaPost.f}, p = ${pText(r.department.manovaPost.p)}.`,
-                    r.department.manovaPost.significant
-                      ? '소속에 따라 역량 구성이 다르다고 볼 만합니다. 어느 역량에서 차이가 나는지는 아래 표에서 하나씩 봅니다.'
-                      : '소속에 따른 차이는 뚜렷하지 않습니다. 참고로 역량별 결과를 아래에 싣습니다.',
-                  ]
-                : [
-                    `소속 차이 다변량 분석은 실시하지 못했습니다. ${r.department.manovaPost.note ?? ''}`,
-                    '아래 역량별 결과를 대신 읽어 주세요.',
-                  ]}
-            </Lead>
+            <Insight insight={manovaInsight(r)} />
           </Chapter>
 
           <Chapter
@@ -1041,6 +1043,8 @@ export function CompanyReportView({
                   : undefined
               }
             />
+
+            <Insight insight={departmentTestInsight(r)} />
           </Chapter>
 
           {/* 소속별 평균은 지면을 따로 쓴다. 부서가 열 곳을 넘으면 표만으로 A4 한 쪽을 채운다. */}
@@ -1068,7 +1072,7 @@ export function CompanyReportView({
                     <Td className="txt-c1-bold">
                       <span className="flex items-center gap-2">
                         {d.name}
-                        {d.preN > 0 && d.preN < MIN_GROUP_SIZE && (
+                        {d.postN > 0 && d.postN < MIN_GROUP_SIZE && (
                           <Badge tone="warn">표본 부족</Badge>
                         )}
                       </span>
@@ -1290,7 +1294,12 @@ export function CompanyReportView({
       {r.fieldSurvey ? (
         <>
           <FieldPage1 f={r.fieldSurvey} no={no('field')} />
-          <FieldPage2 f={r.fieldSurvey} no={no('field')} />
+          <FieldPage2
+            f={r.fieldSurvey}
+            no={no('field')}
+            hiddenCases={hiddenCases}
+            onHideCase={onHideCase}
+          />
         </>
       ) : (
         r.link.fieldSurvey && (
@@ -1966,30 +1975,15 @@ function FieldStat({ label, rate, note }: { label: string; rate: Rate; note: str
 
 /**
  * 보기별 분포를 가로 막대로. 0 인 보기도 남긴다 — 빠지면 무엇을 안 골랐는지 모른다.
- *
- * narrow 는 두 칸으로 나눠 놓을 때 쓴다. 전체 폭에 맞춰 잡은 보기 이름 칸을
- * 그대로 두면 막대 자리가 30px 도 남지 않아 눈금 구실을 못 한다.
  */
-function FieldBars({ rows, max, narrow }: { rows: Share[]; max?: number; narrow?: boolean }) {
+function FieldBars({ rows, max }: { rows: Share[]; max?: number }) {
   const top = max === undefined ? rows : rows.slice(0, max);
   return (
-    <ul className={narrow ? 'space-y-1.5' : 'space-y-2'}>
+    <ul className="space-y-2">
       {top.map((r) => (
-        <li key={r.code} className={cn('flex items-center', narrow ? 'gap-2' : 'gap-3')}>
-          <span
-            className={cn(
-              'txt-c1-regular shrink-0 text-gray-500',
-              narrow ? 'w-[94px] leading-[1.35]' : 'w-[180px]',
-            )}
-          >
-            {narrow ? (r.short ?? r.label) : r.label}
-          </span>
-          <span
-            className={cn(
-              'bg-adm-track-fill flex-1 overflow-hidden rounded-[4px]',
-              narrow ? 'h-4' : 'h-5',
-            )}
-          >
+        <li key={r.code} className="flex items-center gap-3">
+          <span className="txt-c1-regular w-[180px] shrink-0 text-gray-500">{r.label}</span>
+          <span className="bg-adm-track-fill h-5 flex-1 overflow-hidden rounded-[4px]">
             {/*
               눈금은 100% 다. 가장 큰 보기에 맞춰 늘리면 1등이 늘 꽉 차 보여,
               37% 를 고른 보기가 모두가 고른 것처럼 읽힌다.
@@ -1999,12 +1993,7 @@ function FieldBars({ rows, max, narrow }: { rows: Share[]; max?: number; narrow?
               style={{ width: `${r.pct}%` }}
             />
           </span>
-          <span
-            className={cn(
-              'txt-c1-bold shrink-0 text-right whitespace-nowrap text-gray-900 tabular-nums',
-              narrow ? 'w-[84px]' : 'w-[86px]',
-            )}
-          >
+          <span className="txt-c1-bold w-[86px] shrink-0 text-right whitespace-nowrap text-gray-900 tabular-nums">
             {r.pct}% · {r.n}명
           </span>
         </li>
@@ -2059,11 +2048,12 @@ function packSheets(items: { key: string; mm: number; node: ReactNode }[]): Reac
  * 높이를 어림해 담기는 만큼만 담고, 남으면 (계속) 으로 이어 간다.
  */
 function FieldPage1({ f, no }: { f: FieldReport; no: string }) {
-  const taskRows = f.tasks.filter((t) => t.n > 0).sort((a, b) => b.n - a.n);
-  const feltRows = Math.max(
-    f.timeSpread.filter((x) => x.n > 0).length,
-    f.qualitySpread.filter((x) => x.n > 0).length,
-  );
+  /*
+    적용한 업무는 고른 사람이 없는 보기도 0 으로 남긴다. 빠지면 그 업무에는
+    아무도 적용하지 않았다는 것이 보이지 않는다. 많이 고른 순으로 두고,
+    같은 수끼리는 문항의 보기 순서를 따른다(sort 는 안정 정렬이다).
+  */
+  const taskRows = [...f.tasks].sort((a, b) => b.n - a.n);
   const insight = fieldInsight(f);
 
   const items = [
@@ -2109,6 +2099,16 @@ function FieldPage1({ f, no }: { f: FieldReport; no: string }) {
         </Block>
       ),
     },
+    /*
+      해설은 적용 요약 바로 아래에 둔다. 요약의 네 비율을 풀어 쓴 문단이라 그 옆에서
+      읽혀야 하고, 맨 끝에 두면 보기 줄이 늘어난 기업에서 해설 한 문단만 다음 쪽으로
+      넘어가 지면 하나를 혼자 차지한다.
+    */
+    {
+      key: 'insight',
+      mm: 10 + insight.length * 8.1,
+      node: <Insight insight={{ paragraphs: insight }} />,
+    },
     {
       key: 'stages',
       mm: barsMM(f.stages.length),
@@ -2118,48 +2118,43 @@ function FieldPage1({ f, no }: { f: FieldReport; no: string }) {
         </Block>
       ),
     },
-    ...(taskRows.length > 0
+    ...(taskRows.some((t) => t.n > 0)
       ? [
           {
             key: 'tasks',
-            mm: barsMM(Math.min(taskRows.length, 5)),
+            mm: barsMM(taskRows.length),
             node: (
               <Block title="적용한 업무" description={`응답 ${f.n}명 · 단일 선택`}>
-                <FieldBars rows={taskRows} max={5} />
+                <FieldBars rows={taskRows} />
               </Block>
             ),
           },
         ]
       : []),
+    /*
+      처리 시간과 결과물 품질은 블록을 따로 둔다. 두 칸으로 나란히 두면 보기 이름이
+      좁은 칸에서 줄마다 접혀 읽기 어렵다.
+      "비교하기 어려움" 은 막대에 이미 한 줄로 들어 있다. 아래에 같은 수를
+      다시 적으면 두 번 세는 것처럼 보인다.
+      보기는 0 명이어도 문항의 순서대로 모두 둔다. 정도를 묻는 문항이라 순서가 곧 눈금이다.
+    */
     {
-      key: 'felt',
-      // 두 칸으로 나뉘어 있어 긴 쪽이 높이를 정한다. 칸 이름 줄이 6mm 더 붙는다.
-      mm: barsMM(feltRows) + 6,
+      key: 'felt-time',
+      mm: barsMM(f.timeSpread.length),
       node: (
-        <>
-          {/*
-            "비교하기 어려움" 은 막대에 이미 한 줄로 들어 있다. 아래에 같은 수를
-            다시 적으면 두 번 세는 것처럼 보인다.
-          */}
-          <Block title="체감한 변화" description={`응답 ${f.n}명 · 단일 선택`}>
-            <div className="grid grid-cols-2 gap-5">
-              <div>
-                <p className="txt-c1-bold mb-2 text-gray-900">처리 시간</p>
-                <FieldBars rows={f.timeSpread.filter((x) => x.n > 0)} narrow />
-              </div>
-              <div>
-                <p className="txt-c1-bold mb-2 text-gray-900">결과물 품질</p>
-                <FieldBars rows={f.qualitySpread.filter((x) => x.n > 0)} narrow />
-              </div>
-            </div>
-          </Block>
-        </>
+        <Block title="체감한 변화 — 처리 시간" description={`응답 ${f.n}명 · 단일 선택`}>
+          <FieldBars rows={f.timeSpread} />
+        </Block>
       ),
     },
     {
-      key: 'insight',
-      mm: 10 + insight.length * 8.1,
-      node: <Insight insight={{ paragraphs: insight }} />,
+      key: 'felt-quality',
+      mm: barsMM(f.qualitySpread.length),
+      node: (
+        <Block title="체감한 변화 — 결과물 품질" description={`응답 ${f.n}명 · 단일 선택`}>
+          <FieldBars rows={f.qualitySpread} />
+        </Block>
+      ),
     },
   ];
 
@@ -2190,8 +2185,18 @@ function FieldPage1({ f, no }: { f: FieldReport; no: string }) {
  * 적용 사례는 응답자가 쓴 그대로라 길이를 알 수 없다. 글자 수로 높이를 어림해,
  * 막대 둘과 함께 한 쪽에 들어가면 한 쪽으로 끝내고 넘치면 이어 간다.
  */
-function FieldPage2({ f, no }: { f: FieldReport; no: string }) {
-  const cases = fieldCases(f.cases);
+function FieldPage2({
+  f,
+  no,
+  hiddenCases,
+  onHideCase,
+}: {
+  f: FieldReport;
+  no: string;
+  hiddenCases: string[];
+  onHideCase?: (text: string) => void;
+}) {
+  const cases = fieldCases(f.cases, hiddenCases);
 
   const items = [
     {
@@ -2237,7 +2242,7 @@ function FieldPage2({ f, no }: { f: FieldReport; no: string }) {
           {
             key: 'cases',
             mm: cases.mm,
-            node: <FieldCases shown={cases.shown} total={f.cases.length} />,
+            node: <FieldCases shown={cases.shown} total={f.cases.length} onHide={onHideCase} />,
           },
         ]),
   ];
@@ -2283,11 +2288,18 @@ function multiNote(rows: Share[]): string | undefined {
  * 높이는 글자 수로 센다. 이 칸은 한 줄에 쉰 자쯤 들어가고, 한 줄이 7.6mm 에
  * 칸 자체의 위아래가 5mm 다. 제목과 주석이 28mm.
  */
-function fieldCases(cases: string[]): { shown: string[]; mm: number } | null {
+function fieldCases(cases: string[], hidden: string[]): { shown: string[]; mm: number } | null {
   if (cases.length < MIN_GROUP_SIZE) return null;
 
-  // 짧은 것부터 채운다. 길이를 끊어 두어 한 건이 지면을 먹지 않는다.
-  const shown = [...cases].sort((a, b) => a.length - b.length).slice(0, CASE_SHOWN);
+  /*
+    짧은 것부터 채운다. 길이를 끊어 두어 한 건이 지면을 먹지 않는다.
+    담당자가 뺀 사례는 건너뛰고 다음 것으로 채운다 — 쓴 그대로 싣는 대신
+    기업에 건네기 어려운 것은 고를 수 있게 한다.
+  */
+  const shown = cases
+    .filter((t) => !hidden.includes(t))
+    .sort((a, b) => a.length - b.length)
+    .slice(0, CASE_SHOWN);
   const mm =
     28 +
     shown.reduce(
@@ -2297,15 +2309,35 @@ function fieldCases(cases: string[]): { shown: string[]; mm: number } | null {
   return { shown, mm };
 }
 
-function FieldCases({ shown, total }: { shown: string[]; total: number }) {
+function FieldCases({
+  shown,
+  total,
+  onHide,
+}: {
+  shown: string[];
+  total: number;
+  onHide?: (text: string) => void;
+}) {
   return (
     <Block title="적용 사례" description={`작성 ${total}건 가운데 ${shown.length}건`}>
       <ul className="space-y-2">
         {shown.map((text, i) => (
-          <li key={i} className="bg-gray-0 rounded-[16px] border border-gray-100 px-4 py-2.5">
-            <p className="txt-c1-regular leading-[1.7] text-gray-700">
+          <li
+            key={i}
+            className="bg-gray-0 flex items-start gap-3 rounded-[16px] border border-gray-100 px-4 py-2.5"
+          >
+            <p className="txt-c1-regular flex-1 leading-[1.7] text-gray-700">
               {text.length > CASE_MAX_CHARS ? `${text.slice(0, CASE_MAX_CHARS).trimEnd()}…` : text}
             </p>
+            {onHide && (
+              <button
+                type="button"
+                onClick={() => onHide(text)}
+                className="no-print txt-c2-bold hover:border-adm-brand hover:text-adm-brand shrink-0 rounded-[8px] border border-gray-200 px-2.5 py-1 text-gray-500 transition"
+              >
+                빼기
+              </button>
+            )}
           </li>
         ))}
       </ul>
@@ -2358,7 +2390,7 @@ function fieldInsight(f: FieldReport): string[] {
   const top = f.blockers[0];
   if (top) {
     out.push(
-      `적용을 막은 것으로는 "${top.label}"을(를) 가장 많이 꼽았습니다(${top.n}명, ${top.pct}%). ` +
+      `적용을 막은 것으로는 "${top.label}"${josa(top.label, '을')} 가장 많이 꼽았습니다(${top.n}명, ${top.pct}%). ` +
         '다음 장에 무엇이 필요한지와 함께 적었습니다.',
     );
   }

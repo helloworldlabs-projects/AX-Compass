@@ -18,8 +18,6 @@ export interface Share {
   code: string;
   label: string;
   n: number;
-  /** 칸이 좁은 자리에서 쓰는 짧은 이름. 없으면 label 을 쓴다 */
-  short?: string;
   /** 분모. 복수 선택 문항은 그 문항에 답한 사람 수다(고른 개수가 아니다) */
   of: number;
   /** 백분율. 분모는 쓰임새에 따라 다르다 */
@@ -80,7 +78,6 @@ function spread(id: string, picks: string[], of: number): Share[] {
     return {
       code: o.code,
       label: o.label,
-      short: o.short,
       n,
       of,
       pct: of === 0 ? 0 : Math.round((n / of) * 1000) / 10,

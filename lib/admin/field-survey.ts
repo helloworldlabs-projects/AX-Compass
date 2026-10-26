@@ -19,15 +19,6 @@ export type FieldItemType = 'SINGLE' | 'MULTI' | 'TEXT';
 export interface FieldOption {
   code: string;
   label: string;
-  /**
-   * 보고서에서 쓰는 짧은 이름.
-   *
-   * 검사 화면에서는 "10% 이상~30% 미만 감소" 처럼 풀어 적어야 고르는 사람이
-   * 헷갈리지 않는다. 그런데 보고서의 막대는 두 칸으로 나뉘어 이름 칸이
-   * 100px 도 안 되므로, 같은 글을 그대로 두면 줄마다 두 줄로 접힌다.
-   * 없으면 label 을 그대로 쓴다.
-   */
-  short?: string;
   /** F1 전용 — 연습이 아니라 실제 업무에 적용했는가 */
   applied?: boolean;
   /** F1 전용 — 한 번이 아니라 이어서 쓰고 있는가 */

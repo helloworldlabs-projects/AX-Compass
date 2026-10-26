@@ -137,6 +137,13 @@ function Published({ r, record }: { r: CompanyReport; record: ReportRecord }) {
   */
   const [showManova, setShowManova] = useState(r.department.manovaPost.usable);
 
+  /*
+    현업 적용 사례 가운데 기업에 건네기 어려운 것(불만·부정 평가 등)을 뺀다.
+    사례는 응답자가 쓴 그대로 싣고 고쳐 쓰지 않으므로, 고르는 것만 할 수 있다.
+    소속 차이 분석과 같이 보여 주는 방식만 바꾸고 저장된 보고서는 그대로 둔다.
+  */
+  const [hiddenCases, setHiddenCases] = useState<string[]>([]);
+
   const changes: { headline: string; detail: string }[] = [];
   if (live !== undefined && live !== record.postRespondents) {
     changes.push({
@@ -192,6 +199,22 @@ function Published({ r, record }: { r: CompanyReport; record: ReportRecord }) {
         </div>
       )}
 
+      {hiddenCases.length > 0 && (
+        <div className="no-print">
+          <Notice bordered title={`적용 사례 ${hiddenCases.length}건을 뺀 상태입니다`}>
+            뺀 자리는 다음 사례로 채웠습니다. 저장된 보고서는 그대로이므로 화면을 새로 열면 다시
+            모두 나옵니다.{' '}
+            <button
+              type="button"
+              onClick={() => setHiddenCases([])}
+              className="txt-c1-bold text-adm-brand underline"
+            >
+              모두 되돌리기
+            </button>
+          </Notice>
+        </div>
+      )}
+
       {/* 담당자에게 하는 말이지 기업에 하는 말이 아니라 인쇄물에는 나가지 않는다. */}
       {changes.length > 0 && (
         <div className="no-print">
@@ -204,7 +227,13 @@ function Published({ r, record }: { r: CompanyReport; record: ReportRecord }) {
         </div>
       )}
 
-      <CompanyReportView r={r} date={record.issuedOn} showManova={showManova} />
+      <CompanyReportView
+        r={r}
+        date={record.issuedOn}
+        showManova={showManova}
+        hiddenCases={hiddenCases}
+        onHideCase={(text) => setHiddenCases((xs) => [...xs, text])}
+      />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { rankByPost, type CompanyReport } from '@/lib/admin/report';
-import { levelOf, rating, score } from '@/lib/admin/metrics';
-import { effectPhrase } from '@/lib/admin/stats';
+import { levelOf, MIN_GROUP_SIZE, rating, score } from '@/lib/admin/metrics';
+import { effectPhrase, pText } from '@/lib/admin/stats';
 import type { Recommendation } from '@/lib/admin/recommend';
 import { josa, with_ } from '@/lib/admin/josa';
 
@@ -199,11 +199,6 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
       : allDown
         ? `세 영역이 모두 내렸습니다. ${with_(bottom.label, '이')} ${fmt(bottom.diff)}점으로 가장 크게, ${with_(top.label, '이')} ${fmt(top.diff)}점으로 가장 적게 내렸습니다.`
         : `${with_(top.label, '이')} ${fmt(top.diff)}점으로 오른 반면 ${with_(bottom.label, '은')} ${fmt(bottom.diff)}점으로 내렸습니다.`,
-    sorted.filter((s) => s.welch.usable && s.welch.significant).length > 0
-      ? `${list(
-          sorted.filter((s) => s.welch.usable && s.welch.significant).map((s) => s.label),
-        )}에서는 우연으로 보기 어려운 차이가 나타납니다.`
-      : '다만 어느 영역에서도 우연으로 보기 어려울 만큼의 차이는 확인되지 않았습니다.',
   );
 
   // 둘째 문단 — 격차가 말하는 것. 이 장의 알맹이다.
@@ -245,68 +240,81 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
     }
   }
 
-  /*
-    거리가 좁혀졌는지는 같은 사람끼리 본다(report.ts 의 gaps 설명). 전체 평균으로
-    말하면 바로 아래 표의 "같은 사람" 숫자와 방향이 어긋날 수 있다 — 전체로는
-    -6.4 → -1.9 로 좁혀졌는데 같은 5명은 3.7 → 9.8 로 벌어진 보고서가 있었다.
-  */
-  if (sr.diff !== null && sb.diff !== null) {
-    const byPair = sr.paired.usable;
-    const before = byPair ? sr.paired.meanBefore : (sr.pre ?? 0);
-    const after = byPair ? sr.paired.meanAfter : (sr.post ?? 0);
-    const closed = Math.abs(after) < Math.abs(before);
-    const who = byPair ? `이름이 이어진 ${sr.paired.n}명만 보면 ` : '';
-    pieces.push(
-      closed
-        ? `${who}교육 전보다 인식과 판단의 거리가 좁혀졌습니다.`
-        : `${who}교육 전과 비교해 인식과 판단의 거리가 좁혀지지는 않았습니다.`,
-    );
+  return { paragraphs: [first, para(...pieces)].filter(Boolean) };
+}
+
+/**
+ * 영역별 통계 검정 바로 아래의 해설.
+ *
+ * 표에는 "유의"·"유의하지 않음"과 효과 크기만 찍힌다. 그 뜻을 결과 바로 아래에
+ * 적는다 — 앞 쪽 해설에서 미리 말하면 읽는 사람은 표를 보기 전에 결론부터 받고,
+ * 표가 있는 쪽은 숫자로만 끝난다.
+ */
+export function sectionTestInsight(r: CompanyReport): ChapterInsight {
+  const tested = r.sections.filter((s) => s.welch.usable);
+  if (tested.length === 0) {
+    return {
+      paragraphs: [
+        '응답이 모자라 영역별 검정을 하지 못했습니다. 위 점수는 방향을 보는 데만 참고해 주세요.',
+      ],
+    };
   }
+  const names = (xs: typeof tested) => list(xs.map((s) => s.label));
+  const sig = tested.filter((s) => s.welch.significant);
+  const not = tested.filter((s) => !s.welch.significant);
 
   /*
-    두 격차 검정의 뜻을 적는다.
-
-    표에는 p 값만 찍히는데, 격차는 점수와 달리 **줄어드는 것이 좋은** 수라
-    "유의하다" 가 좋은 소식인지 나쁜 소식인지 그 자리에서 갈리지 않는다.
-    유의하지 않을 때도 마찬가지로, 거리가 그대로였다는 뜻인지 근거가
-    모자란다는 뜻인지 적어 주어야 한다.
+    효과 크기를 함께 읽는다. 인원이 많으면 작은 차이도 유의해지므로, "우연이
+    아니다" 와 "차이가 크다" 는 따로 말해야 한다.
   */
-  const gapReading = (
-    label: string,
-    test: { usable: boolean; significant: boolean | null },
-    diff: number | null,
-  ): string | null => {
-    if (!test.usable || diff === null) return null;
-    if (test.significant) {
-      return Math.abs(diff) < 0.001
-        ? null
-        : `${label}는 통계적으로도 달라졌습니다. 같은 사람의 변화이므로 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.`;
-    }
-    return `${label}는 통계적으로 뚜렷하게 달라지지 않았습니다. 거리가 그대로라는 증명은 아니고, 지금 인원으로는 변화를 확인할 근거가 모자란다는 뜻입니다.`;
+  const effects = sig.map((s) => s.welch.effect);
+  const solid = effects.every((e) => e === '큼') || effects.every((e) => e === '중간');
+  const small = effects.some((e) => e === '작음' || e === '미미');
+  const effectLine =
+    sig.length === 0
+      ? null
+      : solid
+        ? `효과 크기(d)도 ${list(sig.map((s) => `${s.label} ${s.welch.d}`))}로 ${sig.length > 1 ? '모두 ' : ''}${effects[0] === '큼' ? '큰' : '중간'} 편이라, 변화의 폭 자체도 뚜렷합니다.`
+        : `효과 크기(d)는 ${list(sig.map((s) => `${s.label} ${s.welch.d}(${s.welch.effect})`))}입니다.${
+            small ? ' 효과 크기가 작은 영역은 유의하더라도 변화의 폭 자체는 크지 않습니다.' : ''
+          }`;
+
+  const first = para(
+    sig.length === 0
+      ? `${tested.length > 1 ? '어느 영역에서도' : `${names(tested)}에서`} 사전과 사후의 차이가 통계적으로 유의하지 않습니다. 점수가 달라 보여도 응시자 구성이나 우연으로 생길 수 있는 폭이라, 변화했다고 단정하기 어렵습니다.`
+      : `${not.length === 0 && sig.length > 1 ? `${count(sig.length)} 영역 모두` : `${names(sig)}에서는`} 사전과 사후의 차이가 통계적으로 유의합니다. 우연으로 생긴 차이로 보기 어렵다는 뜻입니다.`,
+    effectLine,
+    sig.length > 0 && not.length > 0
+      ? `${with_(names(not), '은')} 유의하지 않아, 달라 보여도 우연으로 생길 수 있는 폭입니다.`
+      : null,
+  );
+
+  return {
+    paragraphs: [
+      first,
+      // 사전·사후 응답자 전체를 비교했다는 것은 표 위 설명에 이미 있다.
+      '같은 사람끼리 짝지어 본 변화는 다음 쪽의 격차 분석에서 따로 봅니다.',
+    ],
   };
+}
 
-  /*
-    같은 사람끼리 짝지은 검정을 읽는다. 아래 표에 실리는 것도 그쪽이다.
-
-    두 거리가 같은 결론이면 한 문장으로 묶는다. 따로 쓰면 뒷부분 설명이
-    글자 하나 다르지 않게 두 번 나온다.
-  */
-  const bothUsable = sr.paired.usable && sb.paired.usable && sr.diff !== null && sb.diff !== null;
-  const sameVerdict = sr.paired.significant === sb.paired.significant;
-  if (bothUsable && sameVerdict) {
-    pieces.push(
-      sr.paired.significant
-        ? '두 거리 모두 통계적으로도 달라졌습니다. 같은 사람의 변화이므로 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.'
-        : '두 거리 모두 통계적으로 뚜렷하게 달라지지는 않았습니다. 거리가 그대로라는 증명은 아니고, 지금 인원으로는 변화를 확인할 근거가 모자란다는 뜻입니다.',
-    );
-  } else {
-    const srReading = gapReading('자기평가와 상황판단의 거리', sr.paired, sr.diff);
-    const sbReading = gapReading('상황판단과 행동빈도의 거리', sb.paired, sb.diff);
-    if (srReading) pieces.push(srReading);
-    if (sbReading) pieces.push(sbReading);
-  }
-
-  const second = para(...pieces);
+/**
+ * 같은 사람끼리 짝지은 격차 검정 바로 아래의 해설.
+ *
+ * 거리가 좁혀졌는지는 같은 사람끼리 본다(report.ts 의 gaps 설명). 전체 평균으로
+ * 말하면 바로 위 표의 "같은 사람" 숫자와 방향이 어긋날 수 있다 — 전체로는
+ * -6.4 → -1.9 로 좁혀졌는데 같은 5명은 3.7 → 9.8 로 벌어진 보고서가 있었다.
+ *
+ * 격차는 점수와 달리 **줄어드는 것이 좋은** 수라, "유의하다" 가 좋은 소식인지
+ * 나쁜 소식인지 그 자리에서 갈리지 않는다. 그래서 어느 쪽으로 움직였는지를
+ * 먼저 적고, 검정은 그 움직임을 믿어도 되는지로 읽는다.
+ */
+export function gapTestInsight(r: CompanyReport): ChapterInsight {
+  const { sr, sb } = r.gaps;
+  const gaps = [
+    { label: '자기평가와 상황판단의 거리', t: sr.paired },
+    { label: '상황판단과 행동빈도의 거리', t: sb.paired },
+  ].filter((g) => g.t.usable);
 
   /*
     편차는 있는 그대로만 적는다.
@@ -328,7 +336,59 @@ export function sectionInsight(r: CompanyReport): ChapterInsight {
           ? `역량 간 편차는 ${abs(spread)}점 줄었습니다. 특정 역량만 오른 것이 아니라 네 역량이 고르게 올랐다는 뜻입니다.`
           : `역량 간 편차가 ${fmt(spread)}점 늘었습니다. 일부 역량이 다른 역량보다 크게 올라, 역량 사이의 차이가 벌어졌다는 뜻입니다.`;
 
-  return { paragraphs: [first, second, third].filter(Boolean) as string[] };
+  if (gaps.length === 0) {
+    return {
+      paragraphs: [
+        '사전검사와 이름이 이어진 사람이 모자라 격차의 변화를 검정하지 못했습니다. 위 표의 사전·사후 값은 응답자 전체의 평균이라, 같은 사람 안에서 거리가 좁혀졌는지는 말하기 어렵습니다.',
+        third,
+      ].filter(Boolean) as string[],
+    };
+  }
+
+  /*
+    어느 쪽으로 움직였는가. 부호가 아니라 0 에서 얼마나 떨어졌는지(거리)로 본다.
+    0 을 넘어 부호가 바뀐 경우는 거리만 말하면 "3점에서 4점으로 벌어졌다" 처럼
+    읽혀 방향이 뒤집힌 것이 감춰진다. 그때는 부호를 그대로 적는다.
+    유의한데 1점 미만이면 "거의 그대로" 라고 하지 않는다 — 바로 뒤 문장과 부딪힌다.
+  */
+  const moves = gaps.map((g, i) => {
+    const { meanBefore: b, meanAfter: a } = g.t;
+    const end = i < gaps.length - 1 ? '고,' : '습니다.';
+    if (Math.abs(b) >= 1 && Math.abs(a) >= 1 && Math.sign(a) !== Math.sign(b)) {
+      return `${with_(g.label, '은')} ${fmt(b)}점에서 ${fmt(a)}점으로 방향이 바뀌었${end}`;
+    }
+    const verb =
+      Math.abs(Math.abs(a) - Math.abs(b)) < 1 && !g.t.significant
+        ? '거의 그대로였'
+        : Math.abs(a) < Math.abs(b)
+          ? '좁혀졌'
+          : '벌어졌';
+    return `${with_(g.label, '은')} ${abs(b)}점에서 ${abs(a)}점으로 ${verb}${end}`;
+  });
+  const moved = `이름이 이어진 ${gaps[0].t.n}명만 보면 ${moves.join(' ')}`;
+
+  /*
+    두 거리가 같은 결론이면 한 문장으로 묶는다. 따로 쓰면 뒷부분 설명이
+    글자 하나 다르지 않게 두 번 나온다.
+  */
+  const verdict = (g: (typeof gaps)[number]) =>
+    g.t.significant
+      ? `${with_(g.label, '은')} 통계적으로도 달라졌습니다. 같은 사람의 변화이므로 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.`
+      : `${with_(g.label, '은')} 통계적으로 뚜렷하게 달라지지 않았습니다.`;
+  const sameVerdict = gaps.every((g) => g.t.significant === gaps[0].t.significant);
+  // 하나만 검정했으면 바로 앞 문장이 그 거리를 말했으므로 이름을 되풀이하지 않는다.
+  const reading =
+    gaps.length === 1
+      ? gaps[0].t.significant
+        ? '이 변화는 통계적으로도 확인됩니다. 같은 사람의 변화이므로 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.'
+        : '이 변화는 통계적으로 뚜렷하지 않아, 교육으로 거리가 달라졌다고 말하기는 어렵습니다.'
+      : sameVerdict
+        ? gaps[0].t.significant
+          ? '두 거리 모두 통계적으로도 달라졌습니다. 같은 사람의 변화이므로 응답자 구성이 바뀌어 생긴 차이로 보기 어렵습니다.'
+          : '두 거리 모두 통계적으로 뚜렷하게 달라지지 않았습니다. 위의 움직임은 사람마다 다른 변화의 폭 안에 있어, 교육으로 거리가 좁혀졌거나 벌어졌다고 말하기는 어렵습니다.'
+        : gaps.map(verdict).join(' ');
+
+  return { paragraphs: [para(moved, reading), third].filter(Boolean) as string[] };
 }
 
 /* ── 05 역량별 변화 ──────────────────────────────────────── */
@@ -528,75 +588,160 @@ export function levelInsight(r: CompanyReport): ChapterInsight {
 
 /* ── 07 소속별 차이 ──────────────────────────────────────── */
 
-export function departmentInsight(r: CompanyReport): ChapterInsight {
+/*
+  소속 차이 장의 해설은 결과가 나온 지면마다 그 바로 아래에 붙는다.
+  MANOVA(첫 쪽) → 역량별 분산분석·변화량 검정(둘째 쪽) → 소속별 평균(셋째 쪽).
+  한곳에 모아 두면 결과만 있고 설명이 없는 쪽이 생긴다.
+
+  "뚜렷하지 않다" 를 "차이가 없다" 로 읽으면 안 된다. 유의하지 않다는 것은
+  차이가 없다는 증명이 아니라, 모인 응답만으로는 차이를 말할 근거가 모자란다는
+  뜻이다. 부서당 인원이 적으면 실제로 차이가 있어도 검정이 잡아내지 못한다.
+
+  그러면서도 모든 소속이 함께 올랐다면 그것은 그대로 말한다. 차이가 없다는
+  결과와 함께 읽으면 "효과가 몇몇 부서에 치우치지 않았다" 는 뜻이 된다.
+*/
+
+/** 사전·사후 점수가 모두 있는 소속. */
+const deptWithBoth = (r: CompanyReport) => r.department.rows.filter((d) => d.diff !== null);
+
+/** 사전·사후 점수가 모두 있는 소속이 둘 이상이고 빠짐없이 올랐는가. */
+const allDeptsRose = (r: CompanyReport): boolean => {
+  const both = deptWithBoth(r);
+  return both.length >= 2 && both.every((d) => d.diff! > 0);
+};
+
+/** "p = .074" · "p < .001". pText 는 표 칸에 쓰는 것이라 "p = < .001" 이 되지 않게 한다. */
+const pIs = (p: number | null): string =>
+  p !== null && p < 0.001 ? 'p < .001' : `p = ${pText(p)}`;
+
+/** 사후 응답이 MIN_GROUP_SIZE 명에 못 미치는 소속 수. */
+const thinDepts = (r: CompanyReport): number =>
+  r.department.rows.filter((d) => d.postN > 0 && d.postN < MIN_GROUP_SIZE).length;
+
+/** 소속 차이 장 첫 쪽 — 다변량 분석 결과 바로 아래. */
+export function manovaInsight(r: CompanyReport): ChapterInsight {
   const m = r.department.manovaPost;
-  const significantVars = m.perVariable.filter((v) => v.anova.usable && v.anova.significant);
+  if (!m.usable) {
+    return {
+      paragraphs: [
+        `소속 차이 다변량 분석은 실시하지 못했습니다. ${m.note ?? ''}`.trim(),
+        r.department.rows.length > 1
+          ? '소속별 평균은 뒤 쪽 표에서 볼 수 있습니다. 다만 통계적인 비교 없이 평균만 나란히 둔 것이라, 소속 간 차이의 근거로 쓰기는 어렵습니다.'
+          : '사후 응답이 한 소속에서만 들어와 소속끼리 비교할 수 없습니다.',
+      ],
+    };
+  }
+
+  const thin = thinDepts(r);
+  return {
+    paragraphs: [
+      `네 역량을 한꺼번에 놓고 소속에 따라 차이가 있는지 본 결과입니다. Wilks' Λ = ${m.wilks}, F = ${m.f}, ${pIs(m.p)}.`,
+      m.significant
+        ? '소속에 따라 역량 구성이 다르다고 볼 만합니다. 같은 교육을 받아도 소속마다 결과가 달랐다는 뜻입니다. 어느 역량에서 차이가 나는지는 다음 쪽에서 하나씩 봅니다.'
+        : para(
+            '교육을 마친 뒤 소속에 따른 역량 수준의 차이는 통계적으로 뚜렷하지 않습니다. 특정 소속이 두드러지게 앞서거나 뒤처졌다고 볼 근거가 없어, 소속과 관계없이 대체로 비슷한 수준이라고 읽을 수 있습니다.',
+            thin > 0 &&
+              `다만 응답이 ${MIN_GROUP_SIZE}명에 못 미치는 소속이 ${thin}곳이라, 작은 차이까지 없다고 단정할 수는 없습니다.`,
+            '역량별 결과는 다음 쪽에서 봅니다.',
+          ),
+    ],
+  };
+}
+
+/** 소속 차이 장 둘째 쪽 — 역량별 분산분석과 변화량 검정 바로 아래. */
+export function departmentTestInsight(r: CompanyReport): ChapterInsight {
+  const m = r.department.manovaPost;
+  const change = r.department.changeAnova;
+  const tested = m.perVariable.filter((v) => v.anova.usable);
+  const sigVars = tested.filter((v) => v.anova.significant);
+  // η² 0.14 이상은 "큼" 이다. 유의하지 않은데 큰 것은 인원이 모자라 못 잡은 쪽에 가깝다.
+  const bigEta = tested.filter((v) => !v.anova.significant && (v.anova.eta2 ?? 0) >= 0.14);
+  const thin = thinDepts(r);
+
+  const first =
+    tested.length === 0
+      ? '역량을 하나씩 나누어 볼 만큼 응답이 모이지 않았습니다.'
+      : para(
+          sigVars.length > 0
+            ? `역량을 하나씩 보면 ${list(sigVars.map((v) => `${v.name}(η² ${v.anova.eta2})`))}에서 소속에 따른 차이가 통계적으로 유의합니다.${
+                m.usable && !m.significant
+                  ? ' 네 역량을 묶어서는 뚜렷하지 않았지만, 이 역량에서는 소속 사이의 차이가 드러난다는 뜻입니다.'
+                  : ''
+              }`
+            : `역량을 하나씩 나누어 봐도 소속에 따라 통계적으로 유의한 차이가 나는 역량은 없습니다.${
+                m.usable && m.significant
+                  ? ' 차이는 특정 역량보다 네 역량의 전체 구성에서 옵니다.'
+                  : ''
+              }`,
+          sigVars.length === 0 &&
+            bigEta.length > 0 &&
+            thin > 0 &&
+            `다만 ${list(bigEta.map((v) => `${v.name}(${v.anova.eta2})`))}${josa(bigEta[bigEta.length - 1].name, '은')} η² 가 0.14 를 넘어, 소속으로 설명되는 몫이 작지 않습니다. 소속마다 인원이 적어 검정이 이를 확인하지 못한 것일 수 있습니다.`,
+        );
+
+  const allRose = allDeptsRose(r);
+  const noBasis = !(m.usable && m.significant) && sigVars.length === 0;
+  // 내린 소속이 있으면 "오른 폭" 이라고 하지 않는다.
+  const moved = allRose ? '오른 폭' : '달라진 폭';
+  const second = !change.usable
+    ? `사전에서 사후로 ${with_(moved, '을')} 소속끼리 비교하기에는 같은 사람으로 이어진 응답이 모자랍니다.`
+    : change.significant
+      ? `사전에서 사후로 ${with_(moved, '은')} 소속에 따라 다릅니다(${pIs(change.p)}). 소속마다 얼마나 달라졌는지는 다음 쪽 표에서 봅니다.`
+      : para(
+          `사전에서 사후로 ${moved}도 소속에 따라 다르다고 볼 근거가 없습니다(${pIs(change.p)}).`,
+          allRose
+            ? `사전·사후 점수가 모두 있는 소속 ${deptWithBoth(r).length}곳이 빠짐없이 올랐으므로, 교육의 효과가 몇몇 소속에 치우치지 않고 조직 전반에 고르게 나타났다고 볼 수 있습니다.`
+            : null,
+          noBasis &&
+            '소속별로 교육을 다르게 설계할 근거는 아직 없으므로, 후속 과정은 소속보다 역량 수준이나 프로필 유형으로 나누는 편이 낫습니다.',
+        );
+
+  return { paragraphs: [first, second] };
+}
+
+/** 소속 차이 장 셋째 쪽 — 소속별 평균 표 바로 아래. */
+export function departmentInsight(r: CompanyReport): ChapterInsight {
+  const both = deptWithBoth(r);
+  const allRose = allDeptsRose(r);
+  const change = r.department.changeAnova;
 
   /*
-    "뚜렷하지 않다" 를 "차이가 없다" 로 읽으면 안 된다.
-
-    유의하지 않다는 것은 차이가 없다는 증명이 아니라, 모인 응답만으로는
-    차이를 말할 근거가 모자란다는 뜻이다. 부서당 인원이 적으면 실제로
-    차이가 있어도 검정이 잡아내지 못한다. 그 사정을 함께 적지 않으면
-    읽는 사람이 "우리 회사는 부서 간 편차가 없다" 는 결론으로 건너뛴다.
+    가장 많이 오른 곳과 가장 적게 오른 곳은 응답이 MIN_GROUP_SIZE 명 이상인
+    소속끼리만 견준다. 한 사람뿐인 소속이 맨 끝에 오면 그 사람의 점수가 곧
+    "부서 차이" 가 된다 — 실제로 1명 소속을 들어 "12점 벌어졌다" 고 쓴 보고서가
+    있었다.
   */
-  const thin = r.department.rows.filter((d) => d.postN > 0 && d.postN < 5).length;
+  const solid = both.filter((d) => d.postN >= MIN_GROUP_SIZE);
+  const sorted = [...solid].sort((a, b) => b.diff! - a.diff!);
+  const best = sorted[0];
+  const worst = sorted[sorted.length - 1];
+  const spread = solid.length >= 2 ? Math.abs(best.diff! - worst.diff!) : null;
 
-  const first = m.usable
-    ? para(
-        m.significant
-          ? `소속에 따라 역량 구성이 다릅니다(Wilks' Λ = ${m.wilks}, p = ${m.p}). 같은 교육을 받아도 부서마다 결과가 달랐다는 뜻입니다.`
-          : `소속에 따른 역량 구성의 차이는 뚜렷하지 않습니다(Wilks' Λ = ${m.wilks}, p = ${m.p}).`,
-        !m.significant
-          ? `이는 부서 간 차이가 없다는 증명이 아니라, 모인 응답만으로는 차이를 말할 근거가 모자란다는 뜻입니다.${
-              thin > 0
-                ? ` 특히 응답이 5명에 못 미치는 소속이 ${thin}곳이라, 실제로 차이가 있어도 검정이 잡아내기 어려운 상태입니다.`
-                : ''
-            }`
-          : null,
-        significantVars.length > 0
-          ? `역량별로 따로 보면 ${list(significantVars.map((v) => v.name))}에서 차이가 두드러집니다.`
-          : m.significant
-            ? '다만 역량별로 하나씩 보면 어느 것도 단독으로는 뚜렷하지 않아, 차이는 특정 역량보다 전체 구성에서 옵니다.'
-            : '역량을 하나씩 따로 봐도 소속에 따라 차이가 나는 역량은 없습니다. 부서별로 교육을 다르게 설계할 근거가 없으므로, 후속 과정은 소속보다 역량 수준이나 프로필 유형으로 나누는 편이 낫습니다.',
-      )
-    : // 위 표에 이미 "실시하지 못했습니다 + 까닭 + 대신 볼 것" 이 나간다.
-      // 같은 말을 되풀이하지 않고, 표가 말하지 않는 것만 덧붙인다.
-      para(
-        r.department.rows.length > 1
-          ? '소속이 여럿이지만 응답이 한 곳에 몰려 있어 비교가 성립하지 않습니다. 아래 소속별 평균을 대신 비교해 주세요.'
-          : '사후 응답이 한 소속에서만 들어와 소속끼리 비교할 수 없습니다.',
-      );
+  const diffs = both.map((d) => d.diff!);
+  const lead = allRose
+    ? `사전과 사후 점수가 모두 있는 ${both.length}곳은 ${fmt(Math.min(...diffs))}~${fmt(Math.max(...diffs))}점으로 모두 올랐습니다.`
+    : null;
 
-  const withBoth = r.department.rows.filter((d) => d.diff !== null);
-  const second =
-    withBoth.length >= 2
-      ? (() => {
-          const sorted = [...withBoth].sort((a, b) => b.diff! - a.diff!);
-          const best = sorted[0];
-          const worst = sorted[sorted.length - 1];
-          const spread = Math.abs(best.diff! - worst.diff!);
-          return para(
-            `소속별로는 ${with_(best.name, '이')} ${fmt(best.diff)}점, ${with_(worst.name, '이')} ${fmt(worst.diff)}점으로 ${abs(spread)}점 벌어져 있습니다.`,
-            spread > 10
-              ? '같은 교육을 받았는데도 부서 사이의 결과가 크게 벌어졌습니다. 다음 회차에는 부서마다 목표와 과제를 따로 잡는 편이 낫습니다.'
-              : '부서 사이의 차이가 크지 않아 공통 과제로 묶어 운영할 수 있습니다.',
-            !r.department.changeAnova.usable
-              ? null
-              : r.department.changeAnova.significant
-                ? '통계적으로도 소속에 따라 변화량이 다른 것으로 나타납니다. 부서별로 다른 목표를 잡을 근거가 있습니다.'
-                : '다만 통계적으로는 소속에 따라 변화량이 다르다고 말하기 어렵습니다. 위의 부서별 차이는 부서당 인원이 적어 한두 사람의 점수로도 생길 수 있는 폭이므로, 부서 이름을 근거로 삼기보다 사람 수가 쌓인 뒤에 다시 보는 편이 안전합니다.',
-          );
-        })()
-      : null;
+  const compare =
+    spread !== null
+      ? `응답이 ${MIN_GROUP_SIZE}명 이상인 소속만 비교하면 ${with_(best.name, '이')} ${fmt(best.diff)}점, ${with_(worst.name, '이')} ${fmt(worst.diff)}점으로 ${abs(spread)}점 차이가 납니다.`
+      : both.length >= 2
+        ? `응답이 ${MIN_GROUP_SIZE}명 이상인 소속이 ${solid.length === 0 ? '없어' : '한 곳뿐이라'} 소속끼리 변화를 비교하기는 어렵습니다. 표의 변화는 몇 사람의 점수에 크게 흔들리는 값입니다.`
+        : null;
 
-  const small = r.department.rows.filter((d) => d.preN > 0 && d.preN < 5);
-  const third =
-    small.length > 0
-      ? `다만 ${small.length}개 소속은 인원이 5명 미만이라 평균이 곧 개인의 점수입니다. 기업에 전달할 때는 이 소속들을 묶거나 이름을 가려 주세요.`
-      : null;
+  const verdict =
+    spread === null || !change.usable
+      ? null
+      : change.significant
+        ? spread > 10
+          ? '통계적으로도 소속에 따라 변화의 폭이 달라, 다음 회차에는 소속마다 목표와 과제를 따로 잡는 편이 낫습니다.'
+          : '통계적으로도 소속에 따라 변화의 폭이 다릅니다.'
+        : allRose
+          ? '이 차이는 앞 쪽 검정에서 통계적으로 확인되지 않았으므로, 소속 사이의 우열보다 모든 소속이 함께 올랐다는 점에 무게를 두어 읽는 편이 좋습니다.'
+          : '다만 이 차이는 앞 쪽 검정에서 통계적으로 확인되지 않았으므로, 이를 근거로 소속별 과정을 따로 설계하기보다 사람 수가 쌓인 뒤에 다시 보는 편이 안전합니다.';
 
-  return { paragraphs: [first, second, third].filter(Boolean) as string[] };
+  const text = para(lead, compare, verdict);
+  return { paragraphs: text ? [text] : [] };
 }
 
 /* ── 프로필 이동의 방향 ──────────────────────────────────── */
